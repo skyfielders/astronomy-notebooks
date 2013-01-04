@@ -5,7 +5,9 @@ cd $(dirname "${BASH_SOURCE[0]}")
 virtualenv --system-site-packages venv
 source venv/bin/activate
 
+pip install basemap
 pip install ipython
+pip install mayavi
 pip install tornado
 pip install pyzmq
 
