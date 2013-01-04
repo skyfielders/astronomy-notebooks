@@ -31,3 +31,7 @@ wget -nc https://raw.github.com/astronexus/HYG-Database/master/hygfull.csv
 wget -nc http://ssd.jpl.nasa.gov/dat/ELEMENTS.NUMBR.gz
 wget -nc http://ssd.jpl.nasa.gov/dat/ELEMENTS.UNNUM.gz
 wget -nc http://ssd.jpl.nasa.gov/dat/ELEMENTS.COMET
+
+# Earth satellites.
+
+wget -nc http://www.celestrak.com/NORAD/elements/visual.txt
