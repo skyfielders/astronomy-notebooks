@@ -11,6 +11,8 @@ then
     pip install basemap
     pip install ipython
     pip install mayavi
+    # pip install pandas
+    # pip install tables
     pip install tornado
     pip install pyzmq
 
