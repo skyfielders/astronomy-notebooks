@@ -24,11 +24,10 @@ cd data
 # As described on the http://www.astronexus.com/node/34 page, the
 # following link is a star catalog now hosted on github.  HOW COOL!
 
-wget -O hygfull.csv -c \
-  https://raw.github.com/astronexus/HYG-Database/master/hygfull.csv
+wget -nc https://raw.github.com/astronexus/HYG-Database/master/hygfull.csv
 
 # Asteroids and comets.
 
-wget -c http://ssd.jpl.nasa.gov/dat/ELEMENTS.NUMBR.gz
-wget -c http://ssd.jpl.nasa.gov/dat/ELEMENTS.UNNUM.gz
-wget -c http://ssd.jpl.nasa.gov/dat/ELEMENTS.COMET
+wget -nc http://ssd.jpl.nasa.gov/dat/ELEMENTS.NUMBR.gz
+wget -nc http://ssd.jpl.nasa.gov/dat/ELEMENTS.UNNUM.gz
+wget -nc http://ssd.jpl.nasa.gov/dat/ELEMENTS.COMET
