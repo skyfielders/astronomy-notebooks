@@ -50,3 +50,13 @@ show satellite going overhead, live?
 use the animation to show the next year (or month) of sky events!
 use newton (or something?) to solve for equinox, solstice, eclipses,
 conjunctions?
+
+other things to mention:
+
+Export to HTML (blog post) and PDF
+Python atop traditional tools like LINPACK
+SciPy wraps massive amount of FORTRAN
+Matplotlib
+
+Third pillar? "computing is the backbone of all of science" - Fernando Perez
+
