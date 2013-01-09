@@ -22,7 +22,7 @@ pip install pyephem
 
 # And since I am still developing and tweaking them at the moment:
 pip install -e ~/jplephem/jplephem
-pip install -e ~/jplephem/de405
+pip install de405
 pip install -e ~/sgp4
 
 # Get ready to download large data sets.
