@@ -21,8 +21,10 @@ pip install pyzmq
 # Visualization tools and their dependencies.
 
 pip install numpy
+pip install matplotlib
 pip install vtk
 pip install mayavi
+pip install wxPython
 
 # pip install pandas
 # pip install tables
