@@ -11,12 +11,23 @@ fi
 source venv/bin/activate
 
 #pip install basemap
+
+# iPython, and the libraries needed for it to run Notebook.
+
 pip install ipython
-pip install mayavi
-# pip install pandas
-# pip install tables
 pip install tornado
 pip install pyzmq
+
+# Visualization tools and their dependencies.
+
+pip install numpy
+pip install vtk
+pip install mayavi
+
+# pip install pandas
+# pip install tables
+
+# Astronomical software.
 
 pip install pyephem
 
