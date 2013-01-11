@@ -26,6 +26,24 @@ pip install vtk
 pip install mayavi
 pip install wxPython
 
+# Tools specifically for the 'iPython Features' notebook.
+
+pip install sympy
+
+#pip install networkx
+
+# if [ ! -d profile_default/static/jsplugins/d3 ]
+# then
+#     git clone https://github.com/ipython/jsplugins.git
+
+#     JSPLUGINS=profile_default/static/jsplugins
+#     mkdir -p $JSPLUGINS
+#     mv jsplugins/d3/d3 $JSPLUGINS
+#     mv jsplugins/d3graph/d3graph $JSPLUGINS
+#     mv jsplugins/d3graph/d3graph.py venv/lib/python2.7/site-packages
+#     rm -rf jsplugins
+# fi
+
 # pip install pandas
 # pip install tables
 
