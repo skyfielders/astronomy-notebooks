@@ -29,6 +29,6 @@ Dependencies
 - sgp4
 
 ### Data sets
-- [HYG star database][1]
+- [HYG star database][hyg]
 
-[1]: https://github.com/astronexus/HYG-Database
+[hyg]: https://github.com/astronexus/HYG-Database
