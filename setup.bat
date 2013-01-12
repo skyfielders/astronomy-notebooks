@@ -1,4 +1,6 @@
-REM TODO set up a new virtualenv and activate it
+REM set up a new virtualenv and activate it
+if not exist venv virtualenv --system-site-packages venv
+venv\Scripts\activate
 
 REM iPython, and the libraries needed for it to run Notebook.
 
