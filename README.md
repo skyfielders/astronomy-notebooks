@@ -15,7 +15,7 @@ Dependencies
 - numpy
 - scipy
 - matplotlib
-- vtk (must be compiled from source to include python support?)
+- [vtk][vtk] (must be compiled from source to include python support?)
 - mayavi (may need to be compiled from source?)
 - wxPython
 
@@ -31,4 +31,5 @@ Dependencies
 ### Data sets
 - [HYG star database][hyg]
 
+[vtk]: http://www.vtk.org/VTK/resources/software.html
 [hyg]: https://github.com/astronexus/HYG-Database
