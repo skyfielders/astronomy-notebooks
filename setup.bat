@@ -1,6 +1,6 @@
 REM set up a new virtualenv and activate it
 if not exist venv virtualenv --system-site-packages venv
-venv\Scripts\activate
+call venv\Scripts\activate.bat
 
 REM iPython, and the libraries needed for it to run Notebook.
 pip install ipython
