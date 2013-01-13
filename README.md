@@ -7,6 +7,11 @@ Getting Started
 ---------------
 The short version: make sure you have all of the appropriate dependencies installed and then run the appropriate setup script for your platform.
 
+### Linux
+1. Install/build the required dependencies. Most dependencies other than Python and virtualenv are automatically installed via the setup script.
+2. Clone or fork this repo.
+3. Run setup.sh
+
 Dependencies
 ------------
 
