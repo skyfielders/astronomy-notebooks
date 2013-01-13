@@ -17,13 +17,8 @@ Dependencies
 - wxPython
 
 #### Astronomical software
-- pyephem
-- jplephem
-- de405
-- sgp4
-
-#### Data sets
-- [HYG star database][hyg]
+- pyephem, jplephem, de405, sgp4
+- Large data sets required by these packages are downloaded automatically by the setup script
 
 #### VTK
 - VTK must be compiled from source to include python support, which requires [CMake][cmake] and a compiler
