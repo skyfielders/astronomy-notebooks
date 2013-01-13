@@ -12,7 +12,7 @@ Dependencies
 
 #### Visualization tools
 - numpy, scipy, matplotlib
-- [VTK][vtk] (must be compiled from source to include python support, which also requires [CMake][cmake] and a compiler such as Visual Studio)
+- [VTK][vtk] (see notes below)
 - mayavi (may need to be compiled from source?)
 - wxPython
 
@@ -24,6 +24,11 @@ Dependencies
 
 #### Data sets
 - [HYG star database][hyg]
+
+#### VTK
+- VTK must be compiled from source to include python support, which requires [CMake][cmake] and a compiler
+- Building VTK, depending on the options used, may have additional dependencies and will probably take forever
+- In Windows, Visual Studio Express will build VTK but installing the Python package is still a non-trivial process
 
 [vtk]: http://www.vtk.org/VTK/resources/software.html
 [cmake]: http://www.cmake.org/
