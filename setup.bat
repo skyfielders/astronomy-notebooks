@@ -20,7 +20,8 @@ pip install sympy
 
 REM Astronomical software.
 pip install pyephem
-
-REM TODO install jplephem, de405, sgp4
+pip install jplephem
+pip install de405
+pip install sgp4
 
 REM TODO download data sets
