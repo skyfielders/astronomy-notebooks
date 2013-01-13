@@ -10,7 +10,7 @@ The short version: make sure you have all of the appropriate dependencies instal
 ### Linux
 1. Install/build the required dependencies. Most dependencies other than Python and virtualenv are automatically installed via the setup script.
 2. Clone or fork this repo.
-3. Run setup.sh to set up a new virtualenv and download required data sets.
+3. Run setup.sh to create a new virtualenv, install any missing dependencies, and download required data sets.
 
 ### Windows
 1. Install the required dependencies. See below for details.
