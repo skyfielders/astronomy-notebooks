@@ -27,4 +27,5 @@ pip install sgp4
 REM download data sets
 pip install requests
 mkdir data
+echo Downloading large data sets...
 python download_data.py
