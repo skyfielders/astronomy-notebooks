@@ -23,6 +23,11 @@ The easiest way to get all of the dependencies in Windows is to use a special Py
 - Install [EPD][epd]. The [free version][epd-free] of EPD does not include Mayavi, but it does contain the tools required to build it from source. If you don't want 3D visualizations, you don't need Mayavi.
 
 #### Windows Dependencies (the harder way)
+1. Install Python 2.7 and virtualenv. You may also want to install setuptools or distutils.
+2. Download and install binaries for wxPython, iPython, numpy, scipy, matplotlib.
+3. Use pip or easy_install to install tornado, pyzmq, sympy, pyephem, jplephem, de405, sgp4. (I'm pretty sure these libraries can all be installed without a compiler.)
+4. (optional) If you're using regular Python, rather than EPD, you'll need to install or build VTK. Python(x,y) bundles an [installer][vtk-bin] which is listed on the [standard plugins][pxy-plug] page. If you want to try building VTK from source, you'll also need [CMake][cmake], a compiler such as MinGW or Visual Studio, and a very large bottle of whiskey.
+5. [Build Mayavi][mayavi] from source.
 
 Dependencies
 ------------
@@ -47,4 +52,8 @@ Dependencies
 [pxy]: http://code.google.com/p/pythonxy/
 [epd]: http://www.enthought.com/products/epd.php
 [epd-free]: http://www.enthought.com/products/epd_free.php
+[vtk-bin]: http://pythonxy.googlecode.com/files/vtk-5.10.0_py27.exe
+[pxy-plug]: http://code.google.com/p/pythonxy/wiki/StandardPlugins
+[cmake]: http://www.cmake.org/
+[mayavi]: http://docs.enthought.com/mayavi/mayavi/installation.html
 [vtk]: http://www.vtk.org/VTK/resources/software.html
