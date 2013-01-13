@@ -28,6 +28,7 @@ Dependencies
 #### VTK
 - VTK must be compiled from source to include python support, which requires [CMake][cmake] and a compiler
 - Building VTK, depending on the options used, may have additional dependencies and will probably take forever
+- VTK needs to be built before running the setup script
 - In Windows, Visual Studio Express will build VTK but installing the Python package is still a non-trivial process
 
 [vtk]: http://www.vtk.org/VTK/resources/software.html
