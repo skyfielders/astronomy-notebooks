@@ -51,11 +51,9 @@ pip install sympy
 # Astronomical software.
 
 pip install pyephem
-
-# And since I am still developing and tweaking them at the moment:
-pip install -e ~/jplephem/jplephem
+pip install jplephem
 pip install de405
-pip install -e ~/sgp4
+pip install sgp4
 
 # Get ready to download large data sets.
 
