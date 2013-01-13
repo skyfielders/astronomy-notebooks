@@ -10,6 +10,9 @@ The short version: make sure you have all of the appropriate dependencies instal
 Dependencies
 ------------
 
+#### Python
+- Python (obviously), virtualenv
+
 #### iPython
 - ipython, tornado, pyzmq
 - sympy (only required for the 'iPython Features' notebook)
