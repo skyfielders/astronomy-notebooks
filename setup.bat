@@ -24,4 +24,7 @@ pip install jplephem
 pip install de405
 pip install sgp4
 
-REM TODO download data sets
+REM download data sets
+pip install requests
+mkdir data
+python download_data.py
