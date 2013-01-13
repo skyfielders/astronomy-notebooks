@@ -13,7 +13,7 @@ pip install scipy
 pip install matplotlib
 pip install vtk
 pip install mayavi
-pip install wxPython
+REM pip install wxPython
 
 REM Tools specifically for the 'iPython Features' notebook.
 pip install sympy
