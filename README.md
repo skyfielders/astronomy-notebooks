@@ -12,6 +12,11 @@ The short version: make sure you have all of the appropriate dependencies instal
 2. Clone or fork this repo.
 3. Run setup.sh to set up a new virtualenv and download required data sets.
 
+### Windows
+1. Install the required dependencies. See below for details.
+2. Clone or fork this repo.
+3. Run setup.bat to create a new virtualenv, install any missing dependencies, and download required data sets.
+
 Dependencies
 ------------
 
