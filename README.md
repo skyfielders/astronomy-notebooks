@@ -27,7 +27,7 @@ The easiest way to get all of the dependencies in Windows is to use a special Py
 2. Download and install binaries for wxPython, iPython, numpy, scipy, matplotlib.
 3. Use pip or easy_install to install tornado, pyzmq, sympy, pyephem, jplephem, de405, sgp4. (I'm pretty sure these libraries can all be installed without a compiler.)
 4. (optional) If you're using regular Python, rather than EPD, you'll need to install or build VTK. Python(x,y) bundles an [installer][vtk-bin] which is listed on the [standard plugins][pxy-plug] page. If you want to try building VTK from source, you'll also need [CMake][cmake], a compiler such as MinGW or Visual Studio, and a very large bottle of whiskey.
-5. [Build Mayavi][mayavi] from source.
+5. [Build Mayavi][mayavi] from source. You could also try installing the ETS package from the Python(x,y) standard plugins.
 
 Dependencies
 ------------
