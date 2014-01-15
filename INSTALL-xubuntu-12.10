@@ -1,0 +1,64 @@
+# 2014-01-15
+# Installing IPython Notebook on 
+# Xubuntu 12.10 Desktop i386 virtual machine
+# for Brandon Rhodes' (bcr) 
+# astronomy / ipython notebook presentation.
+
+# First update the system packages.
+# <mouse icon> -> <Settings Manager>
+# click on <Software Updater>
+# If there are updates, click on <Install Now>.
+# (might require restart later)
+
+# The things below which are commands
+# should be copied and pasted with thought one by one.
+# Some things were not happy when I tried them from a shell script.
+
+# system wide stuff
+start_time=`date`
+sudo apt-get update
+# sudo apt-get upgrade
+yes | sudo apt-get install git
+yes | sudo apt-get install python-virtualenv
+yes | sudo apt-get install python-dev
+yes | sudo apt-get install libfreetype6-dev ;# for matplotlib
+yes | sudo apt-get install libpng12-dev ;# for matplotlib
+yes | sudo apt-get install libatlas-base-dev ;# for scipy
+yes | sudo apt-get install gfortran ;# for scipy
+yes | sudo apt-get install python-vtk ;# for mayavi
+yes | sudo apt-get install python-wxgtk2.8 ;# this eliminated need for pip install wxPython
+
+# git clone https://github.com/brandon-rhodes/astronomy-notebooks/
+git clone https://github.com/james-prior/astronomy-notebooks/
+cd astronomy-notebooks
+git checkout 3f84653faf84b0a8d0efe0791c7ee6c32c8538e8
+# ./setup.sh
+cp -p setup.sh xubuntu-12.10-setup.sh
+sed -e '/vtk/d' <setup.sh >xubuntu-12.10-setup.sh
+./xubuntu-12.10-setup.sh
+source venv/bin/activate
+# mathjax is not necessary, but cool
+echo 'from IPython.external import mathjax; mathjax.install_mathjax();' \
+| ipython
+echo $start_time
+date
+# Takes about 47 minutes on VM with one core of 2 GHz Intel T2500. 
+deactivate
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+# Use the newly installed ipython notebook.
+
+cd astronomy-notebooks
+source venv/bin/activate
+# ipython notebook can be invoked several ways.
+# Note absence of the --pylab inline option. 
+# The pylab option was left out because the notebooks that use mayavi, 
+# (3D Earth Satellites and 3D Solar System), spew warnings when ipython 
+# notebook is started with the --pylab inline option. 
+ipython notebook
+BROWSER=firefox ipython notebook
+ipython notebook --browser=firefox
+
+# when all done
+deactivate
