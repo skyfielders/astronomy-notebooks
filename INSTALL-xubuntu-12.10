@@ -4,15 +4,19 @@
 # for Brandon Rhodes' (bcr) 
 # astronomy / ipython notebook presentation.
 
+# These installation instructions are known to work for Xubuntu 12.10 Desktop
+# i386 in a virtual machine. I don't know how well these instructions work for
+# other Linux distributions. 
+
 # First update the system packages.
 # <mouse icon> -> <Settings Manager>
 # click on <Software Updater>
 # If there are updates, click on <Install Now>.
 # (might require restart later)
 
-# The things below which are commands
-# should be copied and pasted with thought one by one.
-# Some things were not happy when I tried them from a shell script.
+# The things below which are commands should be copied and pasted with thought,
+# one by one.
+# Some things did not work well when I tried them from a shell script.
 
 # system wide stuff
 start_time=`date`
@@ -31,7 +35,7 @@ yes | sudo apt-get install python-wxgtk2.8 ;# this eliminated need for pip insta
 # git clone https://github.com/brandon-rhodes/astronomy-notebooks/
 git clone https://github.com/james-prior/astronomy-notebooks/
 cd astronomy-notebooks
-git checkout 3f84653faf84b0a8d0efe0791c7ee6c32c8538e8
+git checkout eaa3b17a21823d7b6fbd43b0d8b613f90c18ab90
 # ./setup.sh
 cp -p setup.sh xubuntu-12.10-setup.sh
 sed -e '/vtk/d' <setup.sh >xubuntu-12.10-setup.sh
@@ -44,6 +48,8 @@ echo $start_time
 date
 # Takes about 47 minutes on VM with one core of 2 GHz Intel T2500. 
 deactivate
+
+# This is the end of the installation instructions.
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
