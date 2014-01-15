@@ -37,7 +37,8 @@ git clone https://github.com/brandon-rhodes/python-skyfield.git
 pip install ./python-skyfield
 
 # Tools specifically for the 'An-Introduction--Pandas' notebook.
-pip install pandas
+# pip install pandas # 2014-01-15 0.13.0 crashes, hence following fudge.
+pip install pandas==0.12.0
 
 # Get ready to download large data sets.
 mkdir -p data
