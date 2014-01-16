@@ -17,6 +17,12 @@
 # The things below which are commands should be copied and pasted with thought,
 # one by one.
 # Some things did not work well when I tried them from a shell script.
+#
+# In my experience, it has been common for an installation to not complete
+# successfully because of problems with package servers, so don't be surprised
+# if things don't install completely the first time. I have had more trouble
+# installing python packages than system packages. I often have to rerun
+# xubuntu-12.10-setup.sh to compensate for balky servers.
 
 # system wide stuff
 start_time=`date`
@@ -35,6 +41,7 @@ yes | sudo apt-get install python-wxgtk2.8 ;# this eliminated need for pip insta
 # git clone https://github.com/brandon-rhodes/astronomy-notebooks/
 git clone https://github.com/james-prior/astronomy-notebooks/
 cd astronomy-notebooks
+# git checkout master
 git checkout eaa3b17a21823d7b6fbd43b0d8b613f90c18ab90
 # ./setup.sh
 cp -p setup.sh xubuntu-12.10-setup.sh
