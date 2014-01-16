@@ -12,6 +12,8 @@ The short version: make sure you have all of the appropriate dependencies instal
 2. Clone or fork this repo.
 3. Run setup.sh to create a new virtualenv, install any missing dependencies, and download required data sets.
 
+Well tested instructions for Xubuntu 12.10 are in INSTALL-xubuntu-12.10.
+
 ### Windows
 1. Install the required dependencies. See below for details.
 2. Clone or fork this repo.
@@ -25,7 +27,7 @@ The easiest way to get all of the dependencies in Windows is to use a special Py
 #### Windows Dependencies (the harder way)
 1. Install Python 2.7 and virtualenv. You may also want to install setuptools or distribute.
 2. Download and install binaries for wxPython, iPython, numpy, scipy, matplotlib.
-3. Use pip or easy_install to install tornado, pyzmq, sympy, pyephem, jplephem, de405, sgp4. (I'm pretty sure these libraries can all be installed without a compiler.)
+3. Use pip or easy_install to install tornado, pyzmq, jinja2, sympy, pyephem, jplephem, de405, sgp4. (I'm pretty sure these libraries can all be installed without a compiler.)
 4. (optional) If you're using regular Python, rather than EPD, you'll need to install or build VTK. Python(x,y) bundles an [installer][vtk-bin] which is listed on the [standard plugins][pxy-plug] page. If you want to try building VTK from source, you'll also need [CMake][cmake], a compiler such as MinGW or Visual Studio, and a very large bottle of whiskey.
 5. [Build Mayavi][mayavi] from source. You could also try installing the ETS package from the Python(x,y) standard plugins.
 
@@ -36,7 +38,7 @@ Dependencies
 - Python (obviously), virtualenv
 
 #### iPython
-- ipython, tornado, pyzmq
+- ipython, tornado, pyzmq, jinja2
 - sympy (only required for the 'iPython Features' notebook)
 
 #### Visualization tools
@@ -46,8 +48,11 @@ Dependencies
 - wxPython
 
 #### Astronomical software
-- pyephem, jplephem, de405, sgp4
+- pyephem, jplephem, de405, sgp4, python-skyfield
 - Large data sets required by these packages are downloaded automatically by the setup script
+
+#### for 'An-Introduction--Pandas' notebook
+- pandas
 
 [pxy]: http://code.google.com/p/pythonxy/
 [epd]: http://www.enthought.com/products/epd.php
