@@ -5,8 +5,11 @@
 # astronomy / ipython notebook presentation.
 
 # These installation instructions are known to work for Xubuntu 12.10 Desktop
-# i386 in a virtual machine. I don't know how well these instructions work for
-# other Linux distributions. 
+# i386 in a virtual machine. I tried to install as much as possible within the
+# virtual environment with pip install. I only installed packages at the system
+# level with apt-get that could not be installed with pip install. The
+# dependencies were gnarly and took me days to figure out. I don't know how
+# well these instructions work for other Linux distributions.
 
 # First update the system packages.
 # <mouse icon> -> <Settings Manager>
