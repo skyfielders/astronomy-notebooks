@@ -24,8 +24,7 @@ pip install pyephem
 pip install jplephem
 pip install de405
 pip install sgp4
-git clone https://github.com/brandon-rhodes/python-skyfield.git
-pip install ./python-skyfield
+pip install skyfield==0.1
 
 REM Tools specifically for the 'An-Introduction--Pandas' notebook.
 REM pip install pandas # 2014-01-15 0.13.0 crashes, hence following fudge.
