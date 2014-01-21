@@ -31,15 +31,15 @@
 start_time=`date`
 sudo apt-get update
 # sudo apt-get upgrade
-yes | sudo apt-get install git
-yes | sudo apt-get install python-virtualenv
-yes | sudo apt-get install python-dev
-yes | sudo apt-get install libfreetype6-dev ;# for matplotlib
-yes | sudo apt-get install libpng12-dev ;# for matplotlib
-yes | sudo apt-get install libatlas-base-dev ;# for scipy
-yes | sudo apt-get install gfortran ;# for scipy
-yes | sudo apt-get install python-vtk ;# for mayavi
-yes | sudo apt-get install python-wxgtk2.8 ;# this eliminated need for pip install wxPython
+sudo apt-get install -y git
+sudo apt-get install -y python-virtualenv
+sudo apt-get install -y python-dev
+sudo apt-get install -y libfreetype6-dev ;# for matplotlib
+sudo apt-get install -y libpng12-dev ;# for matplotlib
+sudo apt-get install -y libatlas-base-dev ;# for scipy
+sudo apt-get install -y gfortran ;# for scipy
+sudo apt-get install -y python-vtk ;# for mayavi
+sudo apt-get install -y python-wxgtk2.8 ;# this eliminated need for pip install wxPython
 
 # git clone https://github.com/brandon-rhodes/astronomy-notebooks/
 git clone https://github.com/james-prior/astronomy-notebooks/
