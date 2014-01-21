@@ -1,0 +1,79 @@
+# 2014-01-15
+# Installing IPython Notebook on 
+# Xubuntu 12.10 Desktop i386 virtual machine
+# for Brandon Rhodes' (bcr) 
+# astronomy / ipython notebook presentation.
+
+# These installation instructions are known to work for Xubuntu 12.10 Desktop
+# i386 in a virtual machine. I tried to install as much as possible within the
+# virtual environment with pip install. I only installed packages at the system
+# level with apt-get that could not be installed with pip install. The
+# dependencies were gnarly and took me days to figure out. I don't know how
+# well these instructions work for other Linux distributions.
+
+# First update the system packages.
+# <mouse icon> -> <Settings Manager>
+# click on <Software Updater>
+# If there are updates, click on <Install Now>.
+# (might require restart later)
+
+# The things below which are commands should be copied and pasted with thought,
+# one by one.
+# Some things did not work well when I tried them from a shell script.
+#
+# In my experience, it has been common for an installation to not complete
+# successfully because of problems with package servers, so don't be surprised
+# if things don't install completely the first time. I have had more trouble
+# installing python packages than system packages. I often have to rerun
+# xubuntu-12.10-setup.sh to compensate for balky servers.
+
+# system wide stuff
+start_time=`date`
+sudo apt-get update
+# sudo apt-get upgrade
+yes | sudo apt-get install git
+yes | sudo apt-get install python-virtualenv
+yes | sudo apt-get install python-dev
+yes | sudo apt-get install libfreetype6-dev ;# for matplotlib
+yes | sudo apt-get install libpng12-dev ;# for matplotlib
+yes | sudo apt-get install libatlas-base-dev ;# for scipy
+yes | sudo apt-get install gfortran ;# for scipy
+yes | sudo apt-get install python-vtk ;# for mayavi
+yes | sudo apt-get install python-wxgtk2.8 ;# this eliminated need for pip install wxPython
+
+# git clone https://github.com/brandon-rhodes/astronomy-notebooks/
+git clone https://github.com/james-prior/astronomy-notebooks/
+cd astronomy-notebooks
+git checkout v1.1
+# ./setup.sh
+cp -p setup.sh xubuntu-12.10-setup.sh
+sed -e '/vtk/d' <setup.sh >xubuntu-12.10-setup.sh
+./xubuntu-12.10-setup.sh
+source venv/bin/activate
+# mathjax is not necessary, but cool
+echo 'from IPython.external import mathjax; mathjax.install_mathjax();' \
+| ipython
+echo $start_time
+date
+# Takes about 47 minutes on VM with one core of 2 GHz Intel T2500. 
+deactivate
+
+# This is the end of the installation instructions.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+# Use the newly installed ipython notebook.
+
+cd astronomy-notebooks
+source venv/bin/activate
+# ipython notebook can be invoked several ways.
+# Note absence of the --pylab inline option. 
+# The pylab option was left out because the notebooks that use mayavi, 
+# (3D Earth Satellites and 3D Solar System), spew warnings when ipython 
+# notebook is started with the --pylab inline option. 
+ipython notebook
+BROWSER=firefox ipython notebook
+ipython notebook --browser=firefox
+
+# when all done
+deactivate

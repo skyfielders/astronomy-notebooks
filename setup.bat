@@ -6,6 +6,7 @@ REM iPython, and the libraries needed for it to run Notebook.
 pip install ipython
 pip install tornado
 pip install pyzmq
+pip install jinja2
 
 REM Visualization tools and their dependencies.
 pip install numpy
@@ -23,6 +24,12 @@ pip install pyephem
 pip install jplephem
 pip install de405
 pip install sgp4
+git clone https://github.com/brandon-rhodes/python-skyfield.git
+pip install ./python-skyfield
+
+REM Tools specifically for the 'An-Introduction--Pandas' notebook.
+REM pip install pandas # 2014-01-15 0.13.0 crashes, hence following fudge.
+pip install pandas==0.12.0
 
 REM download data sets
 pip install requests
