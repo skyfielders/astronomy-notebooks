@@ -74,10 +74,14 @@ deactivate
 cd astronomy-notebooks
 source venv/bin/activate
 # ipython notebook can be invoked several ways.
+#
 # Note absence of the --pylab inline option. 
-# The pylab option was left out because the notebooks that use mayavi, 
-# (3D Earth Satellites and 3D Solar System), spew warnings when ipython 
-# notebook is started with the --pylab inline option. 
+# The pylab option was left out because different notebooks have different
+# needs. Some notebooks need pylab inline, and the notebooks that use mayavi
+# need pylab wx. To be able to use all the notebooks, from a single invocation
+# of ipython notebook, I avoid specifying the --pylab option when starting
+# ipython notebook. Instead each notebook specifies which pylab thing it needs
+# with a '%pylab inline' or '%pylab wx' command within each notebook.
 ipython notebook
 BROWSER=firefox ipython notebook
 ipython notebook --browser=firefox
