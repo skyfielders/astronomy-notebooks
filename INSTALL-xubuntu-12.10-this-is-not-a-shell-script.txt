@@ -1,4 +1,4 @@
-echo This is not a shell script. You'll need to actually read this file.
+echo This is not a shell script. You will need to actually read this file.
 exit 1
 
 # 2014-01-22
