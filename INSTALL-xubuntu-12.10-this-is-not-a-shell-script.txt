@@ -1,4 +1,7 @@
-# 2014-01-15
+echo This is not a shell script. You'll need to actually read this file.
+exit 1
+
+# 2014-01-22
 # Installing IPython Notebook on 
 # Xubuntu 12.10 Desktop i386 virtual machine
 # for Brandon Rhodes' (bcr) 
@@ -17,10 +20,14 @@
 # If there are updates, click on <Install Now>.
 # (might require restart later)
 
-# The things below which are commands should be copied and pasted with thought,
-# one by one.
-# Some things did not work well when I tried them from a shell script.
-#
+# This is not a shell script.
+# The things below which are commands should be copied and pasted with thought.
+# Sometimes commands should be pasted one at a time.
+# Beware of pasting multiple 'sudo apt-get install -y <packagename>' commands.
+# Those who are tempted to do so might want to read the commit message at 
+# the following URL.
+# https://github.com/brandon-rhodes/astronomy-notebooks/commit/352380b020c48c4e87f218dd05dc822aded7d6c3
+
 # In my experience, it has been common for an installation to not complete
 # successfully because of problems with package servers, so don't be surprised
 # if things don't install completely the first time. I have had more trouble
