@@ -41,8 +41,8 @@ yes | sudo apt-get install gfortran ;# for scipy
 yes | sudo apt-get install python-vtk ;# for mayavi
 yes | sudo apt-get install python-wxgtk2.8 ;# this eliminated need for pip install wxPython
 
-# git clone git://github.com/brandon-rhodes/astronomy-notebooks.git
-git clone git://github.com/james-prior/astronomy-notebooks.git
+# git clone https://github.com/brandon-rhodes/astronomy-notebooks/
+git clone https://github.com/james-prior/astronomy-notebooks/
 cd astronomy-notebooks
 git checkout v1.1
 # ./setup.sh
