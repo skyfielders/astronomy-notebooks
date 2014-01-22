@@ -29,10 +29,10 @@ exit 1
 # https://github.com/brandon-rhodes/astronomy-notebooks/commit/352380b020c48c4e87f218dd05dc822aded7d6c3
 
 # In my experience, it has been common for an installation to not complete
-# successfully because of problems with package servers, so don't be surprised
-# if things don't install completely the first time. I have had more trouble
-# installing python packages than system packages. I often have to rerun
-# xubuntu-12.10-setup.sh to compensate for balky servers.
+# successfully because of problems fetching packages from servers, so don't be
+# surprised if things don't install completely the first time. I have had more
+# trouble installing python packages than system packages. I often have to
+# rerun ./xubuntu-12.10-setup.sh to compensate for balky servers.
 
 # system wide stuff
 start_time=`date`
