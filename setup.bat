@@ -13,7 +13,10 @@ pip install numpy
 pip install scipy
 pip install matplotlib
 pip install vtk
-pip install mayavi
+pip install mayavi==4.3.0
+pip install traits==4.3.0
+pip install traitsui==4.3.0
+pip install pyface==4.3.0
 REM pip install wxPython
 
 REM Tools specifically for the 'iPython Features' notebook.
