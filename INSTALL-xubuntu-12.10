@@ -1,11 +1,26 @@
-echo This is not a shell script. You will need to actually read this file.
-exit 1
+#!/usr/bin/env sh
 
-# 2014-01-22
 # Installing IPython Notebook on 
 # Xubuntu 12.10 Desktop i386 virtual machine
 # for Brandon Rhodes' (bcr) 
 # astronomy / ipython notebook presentation.
+
+# This file can be used as both a "recipe" to copy commands from that one
+# pastes into a terminal, and as a shell script. It is the pasting for the
+# former that requires that the elegant '-y' option to apt-get install _not_ be
+# used. For explanation see the commit message for
+# 352380b020c48c4e87f218dd05dc822aded7d6c3. One can see that with the following
+# URL or git command. 
+# https://github.com/brandon-rhodes/astronomy-notebooks/commit/352380b020c48c4e87f218dd05dc822aded7d6c3
+# git cat-file -p 352380b020c48c4e87f218dd05dc822aded7d6c3
+if grep -v '^#' "$0" | grep -q 'apt-get *install *-y'; then
+    exec 1>&2
+    echo "Do not use '-y' option for apt-get install commands."
+    echo 'See commit message for 352380b020c48c4e87f218dd05dc822aded7d6c3.'
+    echo 'https://github.com/brandon-rhodes/astronomy-notebooks/commit/352380b020c48c4e87f218dd05dc822aded7d6c3'
+    echo 'git cat-file -p 352380b020c48c4e87f218dd05dc822aded7d6c3'
+    exit 1
+fi
 
 # These installation instructions are known to work for Xubuntu 12.10 Desktop
 # i386 in a virtual machine. I tried to install as much as possible within the
@@ -20,13 +35,7 @@ exit 1
 # If there are updates, click on <Install Now>.
 # (might require restart later)
 
-# This is not a shell script.
-# The things below which are commands should be copied and pasted with thought.
-# Sometimes commands should be pasted one at a time.
-# Beware of pasting multiple 'sudo apt-get install -y <packagename>' commands.
-# Those who are tempted to do so might want to read the commit message at 
-# the following URL.
-# https://github.com/brandon-rhodes/astronomy-notebooks/commit/352380b020c48c4e87f218dd05dc822aded7d6c3
+# The things below which are commands may be copied and pasted with thought.
 
 # In my experience, it has been common for an installation to not complete
 # successfully because of problems fetching packages from servers, so don't be
@@ -38,6 +47,9 @@ exit 1
 start_time=`date`
 sudo apt-get update
 # sudo apt-get upgrade
+# Do not use the '-y' option for apt-get install commands below, because it
+# screws up pasting multiple commands. For more explanation see the commit
+# message for 352380b020c48c4e87f218dd05dc822aded7d6c3 as discussed above.
 yes | sudo apt-get install git
 yes | sudo apt-get install python-virtualenv
 yes | sudo apt-get install python-dev
@@ -66,6 +78,7 @@ date
 deactivate
 
 # This is the end of the installation instructions.
+exit 0
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
