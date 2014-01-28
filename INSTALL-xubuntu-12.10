@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Installing IPython Notebook on 
 # Xubuntu 12.10 Desktop i386 virtual machine
@@ -69,7 +69,7 @@ cp -p setup.sh setup-xubuntu-12.10.sh ;# for correct permissions
 sed -e '/vtk/d' <setup.sh >setup-xubuntu-12.10.sh
 # sed -e '/vtk/d' -e 's/false/true/' <setup.sh >setup-xubuntu-12.10.sh
 ./setup-xubuntu-12.10.sh
-source venv/bin/activate
+. venv/bin/activate
 # mathjax is not necessary, but cool
 echo 'from IPython.external import mathjax; mathjax.install_mathjax();' \
 | ipython
@@ -86,7 +86,7 @@ exit 0
 # Use the newly installed ipython notebook.
 
 cd astronomy-notebooks
-source venv/bin/activate
+. venv/bin/activate
 # ipython notebook can be invoked several ways.
 #
 # Note absence of the --pylab inline option. 
