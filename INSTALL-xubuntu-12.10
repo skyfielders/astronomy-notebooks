@@ -67,6 +67,7 @@ git checkout xubuntu-12.10-v1.1
 # ./setup.sh
 cp -p setup.sh xubuntu-12.10-setup.sh ;# for correct permissions
 sed -e '/vtk/d' <setup.sh >xubuntu-12.10-setup.sh
+# sed -e '/vtk/d' -e 's/false/true/' <setup.sh >xubuntu-12.10-setup.sh
 ./xubuntu-12.10-setup.sh
 source venv/bin/activate
 # mathjax is not necessary, but cool
