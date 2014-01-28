@@ -41,7 +41,7 @@ fi
 # successfully because of problems fetching packages from servers, so don't be
 # surprised if things don't install completely the first time. I have had more
 # trouble installing python packages than system packages. I often have to
-# rerun ./xubuntu-12.10-setup.sh to compensate for balky servers.
+# rerun ./setup-xubuntu-12.10.sh to compensate for balky servers.
 
 # system wide stuff
 start_time=`date`
@@ -65,10 +65,10 @@ git clone https://github.com/james-prior/astronomy-notebooks/
 cd astronomy-notebooks
 git checkout xubuntu-12.10-v1.1
 # ./setup.sh
-cp -p setup.sh xubuntu-12.10-setup.sh ;# for correct permissions
-sed -e '/vtk/d' <setup.sh >xubuntu-12.10-setup.sh
-# sed -e '/vtk/d' -e 's/false/true/' <setup.sh >xubuntu-12.10-setup.sh
-./xubuntu-12.10-setup.sh
+cp -p setup.sh setup-xubuntu-12.10.sh ;# for correct permissions
+sed -e '/vtk/d' <setup.sh >setup-xubuntu-12.10.sh
+# sed -e '/vtk/d' -e 's/false/true/' <setup.sh >setup-xubuntu-12.10.sh
+./setup-xubuntu-12.10.sh
 source venv/bin/activate
 # mathjax is not necessary, but cool
 echo 'from IPython.external import mathjax; mathjax.install_mathjax();' \
