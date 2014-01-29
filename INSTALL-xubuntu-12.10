@@ -36,6 +36,9 @@ fi
 # (might require restart later)
 
 # The things below which are commands may be copied and pasted with thought.
+# If one is pasting sudo commands, it is usually prudent to do 'sudo true'
+# before pasting, so that sudo will not gobble up pasted input when asking for
+# a password.
 
 # In my experience, it has been common for an installation to not complete
 # successfully because of problems fetching packages from servers, so don't be
