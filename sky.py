@@ -45,6 +45,7 @@ def starfield():
     return HTML(html)
 
 html_pattern = """\
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script>
 var star_data = {js_data};
 {js_code}
