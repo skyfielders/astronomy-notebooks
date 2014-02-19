@@ -51,10 +51,15 @@ if (typeof define === 'function' && define.amd) {
     /* We are in the IPython Notebook Viewer and must shift for ourselves */
 
     var d3_script_tag = document.createElement('script');
-    d3_script_tag.setAttribute('src', 'http://d3js.org/d3.v3.min');
-    document.head.appendChild(d3_script_tag);
-
-    window.addEventListener('DOMContentLoaded', function() {
-        activate_sky_display(d3);
-    }, false);
+    d3_script_tag.src = 'http://d3js.org/d3.v3.min';
+    d3_script_tag.async = true;
+    d3_script_tag.onreadystatechange = d3_script_tag.onload = function() {
+        var callback = activate_sky_display;
+        var state = s.readyState;
+        if (!callback.done && (!state || /loaded|complete/.test(state))) {
+            callback.done = true;
+            callback(d3);
+        }
+    };
+    document.getElementsByTagName('head')[0].appendChild(d3_script_tag);
 }
