@@ -5,8 +5,8 @@ from gzip import GzipFile
 
 def parse_hipparcos(lines):
     for line in lines:
-        s = line[41:46]
-        if s == '     ':
+        s = line[41:46].strip()
+        if not s:
             continue
         magnitude = float(s)
         if magnitude > 5.0:
@@ -16,13 +16,24 @@ def parse_hipparcos(lines):
             continue
         ra = float(s)
         dec = float(line[64:76])
-        yield ra, dec, magnitude
+        s = line[245:251].strip()
+        if not s:
+            continue
+        bv = float(s)
+        yield ra, dec, magnitude, bv
 
 def group_stars_by_magnitude(records):
     magnitude_groups = defaultdict(list)
-    for ra, dec, magnitude in records:
+    for ra, dec, magnitude, bv in records:
         radec = [-ra, dec]
-        magnitude_groups[int(magnitude)].append(radec)
+        if bv < 0.00:
+            color = 'blue'
+        elif bv < 0.59:
+            color = 'white'
+        else:
+            color = 'red'
+        key = (int(magnitude), color)
+        magnitude_groups[key].append(radec)
     return magnitude_groups
 
 def starfield():
@@ -34,20 +45,20 @@ def starfield():
         magnitude_groups = group_stars_by_magnitude(records)
 
     data = [
-        {"type": "MultiPoint", "coordinates": coordinates, "magnitude": m}
-        for (m, coordinates) in sorted(magnitude_groups.items())
+        {
+            "type": "MultiPoint",
+            "coordinates": coordinates,
+            "magnitude": mag,
+            "color": color,
+        }
+        for ((mag, color), coordinates) in sorted(magnitude_groups.items())
         ]
 
-    js_data = json.dumps(data, separators=(',', ':'))
+    js_data = json.dumps(data, separators=(',', ':')).replace('"', "'")
 
-    html = html_pattern.format(js_code=js_code, js_data=js_data)
+    with open('sky.html') as f:
+        html_template = f.read()
+
+    html = html_template % {'js_code': js_code, 'js_data': js_data}
     html = html.replace('UNIQUE_ID', 'abcd')
     return HTML(html)
-
-html_pattern = """\
-<script>
-var star_data = {js_data};
-{js_code}
-</script>
-<div id="UNIQUE_ID"></div>
-"""

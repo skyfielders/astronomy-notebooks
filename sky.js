@@ -1,15 +1,15 @@
 activate_sky_display = function(d3) {
-    var width = 500;
-    var height = 500;
+    var width = 560;
+    var height = 560;
 
     var projection = d3.geo.azimuthalEqualArea()
-        .scale(150)
+        .scale(200)
         .translate([width / 2, height / 2])
         .clipAngle(90);
 
     var path = d3.geo.path()
         .projection(projection)
-        .pointRadius(function(feature) {return 3 - feature['magnitude'] / 2;});
+        .pointRadius(function(feature) {return 2 - feature['magnitude'] / 3;});
 
     var λ = d3.scale.linear()
         .domain([0, width])
@@ -34,6 +34,7 @@ activate_sky_display = function(d3) {
     starpaths.selectAll('path').data(star_data)
         .enter()
         .append('path')
+        .attr('class', function(d) {return 'star-' + d.color})
         .attr('d', path);
 
     console.log('up and running!');
