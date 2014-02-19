@@ -49,5 +49,7 @@ if (typeof define === 'function' && define.amd) {
 } else {
     /* We are in the IPython Notebook Viewer and must shift for ourselves */
 
-    activate_sky_display(d3);
+    window.addEventListener('DOMContentLoaded', function() {
+        activate_sky_display(d3);
+    }, false);
 }
