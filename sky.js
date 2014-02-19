@@ -49,6 +49,10 @@ if (typeof define === 'function' && define.amd) {
 } else {
     /* We are in the IPython Notebook Viewer and must shift for ourselves */
 
+    var d3_script_tag = document.createElement('script');
+    d3_script_tag.setAttribute('src', 'http://d3js.org/d3.v3.min');
+    document.head.appendChild(d3_script_tag);
+
     window.addEventListener('DOMContentLoaded', function() {
         activate_sky_display(d3);
     }, false);
