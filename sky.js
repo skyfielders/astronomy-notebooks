@@ -1,6 +1,4 @@
-require.config({paths: {d3: 'http://d3js.org/d3.v3.min'}});
-
-require(['d3'], function(d3) {
+activate_sky_display = function(d3) {
     var width = 500;
     var height = 500;
 
@@ -39,4 +37,17 @@ require(['d3'], function(d3) {
         .attr('d', path);
 
     console.log('up and running!');
-});
+};
+
+if (typeof define === 'function' && define.amd) {
+    /* We are inside a live IPython Notebook and must use RequireJS */
+
+    require.config({paths: {d3: 'http://d3js.org/d3.v3.min'}});
+    require(['d3'], function(d3) {
+        activate_sky_display(d3);
+    });
+} else {
+    /* We are in the IPython Notebook Viewer and must shift for ourselves */
+
+    activate_sky_display(d3);
+}
