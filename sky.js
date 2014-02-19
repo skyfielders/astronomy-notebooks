@@ -25,7 +25,7 @@ activate_sky_display = function(d3) {
 
     var starpaths = svg.append('g');
 
-    svg.on('mouseover', function() {
+    svg.on('mousemove', function() {
         var p = d3.mouse(this);
         projection.rotate([λ(p[0]), φ(p[1])]);
         svg.selectAll('path').attr('d', path);
