@@ -36,15 +36,30 @@ def group_stars_by_magnitude(records):
         magnitude_groups[key].append(radec)
     return magnitude_groups
 
-def starfield():
-    with open('sky.js') as f:
-        js_code = f.read()
+def build_boundary_data():
+    with open('bound_18.dat') as f:
+        coordinates = []
+        for line in reversed(list(f)):
+            fields = line.split()
+            if fields[2] != 'ORI':
+                continue
+            ra = float(fields[0]) * 15.0
+            dec = float(fields[1])
+            coordinates.append([-ra, dec])
 
+    return [{
+        "type": "Polygon",
+        "coordinates": [coordinates],
+        "magnitude": 0,
+        "color": 'white',
+        }]
+
+def build_star_data():
     with GzipFile('/home/brandon/Downloads/hip_main.dat.gz') as f:
         records = parse_hipparcos(f)
         magnitude_groups = group_stars_by_magnitude(records)
 
-    data = [
+    return [
         {
             "type": "MultiPoint",
             "coordinates": coordinates,
@@ -54,11 +69,21 @@ def starfield():
         for ((mag, color), coordinates) in sorted(magnitude_groups.items())
         ]
 
-    js_data = json.dumps(data, separators=(',', ':')).replace('"', "'")
+def jsonify(data):
+    """Render `data` as compact JSON."""
+    return json.dumps(data, separators=(',', ':')).replace('"', "'")
+
+def starfield():
+    with open('sky.js') as f:
+        js_code = f.read()
 
     with open('sky.html') as f:
         html_template = f.read()
 
-    html = html_template % {'js_code': js_code, 'js_data': js_data}
+    html = html_template % {
+        'boundary_data': jsonify(build_boundary_data()),
+        'star_data': jsonify(build_star_data()),
+        'js_code': js_code,
+        }
     html = html.replace('UNIQUE_ID', 'abcd')
     return HTML(html)

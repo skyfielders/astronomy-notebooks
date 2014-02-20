@@ -23,19 +23,26 @@ activate_sky_display = function(d3) {
         .attr('width', width)
         .attr('height', height);
 
+    var constellation = svg.append('g').attr('class', 'constellation');
     var starpaths = svg.append('g');
 
-    svg.on('mousemove', function() {
-        var p = d3.mouse(this);
-        projection.rotate([λ(p[0]), φ(p[1])]);
-        svg.selectAll('path').attr('d', path);
-    });
+    constellation.selectAll('path').data(boundary_data)
+        .enter()
+        .append('path')
+        .attr('class', function(d) {return 'star-' + d.color})
+        .attr('d', path);
 
     starpaths.selectAll('path').data(star_data)
         .enter()
         .append('path')
         .attr('class', function(d) {return 'star-' + d.color})
         .attr('d', path);
+
+    svg.on('mousemove', function() {
+        var p = d3.mouse(this);
+        projection.rotate([λ(p[0]), φ(p[1])]);
+        svg.selectAll('path').attr('d', path);
+    });
 
     console.log('up and running!');
 };
