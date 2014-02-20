@@ -45,10 +45,7 @@ def build_boundary_data():
             boundaries[con].append([float(ra) * -15.0, float(dec)])
 
     return {con: {"type": "Polygon",
-                  "coordinates": [coordinates],
-                  "magnitude": 0,
-                  "color": 'white',
-            }
+                  "coordinates": [coordinates + coordinates[0:1]]}
             for con, coordinates in sorted(boundaries.items())}
 
 def load_decision_data():
