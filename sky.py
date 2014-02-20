@@ -37,7 +37,7 @@ def group_stars_by_magnitude(records):
     return magnitude_groups
 
 def build_boundary_data():
-    with open('bound_18.dat') as f:
+    with open('data/bound_18.dat') as f:
         coordinates = []
         for line in reversed(list(f)):
             fields = line.split()
@@ -55,7 +55,7 @@ def build_boundary_data():
         }]
 
 def build_star_data():
-    with GzipFile('/home/brandon/Downloads/hip_main.dat.gz') as f:
+    with GzipFile('data/hip_main.dat.gz') as f:
         records = parse_hipparcos(f)
         magnitude_groups = group_stars_by_magnitude(records)
 
