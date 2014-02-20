@@ -23,27 +23,31 @@ activate_sky_display = function(d3) {
 
     var λ = d3.scale.linear()
         .domain([0, width])
-        .range([0, 360]);
+        .range([0, 370]);
 
     var φ = d3.scale.linear()
         .domain([0, height])
         .range([90, -90]);
 
     var constellation_p = d3.select('#UNIQUE_ID').append('p');
+
     var svg = d3.select('#UNIQUE_ID').append('svg')
         .attr('width', width)
         .attr('height', height);
 
+    var current_constellation = 'ORI';
+
     var constellation = svg.append('g').attr('class', 'constellation');
     var starpaths = svg.append('g');
 
-    constellation.selectAll('path').data(boundary_data)
+    constellation.selectAll('path')
+        .data([boundary_data[current_constellation]])
         .enter()
         .append('path')
-        .attr('class', function(d) {return 'star-' + d.color})
         .attr('d', path);
 
-    starpaths.selectAll('path').data(star_data)
+    starpaths.selectAll('path')
+        .data(star_data)
         .enter()
         .append('path')
         .attr('class', function(d) {return 'star-' + d.color})
@@ -51,10 +55,16 @@ activate_sky_display = function(d3) {
 
     svg.on('mousemove', function() {
         var p = d3.mouse(this);
-        var ra = λ(p[0]);
+        var ra = λ(p[0]) % 360.0;
         var dec = φ(p[1]);
-        constellation_p.text(constellation_at(ra, -dec));
+        var con = constellation_at(ra, -dec);
         projection.rotate([ra, dec]);
+        if (con != current_constellation) {
+            current_constellation = con;
+            constellation_p.text(con);
+            constellation.selectAll('path')
+                .data([boundary_data[current_constellation]]);
+        }
         svg.selectAll('path').attr('d', path);
     });
 

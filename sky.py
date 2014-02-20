@@ -37,28 +37,25 @@ def group_stars_by_magnitude(records):
     return magnitude_groups
 
 def build_boundary_data():
-    with open('data/bound_18.dat') as f:
-        coordinates = []
-        for line in reversed(list(f)):
-            fields = line.split()
-            if fields[2] != 'ORI':
-                continue
-            ra = float(fields[0]) * 15.0
-            dec = float(fields[1])
-            coordinates.append([-ra, dec])
+    boundaries = defaultdict(list)
 
-    return [{
-        "type": "Polygon",
-        "coordinates": [coordinates],
-        "magnitude": 0,
-        "color": 'white',
-        }]
+    with open('data/bound_18.dat') as f:
+        for line in reversed(list(f)):
+            ra, dec, con, o = line.split()
+            boundaries[con].append([float(ra) * -15.0, float(dec)])
+
+    return {con: {"type": "Polygon",
+                  "coordinates": [coordinates],
+                  "magnitude": 0,
+                  "color": 'white',
+            }
+            for con, coordinates in sorted(boundaries.items())}
 
 def load_decision_data():
     with open('data/data.dat') as f:
         for line in f:
             ra0, ra1, dec, con = line.split()
-            yield float(ra0) * 15.0, float(ra1) * 15.0, float(dec), con
+            yield float(ra0) * 15.0, float(ra1) * 15.0, float(dec), con.upper()
 
 def build_star_data():
     with GzipFile('data/hip_main.dat.gz') as f:
