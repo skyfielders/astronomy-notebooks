@@ -55,7 +55,7 @@ if (typeof define === 'function' && define.amd) {
     d3_script_tag.async = true;
     d3_script_tag.onreadystatechange = d3_script_tag.onload = function() {
         var callback = activate_sky_display;
-        var state = s.readyState;
+        var state = d3_script_tag.readyState;
         if (!callback.done && (!state || /loaded|complete/.test(state))) {
             callback.done = true;
             callback(d3);
