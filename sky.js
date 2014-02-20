@@ -2,6 +2,16 @@ activate_sky_display = function(d3) {
     var width = 560;
     var height = 560;
 
+    var constellation_at = function(ra, dec) {
+        n = decision_data.length;
+        for (i = 0; i < n; i++) {
+            row = decision_data[i];
+            if ((dec >= row[2]) && (row[0] <= ra) && (ra < row[1]))
+                return row[3];
+        }
+        return row[3];
+    };
+
     var projection = d3.geo.azimuthalEqualArea()
         .scale(200)
         .translate([width / 2, height / 2])
@@ -13,12 +23,13 @@ activate_sky_display = function(d3) {
 
     var λ = d3.scale.linear()
         .domain([0, width])
-        .range([-180, 180]);
+        .range([0, 360]);
 
     var φ = d3.scale.linear()
         .domain([0, height])
         .range([90, -90]);
 
+    var constellation_p = d3.select('#UNIQUE_ID').append('p');
     var svg = d3.select('#UNIQUE_ID').append('svg')
         .attr('width', width)
         .attr('height', height);
@@ -40,7 +51,10 @@ activate_sky_display = function(d3) {
 
     svg.on('mousemove', function() {
         var p = d3.mouse(this);
-        projection.rotate([λ(p[0]), φ(p[1])]);
+        var ra = λ(p[0]);
+        var dec = φ(p[1]);
+        constellation_p.text(constellation_at(ra, -dec));
+        projection.rotate([ra, dec]);
         svg.selectAll('path').attr('d', path);
     });
 

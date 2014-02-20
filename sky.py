@@ -54,6 +54,12 @@ def build_boundary_data():
         "color": 'white',
         }]
 
+def load_decision_data():
+    with open('data/data.dat') as f:
+        for line in f:
+            ra0, ra1, dec, con = line.split()
+            yield float(ra0) * 15.0, float(ra1) * 15.0, float(dec), con
+
 def build_star_data():
     with GzipFile('data/hip_main.dat.gz') as f:
         records = parse_hipparcos(f)
@@ -82,6 +88,7 @@ def starfield():
 
     html = html_template % {
         'boundary_data': jsonify(build_boundary_data()),
+        'decision_data': jsonify(list(load_decision_data())),
         'star_data': jsonify(build_star_data()),
         'js_code': js_code,
         }

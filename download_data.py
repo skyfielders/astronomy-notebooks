@@ -1,6 +1,7 @@
 import os, urllib2
 
 DATA_SETS = [
+    'ftp://cdsarc.u-strasbg.fr/pub/cats/VI/42/data.dat',
     'ftp://cdsarc.u-strasbg.fr/pub/cats/VI/49/bound_18.dat',
     'ftp://cdsarc.u-strasbg.fr/pub/cats/I/239/hip_main.dat.gz',
     'https://raw.github.com/astronexus/HYG-Database/master/hygfull.csv',
