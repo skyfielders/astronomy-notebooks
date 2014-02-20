@@ -40,7 +40,7 @@ def build_boundary_data():
     boundaries = defaultdict(list)
 
     with open('data/bound_18.dat') as f:
-        for line in reversed(list(f)):
+        for line in f:
             ra, dec, con, o = line.split()
             boundaries[con].append([float(ra) * -15.0, float(dec)])
 

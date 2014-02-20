@@ -1,4 +1,18 @@
 activate_sky_display = function(d3) {
+
+    for (var con in boundary_data) {
+        var boundary = boundary_data[con];
+        if (d3.geo.area(boundary) > 6.0)
+            boundary.coordinates[0].reverse();
+    }
+
+    var ser1 = boundary_data.SER1;
+    var ser2 = boundary_data.SER2;
+    delete boundary_data.SER1;
+    delete boundary_data.SER2;
+    ser1.coordinates.push(ser2.coordinates[0]);
+    boundary_data.SER = ser1;
+
     var width = 560;
     var height = 560;
 
