@@ -51,7 +51,7 @@ if (typeof define === 'function' && define.amd) {
     /* We are in the IPython Notebook Viewer and must shift for ourselves */
 
     var d3_script_tag = document.createElement('script');
-    d3_script_tag.src = 'http://d3js.org/d3.v3.min';
+    d3_script_tag.src = 'http://d3js.org/d3.v3.min.js';
     d3_script_tag.async = true;
     d3_script_tag.onreadystatechange = d3_script_tag.onload = function() {
         var callback = activate_sky_display;
