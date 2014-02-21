@@ -45,8 +45,41 @@ def build_boundary_data():
             boundaries[con].append([float(ra) * -15.0, float(dec)])
 
     return {con: {"type": "Polygon",
-                  "coordinates": [coordinates + coordinates[0:1]]}
-            for con, coordinates in sorted(boundaries.items())}
+                  "coordinates": [list(improve_boundary(con,boundary))]}
+            for con, boundary in sorted(boundaries.items())}
+
+def improve_boundary(con,boundary):
+    """Build a constellation boundary.
+
+    East-to-west constellation boundary lines, unless they lie along the
+    equator at declination zero, are not great circles and cannot simply
+    be rendered using their two endpoints.  Instead, they have to be
+    approximated by a series of points.
+
+    This routine also fixes the fact that the input boundaries have an
+    implied final segment back to their starting point, which d3 will
+    need actually duplicated at the end of the list.
+
+    """
+    boundary = boundary + boundary[0:1]
+    for (ra0, dec0), (ra1, dec1) in zip(boundary[:-1], boundary[1:]):
+        yield ra0, dec0
+        is_great_circle = (ra0 == ra1) or (dec0 == dec1 == 0.0)
+        if is_great_circle:
+            continue
+        assert dec0 == dec1
+        ra = ra0
+        step = direction(ra, ra1)
+        ra += step
+        while direction(ra, ra1) == step:
+            yield ra, dec0
+            ra += step
+    yield ra1, dec1
+    yield boundary[0]
+
+def direction(ra0, ra1):
+    """Step direction in which `ra1` can be reached most quickly from `ra0`."""
+    return +1.0 if (ra1 - ra0) % 360.0 < 180.0 else -1.0
 
 def load_decision_data():
     with open('data/data.dat') as f:
