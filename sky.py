@@ -84,10 +84,10 @@ def improve_boundary(boundary):
         assert dec0 == dec1
         ra = ra0
         step = direction(ra, ra1)
-        ra += step
+        ra = (ra + step) % _full_circle_ra
         while direction(ra, ra1) == step:
             yield ra, dec0
-            ra += step
+            ra = (ra + step) % _full_circle_ra
     yield ra1, dec1
 
 def direction(ra0, ra1):
