@@ -37,6 +37,15 @@ def group_stars_by_magnitude(records):
     return magnitude_groups
 
 def build_boundary_data():
+    """Load constellation boundaries.
+
+    Boundary declination is always an integer number of minutes of arc;
+    right ascension, an integral number of seconds of right ascension.
+    We therefore represent them using these integers, which can both be
+    represented more compactly in the JavaScript we produce, and which
+    also remove rounding errors as we compute.
+
+    """
     boundaries = defaultdict(list)
 
     with open('data/bound_18.dat') as f:
@@ -49,6 +58,7 @@ def build_boundary_data():
             for con, boundary in sorted(boundaries.items())}
 
 def improve_boundary(con,boundary):
+
     """Build a constellation boundary.
 
     East-to-west constellation boundary lines, unless they lie along the
