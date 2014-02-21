@@ -1,10 +1,10 @@
 activate_sky_display = function(d3) {
 
-     for (var con in boundary_data) {
+    for (var con in boundary_data) {
         var boundary = boundary_data[con];
         var radec_array = boundary.coordinates[0];
-        for (i = 0; i < radec_array.length; i++) {
-            radec = radec_array[i];
+        for (var i = 0; i < radec_array.length; i++) {
+            var radec = radec_array[i];
             radec[0] = -radec[0] / 240.0;  /* seconds of RA to degrees */
             radec[1] = radec[1] / 60.0;    /* arcminutes to degrees */
         }

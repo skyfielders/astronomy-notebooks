@@ -89,7 +89,6 @@ def improve_boundary(boundary):
             yield ra, dec0
             ra += step
     yield ra1, dec1
-    yield boundary[0]
 
 def direction(ra0, ra1):
     """Step direction in which `ra1` can be reached most quickly from `ra0`."""
@@ -135,3 +134,6 @@ def starfield():
         }
     html = html.replace('UNIQUE_ID', 'abcd')
     return HTML(html)
+
+if __name__ == '__main__':
+    print build_boundary_data()['CEP']['coordinates'][0]
