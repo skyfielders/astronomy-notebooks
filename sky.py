@@ -51,14 +51,18 @@ def build_boundary_data():
     with open('data/bound_18.dat') as f:
         for line in f:
             ra, dec, con, o = line.split()
-            boundaries[con].append([float(ra) * -15.0, float(dec)])
+            ra = int(float(ra) * 3600.0 + 0.5)
+            dec = int(float(dec) * 60.0 + 0.5)
+            boundaries[con].append([ra, dec])
 
     return {con: {"type": "Polygon",
-                  "coordinates": [list(improve_boundary(con,boundary))]}
+                  "coordinates": [list(improve_boundary(boundary))]}
             for con, boundary in sorted(boundaries.items())}
 
-def improve_boundary(con,boundary):
+_full_circle_ra = 24 * 3600
+_half_circle_ra = 12 * 3600
 
+def improve_boundary(boundary):
     """Build a constellation boundary.
 
     East-to-west constellation boundary lines, unless they lie along the
@@ -89,7 +93,7 @@ def improve_boundary(con,boundary):
 
 def direction(ra0, ra1):
     """Step direction in which `ra1` can be reached most quickly from `ra0`."""
-    return +1.0 if (ra1 - ra0) % 360.0 < 180.0 else -1.0
+    return +240 if (ra1 - ra0) % _full_circle_ra < _half_circle_ra else -240
 
 def load_decision_data():
     with open('data/data.dat') as f:
