@@ -1,13 +1,48 @@
 activate_sky_display = function(d3) {
 
+    var full_circle = 24 * 3600;
+    var half_circle = 12 * 3600;
+    var mod = function(n, m) {
+        return ((n % m) + m) % m;
+    };
+    direction_to = function(ra, ra2) {
+        return (mod(ra2 - ra, full_circle) < half_circle) ? +240 : -240;
+    };
+    var interpolate = function(a) {
+        /* Given an array `a` of ra,dec pairs tracing a constellation
+           boundary, produce an interpolated boundary whose east-west
+           borders correctly follows lines of declination, and which
+           ends with a copy of the same coordinate that it starts with
+           (as required by d3). */
+        var b = [];
+        var radec = a[a.length - 1];
+        var ra = radec[0], dec = radec[1];
+        b.push([ra, dec]);
+        for (var i = 0; i < a.length; i++) {
+            var radec = a[i];
+            var ra2 = radec[0], dec2 = radec[1];
+            if (ra != ra2) {
+                var step = direction_to(ra, ra2);
+                ra = mod(ra + step, full_circle);
+                while (step == direction_to(ra, ra2)) {
+                    b.push([ra, dec]);
+                    ra = mod(ra + step, full_circle);
+                }
+            }
+            ra = ra2, dec = dec2;
+            b.push([ra, dec]);
+        }
+        for (var i = 0; i < b.length; i++) {
+            var radec = b[i];
+            radec[0] = -radec[0] / 240.0;
+            radec[1] = radec[1] / 60.0;
+        }
+        return b;
+    };
+
     for (var con in boundary_data) {
         var boundary = boundary_data[con];
-        var radec_array = boundary.coordinates[0];
-        for (var i = 0; i < radec_array.length; i++) {
-            var radec = radec_array[i];
-            radec[0] = -radec[0] / 240.0;  /* seconds of RA to degrees */
-            radec[1] = radec[1] / 60.0;    /* arcminutes to degrees */
-        }
+        boundary.coordinates[0] = interpolate(boundary.coordinates[0]);
         if (d3.geo.area(boundary) > 6.0)
             boundary.coordinates[0].reverse();
     }

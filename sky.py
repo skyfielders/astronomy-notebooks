@@ -55,8 +55,7 @@ def build_boundary_data():
             dec = int(float(dec) * 60.0 + 0.5)
             boundaries[con].append([ra, dec])
 
-    return {con: {"type": "Polygon",
-                  "coordinates": [list(improve_boundary(boundary))]}
+    return {con: {"type": "Polygon", "coordinates": [list(boundary)]}
             for con, boundary in sorted(boundaries.items())}
 
 _full_circle_ra = 24 * 3600
