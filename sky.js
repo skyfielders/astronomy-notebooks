@@ -43,8 +43,7 @@ activate_sky_display = function(d3) {
     for (var con in boundary_data) {
         var boundary = boundary_data[con];
         boundary.coordinates[0] = interpolate(boundary.coordinates[0]);
-        if (d3.geo.area(boundary) > 6.0)
-            boundary.coordinates[0].reverse();
+        boundary.coordinates[0].reverse();
     }
 
     var ser1 = boundary_data.SER1;

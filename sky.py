@@ -2,6 +2,7 @@ import json
 from IPython.display import HTML
 from collections import defaultdict
 from gzip import GzipFile
+from math import copysign
 
 def parse_hipparcos(lines):
     """Iterate across the `lines` of ``hip_main.dat`` and yield records."""
@@ -49,11 +50,15 @@ def build_boundary_data():
     """
     boundaries = defaultdict(list)
 
-    with open('data/bound_18.dat') as f:
+    with open('data/bound_verts_18.txt') as f:
         for line in f:
-            ra, dec, con, o = line.split()
-            ra = int(float(ra) * 3600.0 + 0.5)
-            dec = int(float(dec) * 60.0 + 0.5)
+            vertex_key, ra_text, dec_text, con, cons = line.split(' ', 4)
+            h, m, s = [int(s) for s in ra_text.split(':')]
+            ra = (60 * h + m) * 60 + s
+            d, m, s = [int(s) for s in dec_text.split(':')]
+            assert s == 0
+            m = copysign(m, d)
+            dec = 60 * d + m
             boundaries[con].append([ra, dec])
 
     return {con: {"type": "Polygon", "coordinates": [list(boundary)]}

@@ -1,14 +1,14 @@
 import os, urllib2
 
 DATA_SETS = [
-    'ftp://cdsarc.u-strasbg.fr/pub/cats/VI/42/data.dat',
-    'ftp://cdsarc.u-strasbg.fr/pub/cats/VI/49/bound_18.dat',
     'ftp://cdsarc.u-strasbg.fr/pub/cats/I/239/hip_main.dat.gz',
-    'https://raw.github.com/astronexus/HYG-Database/master/hygfull.csv',
+    'ftp://cdsarc.u-strasbg.fr/pub/cats/VI/42/data.dat',
+    'http://ssd.jpl.nasa.gov/dat/ELEMENTS.COMET',
     'http://ssd.jpl.nasa.gov/dat/ELEMENTS.NUMBR.gz',
     'http://ssd.jpl.nasa.gov/dat/ELEMENTS.UNNUM.gz',
-    'http://ssd.jpl.nasa.gov/dat/ELEMENTS.COMET',
     'http://www.celestrak.com/NORAD/elements/visual.txt',
+    'http://www.pbarbier.com/constellations/bound_verts_18.txt',
+    'https://raw.github.com/astronexus/HYG-Database/master/hygfull.csv',
     ]
 
 def get_data_set(url):
