@@ -4,6 +4,7 @@ from collections import defaultdict
 from gzip import GzipFile
 
 def parse_hipparcos(lines):
+    """Iterate across the `lines` of ``hip_main.dat`` and yield records."""
     for line in lines:
         s = line[41:46].strip()
         if not s:
@@ -57,41 +58,6 @@ def build_boundary_data():
 
     return {con: {"type": "Polygon", "coordinates": [list(boundary)]}
             for con, boundary in sorted(boundaries.items())}
-
-_full_circle_ra = 24 * 3600
-_half_circle_ra = 12 * 3600
-
-def improve_boundary(boundary):
-    """Build a constellation boundary.
-
-    East-to-west constellation boundary lines, unless they lie along the
-    equator at declination zero, are not great circles and cannot simply
-    be rendered using their two endpoints.  Instead, they have to be
-    approximated by a series of points.
-
-    This routine also fixes the fact that the input boundaries have an
-    implied final segment back to their starting point, which d3 will
-    need actually duplicated at the end of the list.
-
-    """
-    boundary = boundary + boundary[0:1]
-    for (ra0, dec0), (ra1, dec1) in zip(boundary[:-1], boundary[1:]):
-        yield ra0, dec0
-        is_great_circle = (ra0 == ra1) or (dec0 == dec1 == 0.0)
-        if is_great_circle:
-            continue
-        assert dec0 == dec1
-        ra = ra0
-        step = direction(ra, ra1)
-        ra = (ra + step) % _full_circle_ra
-        while direction(ra, ra1) == step:
-            yield ra, dec0
-            ra = (ra + step) % _full_circle_ra
-    yield ra1, dec1
-
-def direction(ra0, ra1):
-    """Step direction in which `ra1` can be reached most quickly from `ra0`."""
-    return +240 if (ra1 - ra0) % _full_circle_ra < _half_circle_ra else -240
 
 def load_decision_data():
     with open('data/data.dat') as f:
