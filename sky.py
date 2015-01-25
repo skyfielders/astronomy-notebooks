@@ -7,21 +7,10 @@ from math import copysign
 def parse_hipparcos(lines):
     """Iterate across the `lines` of ``hip_main.dat`` and yield records."""
     for line in lines:
-        s = line[41:46].strip()
-        if not s:
-            continue
-        magnitude = float(s)
-        if magnitude > 5.0:
-            continue
-        s = line[51:63].strip()
-        if not s:
-            continue
-        ra = float(s)
+        magnitude = float(line[41:46])
+        ra = float(line[51:63])
         dec = float(line[64:76])
-        s = line[245:251].strip()
-        if not s:
-            continue
-        bv = float(s)
+        bv = float(line[245:251])
         yield ra, dec, magnitude, bv
 
 def group_stars_by_magnitude(records):
