@@ -7,6 +7,7 @@ from math import copysign
 def parse_hipparcos(lines):
     """Iterate across the `lines` of ``hip_main.dat`` and yield records."""
     for line in lines:
+        #For the description of this format, see See http://cdsarc.u-strasbg.fr/viz-bin/Cat?I/239
         magnitude = float(line[41:46])
         ra = float(line[51:63])
         dec = float(line[64:76])
