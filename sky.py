@@ -84,11 +84,11 @@ def jsonify(data):
     return json.dumps(data, separators=(',', ':')).replace('"', "'")
 
 def starfield():
-    with open('sky.js') as f:
-        js_code = f.read()
+    with open('sky.js', 'rb') as f:
+        js_code = f.read().decode('utf-8')
 
-    with open('sky.html') as f:
-        html_template = f.read()
+    with open('sky.html', 'rb') as f:
+        html_template = f.read().decode('utf-8')
 
     html = html_template % {
         'boundary_data': jsonify(build_boundary_data()),
@@ -97,6 +97,7 @@ def starfield():
         'js_code': js_code,
         }
     html = html.replace('UNIQUE_ID', 'abcd')
+
     return HTML(html)
 
 if __name__ == '__main__':
