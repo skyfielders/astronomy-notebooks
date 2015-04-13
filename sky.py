@@ -6,13 +6,17 @@ from math import copysign
 
 def parse_hipparcos(lines):
     """Iterate across the `lines` of ``hip_main.dat`` and yield records."""
-    for line in lines:
+    for lineno, line in enumerate(lines):
         #For the description of this format, see See http://cdsarc.u-strasbg.fr/viz-bin/Cat?I/239
-        magnitude = float(line[41:46])
-        ra = float(line[51:63])
-        dec = float(line[64:76])
-        bv = float(line[245:251])
-        yield ra, dec, magnitude, bv
+        try:
+            magnitude = float(line[41:46])
+            ra = float(line[51:63])
+            dec = float(line[64:76])
+            bv = float(line[245:251])
+            yield ra, dec, magnitude, bv
+        except:
+            #print("Unable to parse line #{0}".format(lineno))
+            continue
 
 def group_stars_by_magnitude(records):
     magnitude_groups = defaultdict(list)
