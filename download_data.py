@@ -22,6 +22,9 @@ def get_data_set(url):
 if __name__ == '__main__':
     this_dir = os.path.dirname(__file__)
     os.chdir(this_dir or '.')
-    os.chdir('data')
+    DATA_DIR='data'
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+    os.chdir(DATA_DIR)
     for url in DATA_SETS:
         get_data_set(url)
