@@ -27,4 +27,6 @@ if __name__ == '__main__':
         os.makedirs(DATA_DIR)
     os.chdir(DATA_DIR)
     for url in DATA_SETS:
+        print "Getting data file {0}...".format(url)
         get_data_set(url)
+    print "Done!"
