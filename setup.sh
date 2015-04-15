@@ -1,43 +1,39 @@
 #!/bin/bash
 
 set -e
-cd $(dirname "${BASH_SOURCE[0]}")
 
-if [ ! -d venv ]
+if ! conda --version >/dev/null 2>&1
 then
-    virtualenv --system-site-packages venv
+    echo
+    echo 'Error: Cannot find "conda" command'
+    echo '       Please install Anaconda'
+    echo '       http://continuum.io/downloads'
+    echo
+    exit 2
 fi
 
-source venv/bin/activate
-pip install --upgrade distribute
+cd $(dirname "${BASH_SOURCE[0]}")
 
 # iPython, and the libraries needed for it to run Notebook.
-pip install ipython
-pip install tornado
-pip install pyzmq
-pip install jinja2
+conda install \
+    python=2.7 \
+    pip \
+    ephem \
+    ipython-notebook \
+    matplotlib \
+    mayavi \
+    pandas \
+    scipy \
+    sympy \
+    wxpython \
 
-# Visualization tools and their dependencies.
-pip install numpy
-pip install scipy
-pip install matplotlib
-pip install vtk
-pip install mayavi
-pip install wxPython
 
-# Tools specifically for the 'An-Introduction--Notebook-Features' notebook.
-pip install sympy
+pip install \
+    de405 \
+    jplephem \
+    skyfield \
+    sgp4 \
 
-# Astronomical software.
-pip install pyephem
-pip install jplephem
-pip install de405
-pip install sgp4
-pip install skyfield==0.1
-
-# Tools specifically for the 'An-Introduction--Pandas' notebook.
-# pip install pandas # 2014-01-15 0.13.0 crashes, hence following fudge.
-pip install pandas==0.12.0
 
 # Get ready to download large data sets.
 mkdir -p data
