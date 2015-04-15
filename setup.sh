@@ -25,6 +25,7 @@ conda install \
     pandas \
     scipy \
     sympy \
+    wxpython \
 
 
 pip install \
