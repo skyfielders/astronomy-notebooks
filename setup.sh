@@ -37,9 +37,10 @@ pip install \
 
 # Get ready to download large data sets.
 mkdir -p data
-cd data
+# cd data
 
 echo
 echo 'Setup successful!'
-echo 'Run "download_data.py" to make sure your "data" directory is populated.'
+echo 'Downloading data...'
+python download_data.py
 echo
