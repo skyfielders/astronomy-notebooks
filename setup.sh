@@ -24,23 +24,19 @@ conda install \
     mayavi \
     pandas \
     scipy \
+    seaborn \
     sympy \
     wxpython \
 
 
-pip install \
-    de405 \
-    jplephem \
-    skyfield \
-    sgp4 \
-
+pip install skyfield
 
 # Get ready to download large data sets.
 mkdir -p data
 # cd data
 
-echo
-echo 'Setup successful!'
-echo 'Downloading data...'
-python download_data.py
-echo
+# echo
+# echo 'Setup successful!'
+# echo 'Downloading data...'
+# python download_data.py
+# echo
