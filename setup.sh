@@ -19,7 +19,7 @@ conda install \
     python=2.7 \
     pip \
     ephem \
-    ipython-notebook \
+    jupyter \
     matplotlib \
     mayavi \
     pandas \
