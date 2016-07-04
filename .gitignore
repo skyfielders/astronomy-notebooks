@@ -1,4 +1,6 @@
+*.dat
 *.pyc
+*.bsp
 .ipynb_checkpoints/
 data/
 venv/
