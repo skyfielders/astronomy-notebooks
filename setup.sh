@@ -14,22 +14,27 @@ fi
 
 cd $(dirname "${BASH_SOURCE[0]}")
 
-# iPython, and the libraries needed for it to run Notebook.
-conda install \
-    python=2.7 \
-    pip \
-    ephem \
-    jupyter \
-    matplotlib \
-    mayavi \
-    pandas \
-    scipy \
-    seaborn \
-    sympy \
-    wxpython \
+# To update, run:
+# conda list --export > conda.list
+
+conda install --file conda.list
+
+    # pip \
+    # ephem \
+    # jupyter \
+    # matplotlib \
+    # mayavi \
+    # pandas \
+    # scipy \
+    # seaborn \
+    # sympy \
+    # wxpython \
 
 
-pip install skyfield
+if [ -d ~/src/skyfield ]
+then pip install -e ~/src/skyfield
+else pip install skyfield
+fi
 
 # Get ready to download large data sets.
 mkdir -p data
