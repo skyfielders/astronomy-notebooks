@@ -31,8 +31,8 @@ conda install --file conda.list
     # wxpython \
 
 
-if [ -d ~/src/skyfield ]
-then pip install -e ~/src/skyfield
+if [ -d ~/skyfield ]
+then pip install -e ~/skyfield
 else pip install skyfield
 fi
 
