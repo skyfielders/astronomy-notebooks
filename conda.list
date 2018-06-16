@@ -50,6 +50,7 @@ ncurses=6.1=hf484d3e_0
 notebook=5.5.0=py36_0
 numpy=1.14.2=py36hdbf6ddf_1
 openssl=1.0.2o=h20670df_0
+pandas=0.23.1=py36h637b7d7_0
 pandoc=1.19.2.1=hea2e7c5_1
 pandocfilters=1.4.2=py36ha6701b7_1
 parso=0.2.0=py36_0
