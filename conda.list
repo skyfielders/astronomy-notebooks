@@ -1,6 +1,9 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
+astropy=3.0.3=py36h14c3975_2
+atomicwrites=1.1.5=py36_0
+attrs=18.1.0=py36_0
 backcall=0.1.0=py36_0
 bleach=2.1.3=py36_0
 ca-certificates=2018.03.07=0
@@ -10,10 +13,12 @@ dbus=1.13.2=h714fa37_1
 decorator=4.3.0=py36_0
 entrypoints=0.2.3=py36h1aec115_2
 expat=2.2.5=he0dffb1_0
+fastcache=1.0.2=py36h14c3975_2
 fontconfig=2.12.6=h49f89f6_0
 freetype=2.8=hab7d2ae_1
 glib=2.56.1=h000015b_0
 gmp=6.1.2=h6c8ec71_1
+gmpy2=2.0.8=py36hc8893dd_2
 gst-plugins-base=1.14.0=hbbd80ab_1
 gstreamer=1.14.0=hb453b48_1
 html5lib=1.0.1=py36h2f9c1c0_0
@@ -44,6 +49,10 @@ mistune=0.8.3=py36h14c3975_1
 mkl=2018.0.2=1
 mkl_fft=1.0.1=py36h3010b51_0
 mkl_random=1.0.1=py36h629b387_0
+more-itertools=4.2.0=py36_0
+mpc=1.0.3=hec55b23_5
+mpfr=3.1.5=h11a74b3_2
+mpmath=1.0.0=py36hfeacd6b_2
 nbconvert=5.3.1=py36hb41ffb7_0
 nbformat=4.4.0=py36h31c9010_0
 ncurses=6.1=hf484d3e_0
@@ -58,11 +67,20 @@ pcre=8.42=h439df22_0
 pexpect=4.5.0=py36_0
 pickleshare=0.7.4=py36h63277f8_0
 pip=10.0.1=py36_0
+pluggy=0.6.0=py36hb689045_0
 prompt_toolkit=1.0.15=py36h17d85b1_0
+psutil=5.4.6=py36h14c3975_0
 ptyprocess=0.5.2=py36h69acd42_0
+py=1.5.3=py36_0
 pygments=2.2.0=py36h0d3125c_0
 pyparsing=2.2.0=py36hee85983_1
 pyqt=5.9.2=py36h751905a_0
+pytest=3.6.1=py36_0
+pytest-arraydiff=0.2=py36_0
+pytest-astropy=0.4.0=py36_0
+pytest-doctestplus=0.1.3=py36_0
+pytest-openfiles=0.3.0=py36_0
+pytest-remotedata=0.3.0=py36_0
 python=3.6.5=hc3d631a_2
 python-dateutil=2.7.3=py36_0
 pytz=2018.4=py36_0
@@ -75,6 +93,7 @@ simplegeneric=0.8.1=py36_2
 sip=4.19.8=py36hf484d3e_0
 six=1.11.0=py36h372c433_1
 sqlite=3.23.1=he433501_0
+sympy=1.1.1=py36hc6d1c1c_0
 terminado=0.8.1=py36_1
 testpath=0.3.1=py36h8cadb63_0
 tk=8.6.7=hc745277_3
