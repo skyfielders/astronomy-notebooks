@@ -1,6 +1,4 @@
 function setup_timer(hours, minutes) {
-    console.log('test');
-
     var endtime = new Date();
     endtime.setHours(hours);
     endtime.setMinutes(minutes);
@@ -21,7 +19,6 @@ function setup_timer(hours, minutes) {
 
     var timer_div = $('<div style="' + style + '">Time</div>');
     $('body').append(timer_div);
-    console.log('test');
 
     var $slides = $('.cell');
 
