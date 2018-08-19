@@ -1,4 +1,7 @@
-function setup_timer(hours, minutes) {
+function setup_timer() {
+    var hours = 15;
+    var minutes = 20;
+
     var endtime = new Date();
     endtime.setHours(hours);
     endtime.setMinutes(minutes);
