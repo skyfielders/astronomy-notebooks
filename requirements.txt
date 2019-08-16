@@ -1,0 +1,5 @@
+jplephem==2.9
+matplotlib==3.*
+numpy==1.17.*
+sgp4==1.4
+skyfield==1.11
