@@ -1,48 +1,51 @@
+import re
 import numpy as np
 import sympy as sy
 
 tau = 2 * np.pi
 
 CIRCULAR = '''
-<svg version="1.1" width="220" height="220" xmlns="http://www.w3.org/2000/svg">
-<g transform="translate(110, 110)">
-<g class="rotating">
-<line x1=0 y1=0 x2=100 y2=0 stroke=lightgray />
-<circle cx=100 cy=0 r=5 fill=#bb0 />
-</g>
-<circle cx=0 cy=0 r=3 fill=#040 />
-</g>
+<svg version="1.1" width=220 height=220>
+ <g transform="translate(110, 110)">
+  <circle cx=0 cy=0 r=100 stroke=lightgray stroke-width=1 fill=none />
+  <g class="%s">
+   <line x1=0 y1=0 x2=100 y2=0 stroke=lightgray />
+   <circle cx=100 cy=0 r=5 fill=#bb0 />
+  </g>
+  <circle cx=0 cy=0 r=3 fill=#040 />
+ </g>
 </svg>
 <style>
 .rotating {
-animation-name: rotating;
-animation-duration: 10s;
-animation-timing-function: linear;
-animation-iteration-count: infinite;
+ animation-name: rotating;
+ animation-duration: 10s;
+ animation-timing-function: linear;
+ animation-iteration-count: infinite;
 }
 @keyframes rotating {
-from { transform: rotate(0deg); }
-to { transform: rotate(360deg); }
+ to {transform: rotate(360deg);}
 }
 </style>
 '''
 
 EQUANT = '''
-<svg version="1.1" width="300" height="220" xmlns="http://www.w3.org/2000/svg">
-<g transform="translate(110, 110)">
-<g class="equant">
-<circle cx=100 cy=0 r=5 fill=#bb0 />
-</g>
-<g transform="translate(%s, 0)">
-<g class="uniform">
-<line x1=0 y1=0 x2=200 y2=0 stroke=lightgray />
-</g>
-</g>
-<circle cx=0 cy=0 r=3 fill=#040 />
-</g>
+<svg version="1.1" width=300 height=220>
+ <g transform="translate(110, 110)">
+  <circle cx=0 cy=0 r=2 fill=gray />
+  <circle cx=0 cy=0 r=100 stroke=lightgray stroke-width=1 fill=none />
+  <g class="planet">
+   <circle cx=100 cy=0 r=5 fill=#bb0 />
+  </g>
+  <g transform="translate(%s, 0)">
+   <circle cx=0 cy=0 r=2 fill=gray />
+   <g class="uniform">
+    <line x1=0 y1=0 x2=%s y2=0 stroke=lightgray />
+   </g>
+  </g>
+ </g>
 </svg>
 <style>
-.uniform, .equant {
+.uniform, .planet {
   animation-duration: 10s;
   animation-iteration-count: infinite;
 }
@@ -50,37 +53,30 @@ EQUANT = '''
   animation-name: uniform;
   animation-timing-function: linear;
 }
-.equant {
-  animation-name: equant;
+.planet {
+  animation-name: planet;
 }
-@keyframes uniform {
-from { transform: rotate(0deg); }
-to { transform: rotate(360deg); }
-}
-@keyframes equant {
-0%% {
-  transform: rotate(%srad);
-  animation-timing-function: cubic-bezier(%s);
-}
-33.33%% {
-  transform: rotate(%srad);
-  animation-timing-function: cubic-bezier(%s);
-}
-66.66%% {
-  transform: rotate(%srad);
-  animation-timing-function: cubic-bezier(%s);
-}
+@keyframes uniform {to {transform: rotate(360deg)}}
+@keyframes planet {
+%s
 to { transform: rotate(360deg); }
 }
 </style>
 '''
 
+KEYFRAME = '''\
+%.3f%% {
+  transform: rotate(%.3frad);
+  animation-timing-function: cubic-bezier(%.3f, %.3f, %.3f, %.3f);
+}
+'''
+
 def bezier(t, x1, y1, x2, y2):
-    mt = 1 - t
-    c = 3 * mt * t
-    c1, c2, c3 = c * mt, c * t, t * t * t
-    return (c1 * x1 + c2 * x2 + c3,
-            c1 * y1 + c2 * y2 + c3)
+    m = 1 - t
+    p = 3 * m * t
+    b, c, d = p * m, p * t, t * t * t
+    return (b * x1 + c * x2 + d,
+            b * y1 + c * y2 + d)
 
 def bezier_interpolated(x, x1, y1, x2, y2):
     t = linspace(0, 1)
@@ -123,22 +119,23 @@ def max_errors(M, e):
         errors.append(abs(error).max())
     return np.array(errors)
 
-def equant_svg():
-    params = [5.45569942e-01, 6.77191311e-19, 4.54430058e-01, 1.00000000e+00]
-    paramstr = ','.join(repr(n) for n in params)
-    return EQUANT % paramstr
-
-def equant_svg2():
+def equant_svg(segments=4):
     e = 0.5
-    paramstrs = [100 * e]
-    M = linspace(0, tau, 4)
-    for M0, M1 in zip(M[:-1], M[1:]):
+    M = linspace(0, tau, segments)
+    keyframes = []
+    for i, (M0, M1) in enumerate(zip(M[:-1], M[1:])):
         M = linspace(M0, M1)
         E = equant_E(M, e)
         E0, E1, params = equant_compute_approximate_segment(M0, M1, e)
-        paramstrs.append(E0)
-        paramstrs.append(','.join(repr(n) for n in params))
-    return EQUANT % tuple(paramstrs)
+        params = (100 * i/(segments - 1), E0) + tuple(params)
+        keyframes.append(KEYFRAME % params)
+    return EQUANT % (100 * e, 100 * (1 + e), ''.join(keyframes))
+
+def compress_svg(svg):
+    svg = re.sub(r'(\W)\s+(\W)', r'\1\2', svg)
+    svg = re.sub(r'(\w)\s+(\W)', r'\1\2', svg)
+    svg = re.sub(r'(\W)\s+(\w)', r'\1\2', svg)
+    return svg
 
 def circular(t):
     return CIRCULAR
