@@ -1,8 +1,13 @@
 import json
+import os
 from IPython.display import HTML
 from collections import defaultdict
 from gzip import GzipFile
 from math import copysign
+from pkgutil import get_data
+
+DATA_DIR = os.path.dirname(__file__) + '/../data'
+MAGNITUDE_LIMIT = 7.0
 
 def parse_hipparcos(lines):
     """Iterate across the `lines` of ``hip_main.dat`` and yield records."""
@@ -21,6 +26,8 @@ def parse_hipparcos(lines):
 def group_stars_by_magnitude(records):
     magnitude_groups = defaultdict(list)
     for ra, dec, magnitude, bv in records:
+        if magnitude > MAGNITUDE_LIMIT:
+            continue
         radec = [-ra, dec]
         if bv < 0.00:
             color = 'blue'
@@ -44,7 +51,7 @@ def build_boundary_data():
     """
     boundaries = defaultdict(list)
 
-    with open('data/bound_verts_18.txt') as f:
+    with open(DATA_DIR + '/bound_verts_18.txt') as f:
         for line in f:
             vertex_key, ra_text, dec_text, con, cons = line.split(' ', 4)
             h, m, s = [int(s) for s in ra_text.split(':')]
@@ -59,7 +66,7 @@ def build_boundary_data():
             for con, boundary in sorted(boundaries.items())}
 
 def load_decision_data():
-    with open('data/data.dat') as f:
+    with open(DATA_DIR + '/data.dat') as f:
         for line in f:
             ra0, ra1, dec, con = line.split()
             yield float(ra0) * 15.0, float(ra1) * 15.0, float(dec), con.upper()
@@ -77,18 +84,15 @@ def build_star_data():
             "color": color,
         }
         for ((mag, color), coordinates) in sorted(magnitude_groups.items())
-        ]
+    ]
 
 def jsonify(data):
     """Render `data` as compact JSON."""
     return json.dumps(data, separators=(',', ':')).replace('"', "'")
 
 def starfield():
-    with open('sky.js', 'rb') as f:
-        js_code = f.read().decode('utf-8')
-
-    with open('sky.html', 'rb') as f:
-        html_template = f.read().decode('utf-8')
+    js_code = get_data(__name__, 'sky.js').decode('utf-8')
+    html_template = get_data(__name__, 'sky.html').decode('utf-8')
 
     html = html_template % {
         'boundary_data': jsonify(build_boundary_data()),
@@ -101,4 +105,4 @@ def starfield():
     return HTML(html)
 
 if __name__ == '__main__':
-    print build_boundary_data()['CEP']['coordinates'][0]
+    print(build_boundary_data()['CEP']['coordinates'][0])
