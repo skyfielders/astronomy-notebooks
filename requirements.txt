@@ -4,6 +4,7 @@ jupyter==1.0.0
 matplotlib==3.2.1
 notebook==6.0.3
 numpy==1.18.4
+pandas==1.0.3
 scipy==1.4.1
 sgp4==2.7
 skyfield==1.20
