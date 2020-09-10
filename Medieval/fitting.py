@@ -3,7 +3,7 @@
 import sympy as sy
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import arcsin, arctan2, cos, sin, unwrap, arctan
+from numpy import arcsin, arctan2, cos, sin, unwrap, sqrt
 from scipy.optimize import curve_fit
 from skyfield.api import load, tau
 
@@ -11,8 +11,8 @@ def main():
     # solve_equant()
     # return
 
-    plot_equant()
-    return
+    # plot_equant()
+    # return
 
     ts = load.timescale()
 
@@ -55,7 +55,7 @@ def main():
 
     #print(T, M0, e, ω)
 
-    #(T, M0, e, ω), covariance = curve_fit(equant, day, lon, (T, M0, e, ω))
+    # (T, M0, xe, ye), covariance = curve_fit(equant, day, lon, (T, M0, ye, ye))
     T, M0, xe, ye = fit_equant(day, longitude)
 
     print(T, M0, xe, ye)
@@ -80,13 +80,12 @@ def main():
 
     angle = equant_orbit(day, T, M0, xe, ye)
 
-    ax.plot(day, degrees(longitude))
-    ax.plot(day, degrees(angle))
+    # ax.plot(day, degrees(longitude))
+    # ax.plot(day, degrees(angle))
 
+    residual = angle - longitude
 
-    #residual =  - longitude
-
-    # ax.plot(day, degrees(residual))
+    ax.plot(day, degrees(residual))
     # ax.plot(day, degrees(equant(day, T, M0, e, ω) + epicycle(day, Tₑ, E0, r)
     #                      - longitude))
 
@@ -101,24 +100,6 @@ def main():
 
 from scipy.optimize import fsolve
 
-# [{x: -sqrt(1 - y**2), M: 2*atan((-ey + y + sqrt(ex**2 + 2*ex*sqrt(1 - y**2) + ey**2 - 2*ey*y + 1))/(ex + sqrt(1 - y**2)))}, {x: -sqrt(1 - y**2), M: -2*atan((ey - y + sqrt(ex**2 + 2*ex*sqrt(1 - y**2) + ey**2 - 2*ey*y + 1))/(ex + sqrt(1 - y**2)))}]
-
-# [(xe - ye*tan(M) - (xe*sin(2*M) + ye*cos(2*M) - ye - sqrt(2)*sqrt(-xe**2*cos(2*M) - xe**2 + 2*xe*ye*sin(2*M) + ye**2*cos(2*M) - ye**2 + 2)*cos(M))*tan(M)/2, -xe*sin(2*M)/2 - ye*cos(2*M)/2 + ye/2 + sqrt(2)*sqrt(-xe**2*cos(2*M) - xe**2 + 2*xe*ye*sin(2*M) + ye**2*cos(2*M) - ye**2 + 2)*cos(M)/2), (xe - ye*tan(M) - (xe*sin(2*M) + ye*cos(2*M) - ye + sqrt(2)*sqrt(-xe**2*cos(2*M) - xe**2 + 2*xe*ye*sin(2*M) + ye**2*cos(2*M) - ye**2 + 2)*cos(M))*tan(M)/2, -xe*sin(2*M)/2 - ye*cos(2*M)/2 + ye/2 - sqrt(2)*sqrt(-xe**2*cos(2*M) - xe**2 + 2*xe*ye*sin(2*M) + ye**2*cos(2*M) - ye**2 + 2)*cos(M)/2)]
-
-from numpy import tan, sqrt
-
-# M = atan2(y - ye, x - xe)
-#
-
-def solve_equant():
-    x, y, xe, ye, M = sy.symbols('x y xe ye M')
-    o = sy.solve([
-        1 - x*x - y*y,
-        M - sy.atan2(y - ye, x - xe),
-        #(x - xe) / sy.sin(M) - (y - ye) / sy.cos(M),
-    ], [x, y])
-    print(o)
-
 def fit_equant(day, longitude):
     days = day[-1] - day[0]
     revolutions = (longitude[-1] - longitude[0]) / tau
@@ -129,9 +110,9 @@ def fit_equant(day, longitude):
 
     # print(days)
     # print(revolutions)
-    # (T, M0, xe, ye), covariance = curve_fit(
-    #     equant_orbit, day, longitude, (T, M0, xe, ye),
-    # )
+    (T, M0, xe, ye), covariance = curve_fit(
+        equant_orbit, day, longitude, (T, M0, xe, ye),
+    )
 
     # # Normalize negative e by rotating the orbit 180°.
     # if e < 0:
@@ -190,20 +171,15 @@ def plot_equant():
 def equant_orbit(t, T, M0, xe, ye):
     M = M0 + t / T * tau
     x, y = equant(M, xe, ye)
-    #return x + xe, y + ye
-    return unwrap(arctan2(y + ye, x + xe))
+    return unwrap(arctan2(y + ye, x + xe) % tau)
 
 def equant(M, xe, ye):
     offset = arctan2(ye, xe)
-    print(offset)
     Mo = M - offset
     e = sqrt(xe*xe + ye*ye)
     a = Mo - arcsin(e * sin(Mo))
     a += offset
     return cos(a), sin(a)
-
-    #x, y = (sqrt((-2*xe*tan(M/2)**3 + 2*xe*tan(M/2) - ye*tan(M/2)**4 + 2*ye*tan(M/2)**2 - ye + 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*(2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*cos(M/2)**8), (2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2))*cos(M/2)**4)
-    return x, y
 
 def epicycle(t, Tₑ, E0, r):
     E = E0 + t / Tₑ * tau
@@ -211,12 +187,3 @@ def epicycle(t, Tₑ, E0, r):
 
 if __name__ == '__main__':
     main()
-
-# Equant:
-#
-# [(-sqrt((-2*xe*tan(M/2)**3 + 2*xe*tan(M/2) - ye*tan(M/2)**4 + 2*ye*tan(M/2)**2 - ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*(2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye + 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*cos(M/2)**8), (2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye + 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2))*cos(M/2)**4),
-# (sqrt((-2*xe*tan(M/2)**3 + 2*xe*tan(M/2) - ye*tan(M/2)**4 + 2*ye*tan(M/2)**2 - ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*(2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye + 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*cos(M/2)**8), (2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye + 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2))*cos(M/2)**4),
-# (-sqrt((-2*xe*tan(M/2)**3 + 2*xe*tan(M/2) - ye*tan(M/2)**4 + 2*ye*tan(M/2)**2 - ye + 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*(2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*cos(M/2)**8), (2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2))*cos(M/2)**4),
-# (sqrt((-2*xe*tan(M/2)**3 + 2*xe*tan(M/2) - ye*tan(M/2)**4 + 2*ye*tan(M/2)**2 - ye + 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*(2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2) + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*cos(M/2)**8), (2*xe*tan(M/2)**3 - 2*xe*tan(M/2) + ye*tan(M/2)**4 - 2*ye*tan(M/2)**2 + ye - 2*sqrt(-4*xe**2*tan(M/2)**2 - 4*xe*ye*tan(M/2)**3 + 4*xe*ye*tan(M/2) - ye**2*tan(M/2)**4 + 2*ye**2*tan(M/2)**2 - ye**2 + tan(M/2)**4 + 2*tan(M/2)**2 + 1)*tan(M/2))*cos(M/2)**4),
-# (-sqrt(1 - ye**2), ye),
-# (sqrt(1 - ye**2), ye)]
