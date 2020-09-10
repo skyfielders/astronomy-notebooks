@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
-from numpy import arcsin, sin, unwrap
+import sympy as sy
+from numpy import arcsin, cos, sin, unwrap, arctan
 from scipy.optimize import curve_fit
 from skyfield.api import load, tau
 
 def main():
+    solve_equant()
+    return
     ts = load.timescale()
 
     days = 365 * 10
@@ -82,6 +85,81 @@ def main():
     # plt.legend()
     fig.savefig('tmp.png')
 
+from scipy.optimize import fsolve
+
+# [{x: -sqrt(1 - y**2), M: 2*atan((-ey + y + sqrt(ex**2 + 2*ex*sqrt(1 - y**2) + ey**2 - 2*ey*y + 1))/(ex + sqrt(1 - y**2)))}, {x: -sqrt(1 - y**2), M: -2*atan((ey - y + sqrt(ex**2 + 2*ex*sqrt(1 - y**2) + ey**2 - 2*ey*y + 1))/(ex + sqrt(1 - y**2)))}]
+
+# [(ex - ey*tan(M) - (ex*sin(2*M) + ey*cos(2*M) - ey - sqrt(2)*sqrt(-ex**2*cos(2*M) - ex**2 + 2*ex*ey*sin(2*M) + ey**2*cos(2*M) - ey**2 + 2)*cos(M))*tan(M)/2, -ex*sin(2*M)/2 - ey*cos(2*M)/2 + ey/2 + sqrt(2)*sqrt(-ex**2*cos(2*M) - ex**2 + 2*ex*ey*sin(2*M) + ey**2*cos(2*M) - ey**2 + 2)*cos(M)/2), (ex - ey*tan(M) - (ex*sin(2*M) + ey*cos(2*M) - ey + sqrt(2)*sqrt(-ex**2*cos(2*M) - ex**2 + 2*ex*ey*sin(2*M) + ey**2*cos(2*M) - ey**2 + 2)*cos(M))*tan(M)/2, -ex*sin(2*M)/2 - ey*cos(2*M)/2 + ey/2 - sqrt(2)*sqrt(-ex**2*cos(2*M) - ex**2 + 2*ex*ey*sin(2*M) + ey**2*cos(2*M) - ey**2 + 2)*cos(M)/2)]
+
+from numpy import tan, sqrt
+
+def equant(ex, ey, M):
+    x = ex - ey*tan(M) - (ex*sin(2*M) + ey*cos(2*M) - ey - sqrt(2)*sqrt(-ex**2*cos(2*M) - ex**2 + 2*ex*ey*sin(2*M) + ey**2*cos(2*M) - ey**2 + 2)*cos(M))*tan(M)/2
+    y = -ex*sin(2*M)/2 - ey*cos(2*M)/2 + ey/2 + sqrt(2)*sqrt(-ex**2*cos(2*M) - ex**2 + 2*ex*ey*sin(2*M) + ey**2*cos(2*M) - ey**2 + 2)*cos(M)/2
+    return x, y
+
+def solve_equant():
+    # print(equant(-0.99, 0, 0.1))
+    # print(equant(-0.99, 0, 0.2))
+    # print(equant(-0.99, 0, 0.3))
+    # from time import time
+    # t0 = time()
+    # #soln = fsolve(eqeqeq, 1.0, (0.5, 1.0, tau/8.0))
+    # soln = fsolve(eqeqeq, 1.0, (0.9, 0.0, tau/12.0)) #, full_output=True)
+    # print(time() - t0)
+    # print(soln)
+    return
+
+    # a, b = sy.symbols('a b')
+    # x = sy.solve([
+    #     a - b - 3,
+    #     a + b,
+    # ], (a,b))
+    # print(x)
+
+    # x = sin(M)
+    # y = cos(M)
+
+    x, y, xe, ye, M = sy.symbols('x y ex ey M')
+    # x = xe + r * sin(M)
+    # y = ye + r * cos(M)
+    
+    # x = xe + r * sin(M)
+    # y = ye + r * cos(M)
+
+    # (x - xe) / sin(M) = r
+    # (y - ye) / cos(M) = r
+
+    # (x - xe) / sin(M) = (y - ye) / cos(M)
+
+    #return x*x + y*y - 1
+    o = sy.solve([
+        1 - x*x - y*y,
+        (x - xe) / sy.sin(M) - (y - ye) / sy.cos(M),
+        #M - sy.atan2(y - ey, x - ex),
+    ], [x, y])
+    print(o)
+
+    # ex, ey, M, x, y = sy.symbols('ex ey M x y')
+    # o = sy.solve([
+    #     1 - x*x - y*y,
+    #     M - sy.atan2(y - ey, x - ex),
+    # ])
+    # print(o)
+
+def eqeqeq(r, xe, ye, M):
+    x = xe + r * sin(M)
+    y = ye + r * cos(M)
+    return x*x + y*y - 1
+
+    # x, y = xy
+    # ex, ey = 0.5, 0.0
+    # M = tau / 8.0
+    # return x*x + y*y - 1, M - arctan(
+
+def foo():
+    pass
+
 def fit_equant(day, longitude):
     days = day[-1] - day[0]
     revolutions = (longitude[-1] - longitude[0]) / tau
@@ -132,11 +210,13 @@ def fit_equant_and_epicycle(day, longitude, T, M0, e, ω):
 def degrees(radians):
     return radians / tau * 360.0
 
-def equant(t, T, M0, e, ω):
-    M = M0 + t / T * tau
+def equant2(t, T, ex, ey):
+    M = t / T * tau
+    x = 2 * e
+    #y =
     # x =
     # y =
-    return ω + M - arcsin(e * sin(M))
+    angle = ω + M - arcsin(e * sin(M))
 
 def epicycle(t, Tₑ, E0, r):
     E = E0 + t / Tₑ * tau
