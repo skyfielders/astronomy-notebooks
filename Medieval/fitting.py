@@ -50,6 +50,14 @@ def main():
     #(T, M0, e, ω), covariance = curve_fit(equant, day, lon, (T, M0, e, ω))
     T, M0, e, ω = fit_equant(day, longitude)
 
+    print(T, M0, e, ω)
+
+    T, M0, e, ω, Tₑ, E0, r = fit_equant_and_epicycle(
+        days, longitude, T, M0, e, ω,
+    )
+
+    print(T, M0, e, ω, Tₑ, E0, r)
+
     # Normalize negative e by rotating the orbit 180°.
     # if e < 0:
     #     e = -e
@@ -60,11 +68,11 @@ def main():
     # offset, ω = divmod(ω, tau)
     # M0 += offset * tau
 
-    print(T, M0, e, ω)
-    print('deg', degrees(ω))
-    print(e * 60.0)
+    residual = equant(day, T, M0, e, ω) - longitude
 
-    ax.plot(day, degrees(equant(day, T, M0, e, ω) - longitude))
+    ax.plot(day, degrees(residual))
+    ax.plot(day, degrees(equant(day, T, M0, e, ω) + epicycle(day, Tₑ, E0, r)
+                         - longitude))
     #ax.plot(day, degrees(equant(day, T, ω, -e)) - degrees(lon))
     #ax.plot(day, degrees(equant(day, T, ω-tau/2, -e)+tau/2) - degrees(lon))
 
@@ -96,12 +104,43 @@ def fit_equant(day, longitude):
 
     return T, M0, e, ω
 
+def fit_equant_and_epicycle(day, longitude, T, M0, e, ω):
+    Tₑ = 300
+    E0 = 0
+    r = 0.5
+
+    def f(t, Tₑ, E0, r):
+        return equant(t, T, M0, e, ω) + epicycle(t, Tₑ, E0, r)
+
+    (Tₑ, E0, r), covariance = curve_fit(f, day, longitude, (Tₑ, E0, r))
+
+    # def f(t, T, M0, e, ω, Tₑ, E0, r):
+    #     return equant(t, T, M0, e, ω) + epicycle(t, Tₑ, E0, r)
+
+    # Normalize negative e by rotating the orbit 180°.
+    if e < 0:
+        e = -e
+        ω += tau/2
+        M0 -= tau/2
+
+    # Normalize ω.
+    offset, ω = divmod(ω, tau)
+    M0 += offset * tau
+
+    return T, M0, e, ω, Tₑ, E0, r
+
 def degrees(radians):
     return radians / tau * 360.0
 
 def equant(t, T, M0, e, ω):
     M = M0 + t / T * tau
+    # x =
+    # y =
     return ω + M - arcsin(e * sin(M))
+
+def epicycle(t, Tₑ, E0, r):
+    E = E0 + t / Tₑ * tau
+    return r * sin(E)
 
 if __name__ == '__main__':
     main()
