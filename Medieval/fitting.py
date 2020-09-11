@@ -28,7 +28,12 @@ def main():
     #     print(x)
 
     planets = load('de421.bsp')
-    planet = planets['sun']
+    #fit(t, planets, 'sun')
+    fit(t, planets, 'mars')
+
+def fit(t, planets, name):
+
+    planet = planets[name]
     # planet = planets['jupiter barycenter']
     earth = planets['earth']
     #lat, lon, distance = earth.at(t).observe(sun).apparent().ecliptic_latlon()
@@ -62,11 +67,12 @@ def main():
     print([day[0], day[1], day[2]])
     print(equant_orbit([day[0], day[1], day[2]], T, M0, xe, ye))
 
-    # T, M0, e, ω, Tₑ, E0, r = fit_equant_and_epicycle(
-    #     days, longitude, T, M0, e, ω,
-    # )
+    if name != 'sun':
+        T, M0, xe, ye, Tₑ, E0, r = fit_equant_and_epicycle(
+            day, longitude, T, M0, xe, ye,
+        )
 
-    # print(T, M0, e, ω, Tₑ, E0, r)
+        print(T, M0, xe, ye, Tₑ, E0, r)
 
     # Normalize negative e by rotating the orbit 180°.
     # if e < 0:
@@ -78,7 +84,7 @@ def main():
     # offset, ω = divmod(ω, tau)
     # M0 += offset * tau
 
-    angle = equant_orbit(day, T, M0, xe, ye)
+    angle = to_longitude(equant_orbit)(day, T, M0, xe, ye)
 
     # ax.plot(day, degrees(longitude))
     # ax.plot(day, degrees(angle))
@@ -96,9 +102,7 @@ def main():
     # ax.set_aspect(aspect=1.0)
     # ax.grid()
     # plt.legend()
-    fig.savefig('tmp.png')
-
-from scipy.optimize import fsolve
+    fig.savefig(f'fit_{name}.png')
 
 def fit_equant(day, longitude):
     days = day[-1] - day[0]
@@ -111,7 +115,7 @@ def fit_equant(day, longitude):
     # print(days)
     # print(revolutions)
     (T, M0, xe, ye), covariance = curve_fit(
-        equant_orbit, day, longitude, (T, M0, xe, ye),
+        to_longitude(equant_orbit), day, longitude, (T, M0, xe, ye),
     )
 
     # # Normalize negative e by rotating the orbit 180°.
@@ -126,30 +130,36 @@ def fit_equant(day, longitude):
 
     return T, M0, xe, ye
 
-def fit_equant_and_epicycle(day, longitude, T, M0, e, ω):
+def fit_equant_and_epicycle(day, longitude, T, M0, xe, ye):
     Tₑ = 300
     E0 = 0
     r = 0.5
 
     def f(t, Tₑ, E0, r):
-        return equant(t, T, M0, e, ω) + epicycle(t, Tₑ, E0, r)
+        x1, y1 = equant_orbit(t, T, M0, xe, ye)
+        x2, y2 = epicycle(t, Tₑ, E0, r)
+        return x1 + x2, y1 + y2
 
-    (Tₑ, E0, r), covariance = curve_fit(f, day, longitude, (Tₑ, E0, r))
+    (Tₑ, E0, r), covariance = curve_fit(
+        to_longitude(f), day, longitude, (Tₑ, E0, r),
+    )
+
+    print(Tₑ, E0, r)
 
     # def f(t, T, M0, e, ω, Tₑ, E0, r):
     #     return equant(t, T, M0, e, ω) + epicycle(t, Tₑ, E0, r)
 
     # Normalize negative e by rotating the orbit 180°.
-    if e < 0:
-        e = -e
-        ω += tau/2
-        M0 -= tau/2
+    # if e < 0:
+    #     e = -e
+    #     ω += tau/2
+    #     M0 -= tau/2
 
     # Normalize ω.
-    offset, ω = divmod(ω, tau)
-    M0 += offset * tau
+    # offset, ω = divmod(ω, tau)
+    # M0 += offset * tau
 
-    return T, M0, e, ω, Tₑ, E0, r
+    return T, M0, xe, ye, Tₑ, E0, r
 
 def degrees(radians):
     return radians / tau * 360.0
@@ -168,10 +178,16 @@ def plot_equant():
     ax.grid()
     fig.savefig('equant.png')
 
+def to_longitude(f):
+    def wrapper(*args):
+        x, y = f(*args)
+        return unwrap(arctan2(y, x) % tau)
+    return wrapper
+
 def equant_orbit(t, T, M0, xe, ye):
     M = M0 + t / T * tau
     x, y = equant(M, xe, ye)
-    return unwrap(arctan2(y + ye, x + xe) % tau)
+    return x + xe, y + ye
 
 def equant(M, xe, ye):
     offset = arctan2(ye, xe)
@@ -183,7 +199,7 @@ def equant(M, xe, ye):
 
 def epicycle(t, Tₑ, E0, r):
     E = E0 + t / Tₑ * tau
-    return r * sin(E)
+    return cos(E), sin(E)
 
 if __name__ == '__main__':
     main()
