@@ -3,6 +3,7 @@
 import sympy as sy
 import matplotlib.pyplot as plt
 import numpy as np
+from functools import partial
 from numpy import arcsin, arctan2, cos, sin, unwrap, sqrt
 from scipy.optimize import curve_fit
 from skyfield.api import load, tau
@@ -16,7 +17,8 @@ def main():
 
     ts = load.timescale()
 
-    days = 365 * 10
+    #days = 365 * 20
+    days = 365 * 4
     t = ts.tt(2010, 1, range(days))
 
     # t = ts.tt(2010, 1, range(365 * 1))
@@ -49,7 +51,6 @@ def fit(t, planets, name):
 
     #dt = t.tt[1:] - t.tt[:-1]
 
-    fig, ax = plt.subplots()
     #ax.plot(t, s, label='label', linestyle='--')
 
     #equant = equant(T, ω, e)
@@ -67,12 +68,31 @@ def fit(t, planets, name):
     print([day[0], day[1], day[2]])
     print(equant_orbit([day[0], day[1], day[2]], T, M0, xe, ye))
 
+    angle = to_longitude(equant_orbit)(day, T, M0, xe, ye)
+    residual = angle - longitude
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+    ax1.plot(day, degrees(longitude))
+    ax1.plot(day, degrees(angle))
+    ax2.plot(day, degrees(residual))
+
     if name != 'sun':
         T, M0, xe, ye, Tₑ, E0, r = fit_equant_and_epicycle(
             day, longitude, T, M0, xe, ye,
         )
 
         print(T, M0, xe, ye, Tₑ, E0, r)
+
+        angle = to_longitude(equant_and_epicycle)(day, T, M0, xe, ye, Tₑ, E0, r)
+        ax3.plot(day, degrees(longitude))
+        ax3.plot(day, degrees(angle))
+
+        residual = angle - longitude
+        ax2.plot(day, degrees(residual))
+        ax4.plot(day, degrees(residual))
+
+        # x, y = equant_and_epicycle(day, T, M0, xe, ye, Tₑ, E0, r)
+        # ax4.plot(x, y)
 
     # Normalize negative e by rotating the orbit 180°.
     # if e < 0:
@@ -84,14 +104,9 @@ def fit(t, planets, name):
     # offset, ω = divmod(ω, tau)
     # M0 += offset * tau
 
-    angle = to_longitude(equant_orbit)(day, T, M0, xe, ye)
-
     # ax.plot(day, degrees(longitude))
     # ax.plot(day, degrees(angle))
 
-    residual = angle - longitude
-
-    ax.plot(day, degrees(residual))
     # ax.plot(day, degrees(equant(day, T, M0, e, ω) + epicycle(day, Tₑ, E0, r)
     #                      - longitude))
 
@@ -114,9 +129,13 @@ def fit_equant(day, longitude):
 
     # print(days)
     # print(revolutions)
-    (T, M0, xe, ye), covariance = curve_fit(
-        to_longitude(equant_orbit), day, longitude, (T, M0, xe, ye),
-    )
+    def f(t, T, M0): #, xe, ye):
+        return equant_orbit(t, T, M0, xe, ye)
+
+    (T, M0, #  xe, ye
+    ), covariance = curve_fit(
+        to_longitude(f), day, longitude, (T, M0, # xe, ye,
+        ))
 
     # # Normalize negative e by rotating the orbit 180°.
     # if e < 0:
@@ -131,14 +150,19 @@ def fit_equant(day, longitude):
     return T, M0, xe, ye
 
 def fit_equant_and_epicycle(day, longitude, T, M0, xe, ye):
-    Tₑ = 300
-    E0 = 0
-    r = 0.5
+    angle = to_longitude(equant_orbit)(day, T, M0, xe, ye)
+    residual = longitude - angle
+    zeros = (residual < 0)[:-1] & (residual > 0)[1:]
+    zero_days = day[:-1][zeros]
+    print('========', (zero_days[-1] - zero_days[0]) / (len(zero_days) - 1))
+
+    Tₑ = (zero_days[-1] - zero_days[0]) / (len(zero_days) - 1)
+    E0 = M0 - (1.0 - zero_days[0] / Tₑ) * tau
+    #E0 = zero_days[0] / Tₑ
+    r = 0.1
 
     def f(t, Tₑ, E0, r):
-        x1, y1 = equant_orbit(t, T, M0, xe, ye)
-        x2, y2 = epicycle(t, Tₑ, E0, r)
-        return x1 + x2, y1 + y2
+        return equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
 
     (Tₑ, E0, r), covariance = curve_fit(
         to_longitude(f), day, longitude, (Tₑ, E0, r),
@@ -173,7 +197,7 @@ def plot_equant():
     # print(1 - x*x - y*y)
 
     fig, ax = plt.subplots()
-    ax.plot(x, y, 'o')
+    ax.plot(x, y)
     ax.set_aspect(aspect=1.0)
     ax.grid()
     fig.savefig('equant.png')
@@ -183,6 +207,11 @@ def to_longitude(f):
         x, y = f(*args)
         return unwrap(arctan2(y, x) % tau)
     return wrapper
+
+def equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r):
+    x1, y1 = equant_orbit(t, T, M0, xe, ye)
+    x2, y2 = epicycle(t, Tₑ, E0, r)
+    return x1 + x2, y1 + y2
 
 def equant_orbit(t, T, M0, xe, ye):
     M = M0 + t / T * tau
@@ -199,7 +228,7 @@ def equant(M, xe, ye):
 
 def epicycle(t, Tₑ, E0, r):
     E = E0 + t / Tₑ * tau
-    return cos(E), sin(E)
+    return r * cos(E), r * sin(E)
 
 if __name__ == '__main__':
     main()
