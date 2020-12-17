@@ -17,8 +17,8 @@ def main():
 
     ts = load.timescale()
 
-    #days = 365 * 20
-    days = 365 * 4
+    days = 365 * 10
+    #days = 365 * 4
     t = ts.tt(2010, 1, range(days))
 
     # t = ts.tt(2010, 1, range(365 * 1))
@@ -31,7 +31,88 @@ def main():
 
     planets = load('de421.bsp')
     #fit(t, planets, 'sun')
-    fit(t, planets, 'mars')
+    #fit(t, planets, 'mars')
+    fit2(t, planets, 'mars')
+
+def fit2(t, planets, name):
+    planet = planets[name]
+    earth = planets['earth']
+    lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
+
+    day = t.tt - t.tt[0]
+    longitude = degrees(unwrap(lon.radians))
+
+    # Parameters we need:
+    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
+    #
+    # (new name - descr)
+    # y DT - period of deferent
+    # y D0 - angular position on orbit at time 0
+    #  x, y - position of Earth, relative to center of circular orbit at (0,0)
+    # y ET - epicycle period
+    #  E0 - angular position of epicycle at time 0
+    #  Er - Radius of epicycle, where circular orbit has radius = 1.
+
+    # Let's go after epicycle first, rather than deferent period!
+
+    derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
+    retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
+    retrograde_ends, = np.nonzero(derivative_sign_diff > 0)
+    if retrograde_ends[0] < retrograde_starts[0]:
+        retrograde_ends = retrograde_ends[1:]
+    if retrograde_ends[-1] < retrograde_starts[-1]:
+        retrograde_starts = retrograde_starts[1:]
+
+    assert len(retrograde_starts) == len(retrograde_ends)
+
+    retrograde_middles = (retrograde_ends + retrograde_starts) / 2.0
+    m = retrograde_middles.astype(int)
+    print(retrograde_starts)
+    print(retrograde_ends)
+    print(retrograde_middles)
+    print(m)
+
+    days = m[-1] - m[0]
+    epicycle_orbits = len(m - 1)
+    deferent_orbits = (longitude[m[-1]] - longitude[m[0]]) / 360.0
+
+    DT = days / deferent_orbits
+    print('DT:', DT)
+
+    D0 = longitude[m[0]] - 360.0 * m[0] / DT
+    print('D0:', D0)
+
+    ET = days / epicycle_orbits
+    print('ET:', ET)
+
+    # E0 ?
+
+    # we have half of parameters? almost half.
+
+    # * 360
+
+    #dot2 = np.diff(dot1)
+    #retro_starts, = np.nonzero((d[:-1] > 0) & (d[1:] < 0))
+    #retro_start = retro_starts[0]
+    # np.nonzero 
+    # print(retro_starts)
+
+    # retro_ends, = np.nonzero((d[retro_start:-1] < 0) & (d[retro_start + 1:] > 0))
+    # retro_end = retro_ends[0] + retro_start
+    # print(retro_start, retro_end)
+
+    fig, ax = plt.subplots(1,1)
+    ax.plot(day, longitude)
+
+    #ax.plot(day, D0 + 360.0 * day / DT)
+    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
+    f = to_longitude(equant_and_epicycle)
+    y = f(day, DT, D0, 0, 0, 100, 0, 0)
+    print(day.shape)
+    print(y.shape)
+    ax.plot(day, y)
+
+    fig.savefig(f'fit_{name}.png')
 
 def fit(t, planets, name):
 
@@ -65,7 +146,6 @@ def fit(t, planets, name):
     T, M0, xe, ye = fit_equant(day, longitude)
 
     print(T, M0, xe, ye)
-    print([day[0], day[1], day[2]])
     print(equant_orbit([day[0], day[1], day[2]], T, M0, xe, ye))
 
     angle = to_longitude(equant_orbit)(day, T, M0, xe, ye)
@@ -205,8 +285,11 @@ def plot_equant():
 def to_longitude(f):
     def wrapper(*args):
         x, y = f(*args)
-        return unwrap(arctan2(y, x) % tau)
+        return unwrap(arctan2(y, x)) / tau * 360.0
     return wrapper
+
+def to_radians(degrees):
+    return degrees / 360.0 * tau
 
 def equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r):
     x1, y1 = equant_orbit(t, T, M0, xe, ye)
@@ -214,7 +297,7 @@ def equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r):
     return x1 + x2, y1 + y2
 
 def equant_orbit(t, T, M0, xe, ye):
-    M = M0 + t / T * tau
+    M = to_radians(M0) + t / T * tau
     x, y = equant(M, xe, ye)
     return x + xe, y + ye
 
@@ -227,7 +310,7 @@ def equant(M, xe, ye):
     return cos(a), sin(a)
 
 def epicycle(t, Tₑ, E0, r):
-    E = E0 + t / Tₑ * tau
+    E = to_radians(E0) + t / Tₑ * tau
     return r * cos(E), r * sin(E)
 
 if __name__ == '__main__':
