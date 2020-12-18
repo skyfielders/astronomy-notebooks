@@ -73,7 +73,7 @@ def fit2(t, planets, name):
     print(m)
 
     days = m[-1] - m[0]
-    epicycle_orbits = len(m - 1)
+    epicycle_orbits = len(m) - 1
     deferent_orbits = (longitude[m[-1]] - longitude[m[0]]) / 360.0
 
     DT = days / deferent_orbits
@@ -82,37 +82,82 @@ def fit2(t, planets, name):
     D0 = longitude[m[0]] - 360.0 * m[0] / DT
     print('D0:', D0)
 
-    ET = days / epicycle_orbits
+    ET = days / (deferent_orbits + epicycle_orbits)
+    #ET = DT - days / epicycle_orbits
     print('ET:', ET)
 
-    # E0 ?
+    # at time m[0], epicycle had angle: -longitude[m[0]]
+    # and its period is ET
+    # so its angle at time 0 must be: -longitude[m[0]] - 360.0 * m[0]
+    # (Why the 180°?)
+    E0 = (longitude[m[0]] - 360.0 * (m[0] / ET) - 180.0)
 
-    # we have half of parameters? almost half.
+    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
+    # (T, M0, xe, ye), covariance = curve_fit(equant, day, lon, (T, M0, ye, ye))
 
-    # * 360
+    # def f(day, r):
+    #     return to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, r))
 
-    #dot2 = np.diff(dot1)
-    #retro_starts, = np.nonzero((d[:-1] > 0) & (d[1:] < 0))
-    #retro_start = retro_starts[0]
-    # np.nonzero 
-    # print(retro_starts)
+    # [r], etc = curve_fit(f, day, longitude, p0=[0.5])
+    # print(r)
 
-    # retro_ends, = np.nonzero((d[retro_start:-1] < 0) & (d[retro_start + 1:] > 0))
-    # retro_end = retro_ends[0] + retro_start
-    # print(retro_start, retro_end)
+    params = np.array([DT, D0, 0, 0, ET, E0, 0.5])
+
+    fig, axes = plt.subplots(len(params), 1)
+    # y = to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, r))
+    # print(day.shape)
+    # print(y.shape)
+    # ax.plot(day, longitude)
+    #ax.plot(day, y)
+
+    def sum_of_squares(t, *params):
+        print('t', t.shape)
+        for i, v in enumerate(params):
+            print(i, v.shape)
+        y = to_longitude(equant_and_epicycle(t, *params))
+        print('y', y.shape)  # (3650, 100)
+        i = 50
+        # ax1.plot(t[:,0], y[:,i])
+        # ax1.plot(t[:,0], longitude)
+        delta = (y - longitude[:,None])
+        return (delta * delta).sum(axis=0)
+
+    N = 1000
+    span = np.linspace(-1.0, 1.0, N) #[None,:]
+    #span = np.linspace(-0.30, 0.30, N) #[None,:]
+    zero = span * 0.0
+    one = span + 1.0
+    print(span.shape, zero.shape, one.shape) # (1,100) all
+    #y = to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, r))
+
+    scales = [10.0, 10.0, 0.3, 0.3, 10.0, 10.0, 0.3]
+    assert len(scales) == len(params)
+
+    for i, scale in enumerate(scales):
+        print(':', params.shape, zero.shape) # TODO
+        param_arrays = params[:,None] + zero  # (7,N)
+        print(':pa', param_arrays.shape)
+        print(':', param_arrays[i].shape)  #(N)
+        param_arrays[i] += span * scale
+        this_param = param_arrays[i]
+        #r = 0.5 + span * 0.45
+        sq = sum_of_squares(day[:,None], *param_arrays)
+        print('::', this_param.shape) # (N)
+        print('::', sq.shape) # (N)
+        axes[i].plot(this_param, sq, '.')
+
+    fig.savefig(f'fit_{name}.png')
+
+    def f(day, DT, D0, xe, ye, ET, E0, r):
+        return to_longitude(equant_and_epicycle(day, DT, D0, xe, ye, ET, E0, r))
+
+    params, etc = curve_fit(f, day, longitude, p0=params)
+    print(params)
 
     fig, ax = plt.subplots(1,1)
     ax.plot(day, longitude)
-
-    #ax.plot(day, D0 + 360.0 * day / DT)
-    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
-    f = to_longitude(equant_and_epicycle)
-    y = f(day, DT, D0, 0, 0, 100, 0, 0)
-    print(day.shape)
-    print(y.shape)
-    ax.plot(day, y)
-
-    fig.savefig(f'fit_{name}.png')
+    ax.plot(day, to_longitude(equant_and_epicycle(day, *params)))
+    fig.savefig(f'fit2_{name}.png')
 
 def fit(t, planets, name):
 
@@ -282,11 +327,9 @@ def plot_equant():
     ax.grid()
     fig.savefig('equant.png')
 
-def to_longitude(f):
-    def wrapper(*args):
-        x, y = f(*args)
-        return unwrap(arctan2(y, x)) / tau * 360.0
-    return wrapper
+def to_longitude(xy):
+    x, y = xy
+    return unwrap(arctan2(y, x), axis=0) / tau * 360.0
 
 def to_radians(degrees):
     return degrees / 360.0 * tau
