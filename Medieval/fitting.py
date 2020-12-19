@@ -200,15 +200,18 @@ def fit2(t, planets, planet_name, target_name):
 
     fig, ax = plt.subplots(1,1)
     ax.plot(day, longitude,
-            label=f'Real-world {planet_name} longitude')
+            'g', label=f'Real-world {planet_name} longitude')
 
     D0 = initial_params[1]
     ax.plot(day, to_longitude(equant_and_epicycle(day, *initial_params), D0),
-            label='Longitude produced by initial parameters')
+            'orange', label='Longitude produced by initial parameters')
 
     D0 = fitted_params[1]
     ax.plot(day, to_longitude(equant_and_epicycle(day, *fitted_params), D0),
-            label='Longitude produced by fitted parameters')
+            'b', label='Longitude produced by fitted parameters')
+
+    ax.plot(day[::100], longitude[::100],
+            '+g', label=f'Real-world {planet_name} longitude')
 
     ax.set(xlabel='Time (days)',
            ylabel='Geocentric apparent ecliptic longitude (°)')
