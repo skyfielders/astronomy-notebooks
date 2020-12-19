@@ -8,16 +8,8 @@ from scipy.optimize import curve_fit
 from skyfield.api import load, tau
 
 def main():
-    # solve_equant()
-    # return
-
-    # plot_equant()
-    # return
-
     ts = load.timescale()
-
     days = 365 * 10
-    #days = 365 * 4
     t = ts.tt(2010, 1, range(days))
 
     # t = ts.tt(2010, 1, range(365 * 1))
@@ -43,16 +35,46 @@ def main():
     planet = ephemeris[target_name]
     earth = ephemeris['Earth']
     lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
-    longitude = degrees(unwrap(lon.radians))
+    longitude = to_degrees(unwrap(lon.radians))
 
-    initial_params, fitted_params = fit2(day, longitude, planet_name)
+    if planet_name in ('Moon', 'Sun'):
+        initial_params, fitted_params = fit1(day, longitude)
+    else:
+        initial_params, fitted_params = fit2(day, longitude)
+
     plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
     plot_solution(planet_name, day, longitude, initial_params, fitted_params)
 
     with open(f'parameters_{planet_name}.txt', 'w') as f:
         print(list(fitted_params), file=f)
 
-def fit2(day, longitude, planet_name):  # TODO: remove planet_name
+    # if planet_name == 'Moon':
+    #     derivative2_sign_diff = np.diff(np.sign(np.diff(np.diff(longitude))))
+    #     retrograde_middles, = np.nonzero(derivative2_sign_diff == 2)
+    # else:
+
+def fit1(day, longitude):
+    days = day[-1] - day[0]
+    revolutions = (longitude[-1] - longitude[0]) / 360.0
+
+    D0 = longitude[0]
+    DT = days / revolutions
+
+    initial_params = np.array([DT, D0, 0, 0])
+    null_epicycle = [1.0, 0, 0]
+
+    def f(day, DT, D0, xe, ye):
+        xy = equant_and_epicycle(day, DT, D0, xe, ye, *null_epicycle)
+        return to_longitude(xy, D0)
+
+    fitted_params, etc = curve_fit(f, day, longitude, p0=initial_params)
+
+    initial_params = np.concatenate([initial_params, null_epicycle])
+    fitted_params = np.concatenate([fitted_params, null_epicycle])
+
+    return initial_params, fitted_params
+
+def fit2(day, longitude):
 
     # Parameters we need:
     # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, Er)
@@ -65,28 +87,19 @@ def fit2(day, longitude, planet_name):  # TODO: remove planet_name
     #  E0 - angular position of epicycle at time 0
     #  Er - Radius of epicycle, where circular orbit has radius = 1.
 
-    # Let's go after epicycle first, rather than deferent period!
+    derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
+    retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
+    retrograde_ends, = np.nonzero(derivative_sign_diff > 0)
+    if retrograde_ends[0] < retrograde_starts[0]:
+        retrograde_ends = retrograde_ends[1:]
+    if retrograde_ends[-1] < retrograde_starts[-1]:
+        retrograde_starts = retrograde_starts[1:]
 
-    # if planet_name == 'Sun':
-    #     return fit_equant(day, longitude)
-    if planet_name == 'Moon':
-        derivative2_sign_diff = np.diff(np.sign(np.diff(np.diff(longitude))))
-        retrograde_middles, = np.nonzero(derivative2_sign_diff == 2)
-    else:
-        derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
-        retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
-        retrograde_ends, = np.nonzero(derivative_sign_diff > 0)
-        if retrograde_ends[0] < retrograde_starts[0]:
-            retrograde_ends = retrograde_ends[1:]
-        if retrograde_ends[-1] < retrograde_starts[-1]:
-            retrograde_starts = retrograde_starts[1:]
+    assert len(retrograde_starts) == len(retrograde_ends)
 
-        assert len(retrograde_starts) == len(retrograde_ends)
-
-        retrograde_middles = (retrograde_ends + retrograde_starts) / 2.0
-        print(retrograde_starts)
-        print(retrograde_ends)
-
+    retrograde_middles = (retrograde_ends + retrograde_starts) / 2.0
+    print(retrograde_starts)
+    print(retrograde_ends)
     print(retrograde_middles)
     m = retrograde_middles.astype(int)
     print(m)
@@ -203,8 +216,8 @@ def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
         #break
 
     fig.tight_layout()
-    fig.suptitle('Residual sum-of-squares behavior of each\n'
-                 'parameter around our initial guess\n'
+    fig.suptitle(planet_name + ': Residual sum-of-squares behavior of\n'
+                 'each parameter around our initial guess\n'
                  '(the curve needs to be smooth!)\n'
                  'Orange: initial guess  Green: optimal')
     fig.subplots_adjust(top=0.90)  # Make room for suptitle
@@ -232,173 +245,8 @@ def plot_solution(planet_name, day, longitude, initial_params, fitted_params):
     fig.tight_layout()
     fig.savefig(f'solution_{planet_name}.png')
 
-def fit(t, planets, name):
-
-    planet = planets[name]
-    # planet = planets['jupiter barycenter']
-    earth = planets['earth']
-    #lat, lon, distance = earth.at(t).observe(sun).apparent().ecliptic_latlon()
-    lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
-
-    #lon = lon.degrees
-    longitude = unwrap(lon.radians)
-    # import numpy as np
-    # t = np.arange(0.0, 2.0, 0.01)
-    # s = 1 + np.sin(2 * np.pi * t)
-
-    day = t.tt - t.tt[0]
-
-    #dt = t.tt[1:] - t.tt[:-1]
-
-    #ax.plot(t, s, label='label', linestyle='--')
-
-    #equant = equant(T, ω, e)
-
-    #ax.plot(day, lon)
-    #ax.plot(day, degrees(equant(day, T, M0, ω, e)) - degrees(lon))
-    #ax.plot(day[:-1], dt)
-
-    #print(T, M0, e, ω)
-
-    # (T, M0, xe, ye), covariance = curve_fit(equant, day, lon, (T, M0, ye, ye))
-    T, M0, xe, ye = fit_equant(day, longitude)
-
-    print(T, M0, xe, ye)
-    print(equant_orbit([day[0], day[1], day[2]], T, M0, xe, ye))
-
-    angle = to_longitude(equant_orbit)(day, T, M0, xe, ye)
-    residual = angle - longitude
-
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
-    ax1.plot(day, degrees(longitude))
-    ax1.plot(day, degrees(angle))
-    ax2.plot(day, degrees(residual))
-
-    if name != 'sun':
-        T, M0, xe, ye, Tₑ, E0, r = fit_equant_and_epicycle(
-            day, longitude, T, M0, xe, ye,
-        )
-
-        print(T, M0, xe, ye, Tₑ, E0, r)
-
-        angle = to_longitude(equant_and_epicycle)(day, T, M0, xe, ye, Tₑ, E0, r)
-        ax3.plot(day, degrees(longitude))
-        ax3.plot(day, degrees(angle))
-
-        residual = angle - longitude
-        ax2.plot(day, degrees(residual))
-        ax4.plot(day, degrees(residual))
-
-        # x, y = equant_and_epicycle(day, T, M0, xe, ye, Tₑ, E0, r)
-        # ax4.plot(x, y)
-
-    # Normalize negative e by rotating the orbit 180°.
-    # if e < 0:
-    #     e = -e
-    #     ω += tau/2
-    #     M0 -= tau/2
-
-    # # Normalize ω.
-    # offset, ω = divmod(ω, tau)
-    # M0 += offset * tau
-
-    # ax.plot(day, degrees(longitude))
-    # ax.plot(day, degrees(angle))
-
-    # ax.plot(day, degrees(equant(day, T, M0, e, ω) + epicycle(day, Tₑ, E0, r)
-    #                      - longitude))
-
-    #ax.plot(day, degrees(equant(day, T, ω, -e)) - degrees(lon))
-    #ax.plot(day, degrees(equant(day, T, ω-tau/2, -e)+tau/2) - degrees(lon))
-
-    # ax.set(xlabel='time (s)', ylabel='voltage (mV)', title='Title')
-    # ax.set_aspect(aspect=1.0)
-    # ax.grid()
-    # plt.legend()
-    fig.savefig(f'fit_{name}.png')
-
-def fit_equant(day, longitude):
-    days = day[-1] - day[0]
-    revolutions = (longitude[-1] - longitude[0]) / tau
-    T = days / revolutions
-    M0 = longitude[0]
-    xe = 0
-    ye = 0
-
-    # print(days)
-    # print(revolutions)
-    def f(t, T, M0): #, xe, ye):
-        return equant_orbit(t, T, M0, xe, ye)
-
-    (T, M0, #  xe, ye
-    ), covariance = curve_fit(
-        to_longitude(f), day, longitude, (T, M0, # xe, ye,
-        ))
-
-    # # Normalize negative e by rotating the orbit 180°.
-    # if e < 0:
-    #     e = -e
-    #     ω += tau/2
-    #     M0 -= tau/2
-
-    # # Normalize ω.
-    # offset, ω = divmod(ω, tau)
-    # M0 += offset * tau
-
-    return T, M0, xe, ye
-
-def fit_equant_and_epicycle(day, longitude, T, M0, xe, ye):
-    angle = to_longitude(equant_orbit)(day, T, M0, xe, ye)
-    residual = longitude - angle
-    zeros = (residual < 0)[:-1] & (residual > 0)[1:]
-    zero_days = day[:-1][zeros]
-    print('========', (zero_days[-1] - zero_days[0]) / (len(zero_days) - 1))
-
-    Tₑ = (zero_days[-1] - zero_days[0]) / (len(zero_days) - 1)
-    E0 = M0 - (1.0 - zero_days[0] / Tₑ) * tau
-    #E0 = zero_days[0] / Tₑ
-    r = 0.1
-
-    def f(t, Tₑ, E0, r):
-        return equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
-
-    (Tₑ, E0, r), covariance = curve_fit(
-        to_longitude(f), day, longitude, (Tₑ, E0, r),
-    )
-
-    print(Tₑ, E0, r)
-
-    # def f(t, T, M0, e, ω, Tₑ, E0, r):
-    #     return equant(t, T, M0, e, ω) + epicycle(t, Tₑ, E0, r)
-
-    # Normalize negative e by rotating the orbit 180°.
-    # if e < 0:
-    #     e = -e
-    #     ω += tau/2
-    #     M0 -= tau/2
-
-    # Normalize ω.
-    # offset, ω = divmod(ω, tau)
-    # M0 += offset * tau
-
-    return T, M0, xe, ye, Tₑ, E0, r
-
-def degrees(radians):
+def to_degrees(radians):
     return radians / tau * 360.0
-
-def plot_equant():
-    M = np.linspace(0, tau * 50.0 / 60.0, 60)
-    x, y = equant(M, 0.5, 0.0)
-    # print(M)
-    # print(x)
-    # print(y)
-    # print(1 - x*x - y*y)
-
-    fig, ax = plt.subplots()
-    ax.plot(x, y)
-    ax.set_aspect(aspect=1.0)
-    ax.grid()
-    fig.savefig('equant.png')
 
 def to_longitude(xy, D0):
     # Keep result’s first item to within 180° of D0.

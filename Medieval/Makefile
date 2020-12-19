@@ -1,5 +1,5 @@
 
-planets := Mercury Venus Mars Jupiter Saturn
+planets := Moon Mercury Venus Sun Mars Jupiter Saturn
 planet_outputs := $(patsubst %, fit_%.png, $(planets))
 
 all: $(planet_outputs)
