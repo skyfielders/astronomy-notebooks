@@ -32,18 +32,18 @@ def main():
     planets = load('de421.bsp')
     #fit(t, planets, 'sun')
     #fit(t, planets, 'mars')
-    fit2(t, planets, 'mars')
+    fit2(t, planets, 'Mars')
 
 def fit2(t, planets, name):
     planet = planets[name]
-    earth = planets['earth']
+    earth = planets['Earth']
     lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
 
     day = t.tt - t.tt[0]
     longitude = degrees(unwrap(lon.radians))
 
     # Parameters we need:
-    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
+    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, Er)
     #
     # (new name - descr)
     # y DT - period of deferent
@@ -92,18 +92,14 @@ def fit2(t, planets, name):
     # (Why the 180°?)
     E0 = (longitude[m[0]] - 360.0 * (m[0] / ET) - 180.0)
 
-    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r)
+    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, Er)
     # (T, M0, xe, ye), covariance = curve_fit(equant, day, lon, (T, M0, ye, ye))
 
     # def f(day, r):
-    #     return to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, r))
+    #     return to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, Er))
 
-    # [r], etc = curve_fit(f, day, longitude, p0=[0.5])
-    # print(r)
+    initial_params = np.array([DT, D0, 0, 0, ET, E0, 0.5])
 
-    params = np.array([DT, D0, 0, 0, ET, E0, 0.5])
-
-    fig, axes = plt.subplots(len(params), 1)
     # y = to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, r))
     # print(day.shape)
     # print(y.shape)
@@ -122,41 +118,80 @@ def fit2(t, planets, name):
         delta = (y - longitude[:,None])
         return (delta * delta).sum(axis=0)
 
+    def f(day, DT, D0, xe, ye, ET, E0, Er):
+        xy = equant_and_epicycle(day, DT, D0, xe, ye, ET, E0, Er)
+        return to_longitude(xy)
+
+    fitted_params, etc = curve_fit(f, day, longitude, p0=initial_params)
+    fitted_rss = sum_of_squares(day[:,None], *fitted_params)
+    print(fitted_params)
+    print('fitted_rss:', fitted_rss)
+
+    # Plot: behavior of each parameter around our initial guesses.
+
+    fig, axes = plt.subplots(len(initial_params), 1, figsize=(6.4, 12.8))
+
     N = 1000
     span = np.linspace(-1.0, 1.0, N) #[None,:]
     #span = np.linspace(-0.30, 0.30, N) #[None,:]
     zero = span * 0.0
     one = span + 1.0
     print(span.shape, zero.shape, one.shape) # (1,100) all
-    #y = to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, r))
+    #y = to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, Er))
 
-    scales = [10.0, 10.0, 0.3, 0.3, 10.0, 10.0, 0.3]
-    assert len(scales) == len(params)
+    names = [
+        'DT: deferent rotation period (days)',
+        'D0: deferent angle at day=0.0',
+        'xe: x coordinate of Earth',
+        'ye: y coordinate of Earth',
+        'ET: epicycle rotation period (days)',
+        'E0: epicycle angle at day=0.0',
+        'Er: epicycle radius (deferent radius=1)',
+    ]
+    scales = [10.0, 10.0, 0.25, 0.25, 10.0, 10.0, 0.3]
+    assert len(scales) == len(fitted_params)
 
-    for i, scale in enumerate(scales):
-        print(':', params.shape, zero.shape) # TODO
-        param_arrays = params[:,None] + zero  # (7,N)
+    for i, (param_name, scale) in enumerate(zip(names, scales)):
+        print(':', fitted_params.shape, zero.shape) # TODO
+        param_arrays = initial_params[:,None] + zero  # (7,N)
         print(':pa', param_arrays.shape)
         print(':', param_arrays[i].shape)  #(N)
         param_arrays[i] += span * scale
         this_param = param_arrays[i]
         #r = 0.5 + span * 0.45
-        sq = sum_of_squares(day[:,None], *param_arrays)
-        print('::', this_param.shape) # (N)
-        print('::', sq.shape) # (N)
-        axes[i].plot(this_param, sq, '.')
 
+        x = this_param
+        y = sum_of_squares(day[:,None], *param_arrays)
+        axes[i].plot(x, y, ',')
+
+        xi = initial_params[i]
+        axes[i].plot(xi, np.interp(xi, x, y), 'o')
+
+        xf = fitted_params[i]
+        axes[i].plot(xf, fitted_rss, 'o')
+
+        axes[i].set_xlabel(f'{param_name}')
+        #break
+
+    fig.tight_layout()
+    fig.suptitle('Residual sum-of-squares behavior of each\n'
+                 'parameter around our initial guess\n'
+                 '(the curve needs to be smooth!)\n'
+                 'Orange: initial guess  Green: optimal')
+    fig.subplots_adjust(top=0.90)  # Make room for suptitle
     fig.savefig(f'fit_{name}.png')
 
-    def f(day, DT, D0, xe, ye, ET, E0, r):
-        return to_longitude(equant_and_epicycle(day, DT, D0, xe, ye, ET, E0, r))
-
-    params, etc = curve_fit(f, day, longitude, p0=params)
-    print(params)
+    # Plot: longitude of planet compared to our deferent and epicycle.
 
     fig, ax = plt.subplots(1,1)
-    ax.plot(day, longitude)
-    ax.plot(day, to_longitude(equant_and_epicycle(day, *params)))
+    ax.plot(day, longitude,
+            label=f'Real-world {name} longitude')
+    ax.plot(day, to_longitude(equant_and_epicycle(day, *fitted_params)),
+            label='Longitude produced by deferent and epicycle')
+    ax.set(xlabel='Time (days)',
+           ylabel='Geocentric apparent ecliptic longitude (°)')
+    fig.legend()
+    fig.tight_layout()
     fig.savefig(f'fit2_{name}.png')
 
 def fit(t, planets, name):
