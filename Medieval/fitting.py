@@ -60,21 +60,26 @@ def fit2(t, planets, planet_name, target_name):
 
     # Let's go after epicycle first, rather than deferent period!
 
-    derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
-    retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
-    retrograde_ends, = np.nonzero(derivative_sign_diff > 0)
-    if retrograde_ends[0] < retrograde_starts[0]:
-        retrograde_ends = retrograde_ends[1:]
-    if retrograde_ends[-1] < retrograde_starts[-1]:
-        retrograde_starts = retrograde_starts[1:]
+    if planet_name == 'Moon':
+        derivative2_sign_diff = np.diff(np.sign(np.diff(np.diff(longitude))))
+        retrograde_middles, = np.nonzero(derivative2_sign_diff == 2)
+    else:
+        derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
+        retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
+        retrograde_ends, = np.nonzero(derivative_sign_diff > 0)
+        if retrograde_ends[0] < retrograde_starts[0]:
+            retrograde_ends = retrograde_ends[1:]
+        if retrograde_ends[-1] < retrograde_starts[-1]:
+            retrograde_starts = retrograde_starts[1:]
 
-    assert len(retrograde_starts) == len(retrograde_ends)
+        assert len(retrograde_starts) == len(retrograde_ends)
 
-    retrograde_middles = (retrograde_ends + retrograde_starts) / 2.0
-    m = retrograde_middles.astype(int)
-    print(retrograde_starts)
-    print(retrograde_ends)
+        retrograde_middles = (retrograde_ends + retrograde_starts) / 2.0
+        print(retrograde_starts)
+        print(retrograde_ends)
+
     print(retrograde_middles)
+    m = retrograde_middles.astype(int)
     print(m)
 
     days = m[-1] - m[0]
@@ -194,7 +199,7 @@ def fit2(t, planets, planet_name, target_name):
                  '(the curve needs to be smooth!)\n'
                  'Orange: initial guess  Green: optimal')
     fig.subplots_adjust(top=0.90)  # Make room for suptitle
-    fig.savefig(f'fit_{planet_name}.png')
+    fig.savefig(f'slopes_{planet_name}.png')
 
     # Plot: longitude of planet compared to our deferent and epicycle.
 
@@ -217,7 +222,10 @@ def fit2(t, planets, planet_name, target_name):
            ylabel='Geocentric apparent ecliptic longitude (°)')
     fig.legend()
     fig.tight_layout()
-    fig.savefig(f'fit2_{planet_name}.png')
+    fig.savefig(f'solution_{planet_name}.png')
+
+    with open(f'parameters_{planet_name}.txt', 'w') as f:
+        print(list(fitted_params), file=f)
 
 def fit(t, planets, name):
 
