@@ -37,15 +37,22 @@ def main():
         ephemeris[target_name]
     except KeyError:
         target_name += ' barycenter'
-    fit2(t, ephemeris, planet_name, target_name)
 
-def fit2(t, ephemeris, planet_name, target_name):
+    day = t.tt - t.tt[0]
+
     planet = ephemeris[target_name]
     earth = ephemeris['Earth']
     lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
-
-    day = t.tt - t.tt[0]
     longitude = degrees(unwrap(lon.radians))
+
+    initial_params, fitted_params = fit2(day, longitude, planet_name)
+    plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
+    plot_solution(planet_name, day, longitude, initial_params, fitted_params)
+
+    with open(f'parameters_{planet_name}.txt', 'w') as f:
+        print(list(fitted_params), file=f)
+
+def fit2(day, longitude, planet_name):  # TODO: remove planet_name
 
     # Parameters we need:
     # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, Er)
@@ -126,34 +133,14 @@ def fit2(t, ephemeris, planet_name, target_name):
     # ax.plot(day, longitude)
     #ax.plot(day, y)
 
-    def sum_of_squares(t, *params):
-        print('t', t.shape)
-        # for i, v in enumerate(params):
-        #     print(i, v.shape)
-        D0 = params[1]
-        y = to_longitude(equant_and_epicycle(t, *params), D0)
-        print('y', y.shape)  # (3650, 100)
-        # i = 50
-        # ax1.plot(t[:,0], y[:,i])
-        # ax1.plot(t[:,0], longitude)
-        delta = (longitude[:,None] - y)
-        #print('?', delta[0:5,0:5])
-        # delta = (delta + 180.0) % 360.0 - 180.0
-        # if delta[0,0] > 180.0:
-        #     delta -= 360.0
-        return (delta * delta).sum(axis=0)
-
     def f(day, DT, D0, xe, ye, ET, E0, Er):
         xy = equant_and_epicycle(day, DT, D0, xe, ye, ET, E0, Er)
         return to_longitude(xy, D0)
 
     fitted_params, etc = curve_fit(f, day, longitude, p0=initial_params)
-    fitted_rss = sum_of_squares(day[:,None], *fitted_params)
-    print(fitted_params)
-    print('fitted_rss:', fitted_rss)
+    return initial_params, fitted_params
 
-    # Plot: behavior of each parameter around our initial guesses.
-
+def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
     fig, axes = plt.subplots(len(initial_params), 1, figsize=(6.4, 12.8))
 
     N = 1000
@@ -175,6 +162,26 @@ def fit2(t, ephemeris, planet_name, target_name):
     ]
     scales = [10.0, 10.0, 0.25, 0.25, 10.0, 10.0, 0.3]
     assert len(scales) == len(fitted_params)
+
+    def sum_of_squares(t, *params):
+        print('t', t.shape)
+        # for i, v in enumerate(params):
+        #     print(i, v.shape)
+        D0 = params[1]
+        y = to_longitude(equant_and_epicycle(t, *params), D0)
+        print('y', y.shape)  # (3650, 100)
+        # i = 50
+        # ax1.plot(t[:,0], y[:,i])
+        # ax1.plot(t[:,0], longitude)
+        delta = (longitude[:,None] - y)
+        #print('?', delta[0:5,0:5])
+        # delta = (delta + 180.0) % 360.0 - 180.0
+        # if delta[0,0] > 180.0:
+        #     delta -= 360.0
+        return (delta * delta).sum(axis=0)
+
+    fitted_rss = sum_of_squares(day[:,None], *fitted_params)
+    print('fitted_rss:', fitted_rss)
 
     for i, (param_name, scale) in enumerate(zip(param_names, scales)):
         param_arrays = initial_params[:,None] + zero  # (7,N)
@@ -203,8 +210,7 @@ def fit2(t, ephemeris, planet_name, target_name):
     fig.subplots_adjust(top=0.90)  # Make room for suptitle
     fig.savefig(f'slopes_{planet_name}.png')
 
-    # Plot: longitude of planet compared to our deferent and epicycle.
-
+def plot_solution(planet_name, day, longitude, initial_params, fitted_params):
     fig, ax = plt.subplots(1,1)
     ax.plot(day, longitude,
             'g', label=f'Real-world {planet_name} longitude')
@@ -225,9 +231,6 @@ def fit2(t, ephemeris, planet_name, target_name):
     fig.legend()
     fig.tight_layout()
     fig.savefig(f'solution_{planet_name}.png')
-
-    with open(f'parameters_{planet_name}.txt', 'w') as f:
-        print(list(fitted_params), file=f)
 
 def fit(t, planets, name):
 
