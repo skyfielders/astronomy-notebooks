@@ -28,20 +28,20 @@ def main():
     #     #print(('****' if i == 10 else ''), x)
     #     print(x)
 
-    planets = load('de421.bsp')
-    #fit(t, planets, 'sun')
-    #fit(t, planets, 'mars')
+    ephemeris = load('de421.bsp')
+    #fit(t, ephemeris, 'sun')
+    #fit(t, ephemeris, 'mars')
     planet_name = sys.argv[1]
     target_name = planet_name
     try:
-        planets[target_name]
+        ephemeris[target_name]
     except KeyError:
         target_name += ' barycenter'
-    fit2(t, planets, planet_name, target_name)
+    fit2(t, ephemeris, planet_name, target_name)
 
-def fit2(t, planets, planet_name, target_name):
-    planet = planets[target_name]
-    earth = planets['Earth']
+def fit2(t, ephemeris, planet_name, target_name):
+    planet = ephemeris[target_name]
+    earth = ephemeris['Earth']
     lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
 
     day = t.tt - t.tt[0]
@@ -60,6 +60,8 @@ def fit2(t, planets, planet_name, target_name):
 
     # Let's go after epicycle first, rather than deferent period!
 
+    # if planet_name == 'Sun':
+    #     return fit_equant(day, longitude)
     if planet_name == 'Moon':
         derivative2_sign_diff = np.diff(np.sign(np.diff(np.diff(longitude))))
         retrograde_middles, = np.nonzero(derivative2_sign_diff == 2)
