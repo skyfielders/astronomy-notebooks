@@ -1,0 +1,102 @@
+<html>
+<style>
+.rotating {
+ animation-iteration-count: infinite;
+ animation-timing-function: linear;
+ animation-name: rotating;
+}
+.mercury-deferent {
+ animation-duration: 10s;
+}
+.mercury-epicycle {
+ animation-duration: 1s;
+}
+.venus-deferent {
+ animation-duration: 10s;
+}
+.venus-epicycle {
+ animation-duration: 1s;
+}
+@keyframes rotating {to {transform: rotate(360deg);}}
+</style>
+<body><svg version="1.1" width=480 height=480>
+ 
+ <g transform="translate(200, 200)">
+  <circle cx=0 cy=0 r=1 stroke=#eee fill=none />
+  <g class="rotating mercury-deferent">
+   <circle cx=1 cy=0 r=0 stroke=#eee fill=none />
+   <g transform="translate(1, 0)">
+    <g class="rotating mercury-epicycle">
+     <circle cx=0 cy=0 r=3 fill=#880 />
+    </g>
+   </g>
+  </g>
+ </g>
+
+
+ <g transform="translate(200, 200)">
+  <circle cx=0 cy=0 r=8 stroke=#eee fill=none />
+  <g class="rotating venus-deferent">
+   <circle cx=8 cy=0 r=5 stroke=#eee fill=none />
+   <g transform="translate(8, 0)">
+    <g class="rotating venus-epicycle">
+     <circle cx=5 cy=0 r=3 fill=#880 />
+    </g>
+   </g>
+  </g>
+ </g>
+
+
+ <g transform="translate(200, 200)">
+  <circle cx=0 cy=0 r=14 stroke=#eee fill=none />
+  <g class="rotating sun-deferent">
+   <circle cx=14 cy=0 r=0 stroke=#eee fill=none />
+   <g transform="translate(14, 0)">
+    <g class="rotating sun-epicycle">
+     <circle cx=0 cy=0 r=3 fill=#880 />
+    </g>
+   </g>
+  </g>
+ </g>
+
+
+ <g transform="translate(200, 200)">
+  <circle cx=0 cy=0 r=59 stroke=#eee fill=none />
+  <g class="rotating mars-deferent">
+   <circle cx=59 cy=0 r=39 stroke=#eee fill=none />
+   <g transform="translate(59, 0)">
+    <g class="rotating mars-epicycle">
+     <circle cx=39 cy=0 r=3 fill=#880 />
+    </g>
+   </g>
+  </g>
+ </g>
+
+
+ <g transform="translate(200, 200)">
+  <circle cx=0 cy=0 r=137 stroke=#eee fill=none />
+  <g class="rotating jupiter-deferent">
+   <circle cx=137 cy=0 r=26 stroke=#eee fill=none />
+   <g transform="translate(137, 0)">
+    <g class="rotating jupiter-epicycle">
+     <circle cx=26 cy=0 r=3 fill=#880 />
+    </g>
+   </g>
+  </g>
+ </g>
+
+
+ <g transform="translate(200, 200)">
+  <circle cx=0 cy=0 r=202 stroke=#eee fill=none />
+  <g class="rotating saturn-deferent">
+   <circle cx=202 cy=0 r=21 stroke=#eee fill=none />
+   <g transform="translate(202, 0)">
+    <g class="rotating saturn-epicycle">
+     <circle cx=21 cy=0 r=3 fill=#880 />
+    </g>
+   </g>
+  </g>
+ </g>
+
+</svg></body>
+</html>
