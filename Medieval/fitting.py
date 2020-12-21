@@ -12,17 +12,7 @@ def main():
     days = 365 * 10
     t = ts.tt(2010, 1, range(days))
 
-    # t = ts.tt(2010, 1, range(365 * 1))
-    # t = ts.tt(2010, 1, range(75, 85))
-    # t = ts.tt(2010, 1, 79, range(48))
-    #for i, x in enumerate(t.utc_jpl()):
-    # for x in t.utc_jpl():
-    #     #print(('****' if i == 10 else ''), x)
-    #     print(x)
-
     ephemeris = load('de421.bsp')
-    #fit(t, ephemeris, 'sun')
-    #fit(t, ephemeris, 'mars')
     planet_name = sys.argv[1]
     target_name = planet_name
     try:
@@ -42,16 +32,13 @@ def main():
     else:
         initial_params, fitted_params = fit2(day, longitude)
 
-    plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
-    plot_solution(planet_name, day, longitude, initial_params, fitted_params)
-
     with open(f'parameters_{planet_name}.txt', 'w') as f:
         print(list(fitted_params), file=f)
 
-    # if planet_name == 'Moon':
-    #     derivative2_sign_diff = np.diff(np.sign(np.diff(np.diff(longitude))))
-    #     retrograde_middles, = np.nonzero(derivative2_sign_diff == 2)
-    # else:
+    print('Generating plots')
+    plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
+    plot_solution(planet_name, day, longitude, initial_params, fitted_params)
+    print('Done')
 
 def fit1(day, longitude):
     days = day[-1] - day[0]
@@ -115,36 +102,12 @@ def fit2(day, longitude):
     print('D0:', D0)
 
     ET = days / (deferent_orbits + epicycle_orbits)
-    #ET = DT - days / epicycle_orbits
     print('ET:', ET)
 
-    # at time m[0], epicycle had angle: -longitude[m[0]]
-    # and its period is ET
-    # so its angle at time 0 must be: -longitude[m[0]] - 360.0 * m[0]
     # (Why the 180°?)
     E0 = (longitude[m[0]] - 360.0 * (m[0] / ET) - 180.0)
 
-    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, Er)
-    # (T, M0, xe, ye), covariance = curve_fit(equant, day, lon, (T, M0, ye, ye))
-
-    # def f(day, r):
-    #     return to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, Er))
     initial_params = np.array([DT, D0, 0, 0, ET, E0, 0.5])
-
-    # Our “initial parameter” guesses might happen to produce a curve
-    # that starts 360° earlier than the target curve, and need to be
-    # corrected.
-
-    # xy = equant_and_epicycle(day[0:1], *initial_params)
-    # print('?', longitude[0:1], to_longitude(xy),
-    #       longitude[0:1] - to_longitude(xy) > 180.0)
-    # if longitude[0:1] - to_longitude(xy) > 180.0:
-
-    # y = to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, r))
-    # print(day.shape)
-    # print(y.shape)
-    # ax.plot(day, longitude)
-    #ax.plot(day, y)
 
     def f(day, DT, D0, xe, ye, ET, E0, Er):
         xy = equant_and_epicycle(day, DT, D0, xe, ye, ET, E0, Er)
@@ -157,12 +120,10 @@ def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
     fig, axes = plt.subplots(len(initial_params), 1, figsize=(6.4, 12.8))
 
     N = 1000
-    span = np.linspace(-1.0, 1.0, N) #[None,:]
-    #span = np.linspace(-0.30, 0.30, N) #[None,:]
+    span = np.linspace(-1.0, 1.0, N)
     zero = span * 0.0
     one = span + 1.0
     print(span.shape, zero.shape, one.shape) # (1,100) all
-    #y = to_longitude(equant_and_epicycle(day, DT, D0, 0, 0, ET, E0, Er))
 
     param_names = [
         'DT: deferent rotation period (days)',
@@ -177,20 +138,9 @@ def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
     assert len(scales) == len(fitted_params)
 
     def sum_of_squares(t, *params):
-        print('t', t.shape)
-        # for i, v in enumerate(params):
-        #     print(i, v.shape)
         D0 = params[1]
         y = to_longitude(equant_and_epicycle(t, *params), D0)
-        print('y', y.shape)  # (3650, 100)
-        # i = 50
-        # ax1.plot(t[:,0], y[:,i])
-        # ax1.plot(t[:,0], longitude)
         delta = (longitude[:,None] - y)
-        #print('?', delta[0:5,0:5])
-        # delta = (delta + 180.0) % 360.0 - 180.0
-        # if delta[0,0] > 180.0:
-        #     delta -= 360.0
         return (delta * delta).sum(axis=0)
 
     fitted_rss = sum_of_squares(day[:,None], *fitted_params)
@@ -200,7 +150,6 @@ def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
         param_arrays = initial_params[:,None] + zero  # (7,N)
         param_arrays[i] += span * scale
         this_param = param_arrays[i]
-        #r = 0.5 + span * 0.45
 
         x = this_param
         y = sum_of_squares(day[:,None], *param_arrays)
@@ -213,7 +162,6 @@ def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
         axes[i].plot(xf, fitted_rss, 'o')
 
         axes[i].set_xlabel(f'{param_name}')
-        #break
 
     fig.tight_layout()
     fig.suptitle(planet_name + ': Residual sum-of-squares behavior of\n'
@@ -258,13 +206,13 @@ def to_longitude(xy, D0):
 def to_radians(degrees):
     return degrees / 360.0 * tau
 
-def equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, r):
-    x1, y1 = equant_orbit(t, T, M0, xe, ye)
-    x2, y2 = epicycle(t, Tₑ, E0, r)
+def equant_and_epicycle(t, DT, D0, xe, ye, ET, E0, Er):
+    x1, y1 = equant_orbit(t, DT, D0, xe, ye)
+    x2, y2 = epicycle(t, ET, E0, Er)
     return x1 + x2, y1 + y2
 
-def equant_orbit(t, T, M0, xe, ye):
-    M = to_radians(M0) + t / T * tau
+def equant_orbit(t, DT, D0, xe, ye):
+    M = to_radians(D0) + t / DT * tau
     x, y = equant(M, xe, ye)
     return x + xe, y + ye
 
@@ -276,9 +224,9 @@ def equant(M, xe, ye):
     a += offset
     return cos(a), sin(a)
 
-def epicycle(t, Tₑ, E0, r):
-    E = to_radians(E0) + t / Tₑ * tau
-    return r * cos(E), r * sin(E)
+def epicycle(t, ET, E0, Er):
+    E = to_radians(E0) + t / ET * tau
+    return Er * cos(E), Er * sin(E)
 
 if __name__ == '__main__':
     main()
