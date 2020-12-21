@@ -7,6 +7,8 @@ from numpy import arcsin, arctan2, cos, sin, unwrap, sqrt
 from scipy.optimize import curve_fit
 from skyfield.api import load, tau
 
+planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
+
 def main():
     ts = load.timescale()
     days = 365 * 10
@@ -35,19 +37,66 @@ def main():
     with open(f'parameters_{planet_name}.txt', 'w') as f:
         print(list(fitted_params), file=f)
 
-    print('Generating plots')
-    plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
-    plot_solution(planet_name, day, longitude, initial_params, fitted_params)
-    print('Done')
+    # print('Generating plots')
+    # plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
+    # plot_solution(planet_name, day, longitude, initial_params, fitted_params)
+    # print('Done')
+
+def generate_initial_params(day, longitude):
+    derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
+    retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
+
+    if not len(retrograde_starts):
+        # No retrograde motion: turn epicycle off.
+
+        days = day[-1] - day[0]
+        revolutions = (longitude[-1] - longitude[0]) / 360.0
+
+        D0 = longitude[0]
+        DT = days / revolutions
+
+        initial_params = np.array([DT, D0, 0, 0])
+
+    else:
+        # Carefully measure deferent using middle of each retrograde swing.
+
+        retrograde_ends, = np.nonzero(derivative_sign_diff > 0)
+        if retrograde_ends[0] < retrograde_starts[0]:
+            retrograde_ends = retrograde_ends[1:]
+        if retrograde_ends[-1] < retrograde_starts[-1]:
+            retrograde_starts = retrograde_starts[1:]
+
+        assert len(retrograde_starts) == len(retrograde_ends)
+
+        retrograde_middles = (retrograde_ends + retrograde_starts) / 2.0
+        print(retrograde_starts)
+        print(retrograde_ends)
+        print(retrograde_middles)
+        m = retrograde_middles.astype(int)
+        print(m)
+
+        days = m[-1] - m[0]
+        epicycle_orbits = len(m) - 1
+        deferent_orbits = (longitude[m[-1]] - longitude[m[0]]) / 360.0
+
+        DT = days / deferent_orbits
+        print('DT:', DT)
+
+        D0 = longitude[m[0]] - 360.0 * m[0] / DT
+        print('D0:', D0)
+
+        ET = days / (deferent_orbits + epicycle_orbits)
+        print('ET:', ET)
+
+        # (Why the 180°?)
+        E0 = (longitude[m[0]] - 360.0 * (m[0] / ET) - 180.0)
+
+        initial_params = np.array([DT, D0, 0, 0, ET, E0, 0.5])
+
+    return initial_params
 
 def fit1(day, longitude):
-    days = day[-1] - day[0]
-    revolutions = (longitude[-1] - longitude[0]) / 360.0
-
-    D0 = longitude[0]
-    DT = days / revolutions
-
-    initial_params = np.array([DT, D0, 0, 0])
+    initial_params = generate_initial_params(day, longitude)
     null_epicycle = [1.0, 0, 0]
 
     def f(day, DT, D0, xe, ye):
@@ -74,40 +123,7 @@ def fit2(day, longitude):
     #  E0 - angular position of epicycle at time 0
     #  Er - Radius of epicycle, where circular orbit has radius = 1.
 
-    derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
-    retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
-    retrograde_ends, = np.nonzero(derivative_sign_diff > 0)
-    if retrograde_ends[0] < retrograde_starts[0]:
-        retrograde_ends = retrograde_ends[1:]
-    if retrograde_ends[-1] < retrograde_starts[-1]:
-        retrograde_starts = retrograde_starts[1:]
-
-    assert len(retrograde_starts) == len(retrograde_ends)
-
-    retrograde_middles = (retrograde_ends + retrograde_starts) / 2.0
-    print(retrograde_starts)
-    print(retrograde_ends)
-    print(retrograde_middles)
-    m = retrograde_middles.astype(int)
-    print(m)
-
-    days = m[-1] - m[0]
-    epicycle_orbits = len(m) - 1
-    deferent_orbits = (longitude[m[-1]] - longitude[m[0]]) / 360.0
-
-    DT = days / deferent_orbits
-    print('DT:', DT)
-
-    D0 = longitude[m[0]] - 360.0 * m[0] / DT
-    print('D0:', D0)
-
-    ET = days / (deferent_orbits + epicycle_orbits)
-    print('ET:', ET)
-
-    # (Why the 180°?)
-    E0 = (longitude[m[0]] - 360.0 * (m[0] / ET) - 180.0)
-
-    initial_params = np.array([DT, D0, 0, 0, ET, E0, 0.5])
+    initial_params = generate_initial_params(day, longitude)
 
     def f(day, DT, D0, xe, ye, ET, E0, Er):
         xy = equant_and_epicycle(day, DT, D0, xe, ye, ET, E0, Er)
