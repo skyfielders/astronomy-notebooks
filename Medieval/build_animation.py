@@ -4,7 +4,7 @@ import argparse
 import json
 import numpy as np
 import sys
-from math import tau
+from math import cos, sin, tau
 
 BLUE = '#a4dded'
 DAYS_PER_SECOND = 72
@@ -12,6 +12,7 @@ EARTH_RADIUS_KM = 6378.1366
 WIDTH, HEIGHT = 640, 640
 planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
 
+SCALE = 50.0
 #SCALE = 45.0
 SCALE = 10.0
 
@@ -55,6 +56,7 @@ def main(argv):
         if len(params) == 4:
             params.extend([1,0,0])
         DT, D0, xe, ye, ET, E0, Er = params
+        angle = np.arctan2(ye, xe)
         eccentricity = np.sqrt(xe * xe + ye * ye)
 
         closest = 1.0 - eccentricity - Er
@@ -68,12 +70,21 @@ def main(argv):
               f'{radius:9,.2f} - {outer_radius:9,.2f}   '
               f'{int(radius * km):,} - {int(outer_radius * km):,} km')
 
+        inner = (1 - eccentricity) * deferent_radius
         svg_params = dict(
             blue=BLUE,
             planet_name=planet_name,
             extra='',
             deferent_radius=scale(deferent_radius),
+            deferent_inner=scale(inner),
+            deferent_tick=
+            f'x1={scale(deferent_radius * 0.96) * cos(angle):.1f} '
+            f'y1={scale(deferent_radius * 0.96) * sin(angle):.1f} '
+            f'x2={scale(deferent_radius * 1.04) * cos(angle):.1f} '
+            f'y2={scale(deferent_radius * 1.04) * sin(angle):.1f}',
             epicycle_radius=scale(epicycle_radius),
+            xcenter=WIDTH // 2,
+            ycenter=HEIGHT // 2,
             x0=WIDTH // 2 + scale(-xe * deferent_radius),
             y0=HEIGHT // 2 + scale(-ye * deferent_radius),
         )
@@ -120,19 +131,39 @@ def main(argv):
 
     styles = '\n '.join(styles)
     body = SVG % dict(elements=''.join(svg), width=WIDTH, height=HEIGHT)
-    content = HTML % dict(body=body, styles=styles)
+    content = HTML % dict(
+        blue=BLUE,
+        body=body,
+        styles=styles,
+    )
     with open('animation-ptolemy-sidereal.html', 'w') as f:
         f.write(content)
 
-HTML = """<html>
+HTML = """<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+ circle, line {
+  fill: none;
+  stroke: %(blue)s;
+ }
+ circle.planet {
+  fill: #000;
+  stroke: none;
+ }
+ circle.sunshine {
+  fill: url('#sun-gradient');
+  stroke: none;
+ }
+ .inside {
+  border: 5px dotted black;
+  stroke-dasharray: 2,2;
+ }
  .rotating {
   animation-iteration-count: infinite;
   animation-timing-function: linear;
  }
- .sun-gradient
  %(styles)s
-</style>
+</style></head>
 <body>%(body)s</body></html>
 """
 
@@ -149,14 +180,16 @@ SVG = """\
 """
 
 ORBIT = """
+ <circle class=inside cx=%(xcenter)s cy=%(ycenter)s r=%(deferent_inner)s />
  <g transform="translate(%(x0)s, %(y0)s)">
-  <circle cx=0 cy=0 r=%(deferent_radius)s stroke=%(blue)s fill=none />
+  <circle cx=0 cy=0 r=%(deferent_radius)s />
+  <line %(deferent_tick)s />
   <g class="rotating %(planet_name)s-deferent">
-   <circle cx=%(deferent_radius)s cy=0 r=%(epicycle_radius)s stroke=%(blue)s fill=none />
+   <circle cx=%(deferent_radius)s cy=0 r=%(epicycle_radius)s />
    <g transform="translate(%(deferent_radius)s, 0)">
     <g class="rotating %(planet_name)s-epicycle">
-     <line x1=0 y1=0 x2=%(epicycle_radius)s y2=0 stroke=%(blue)s />
-     <circle cx=%(epicycle_radius)s cy=0 r=2 fill=#000 />%(extra)s
+     <line x1=0 y1=0 x2=%(epicycle_radius)s y2=0 />
+     <circle class=planet cx=%(epicycle_radius)s cy=0 r=2 />%(extra)s
     </g>
    </g>
   </g>
@@ -164,11 +197,11 @@ ORBIT = """
 """
 
 SUN_LINE = """\
-   <line x1=0 y1=0 x2=%(deferent_radius)s y2=0 stroke=%(blue)s />
+   <line x1=0 y1=0 x2=%(deferent_radius)s y2=0 />
 """
 
 SUN_SHINE = """\
-   <circle cx=0 cy=0 r=24 fill=url('#sun-gradient') />
+   <circle class=sunshine cx=0 cy=0 r=24 />
 """
 
 if __name__ == '__main__':
