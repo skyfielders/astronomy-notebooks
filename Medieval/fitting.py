@@ -1,53 +1,92 @@
 #!/usr/bin/env python3
+"""
 
+http://farside.ph.utexas.edu/Books/Syntaxis/Almagest.pdf
+https://people.sc.fsu.edu/~dduke/inner.pdf
+
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+from collections import defaultdict
 from numpy import arcsin, arctan2, cos, sin, unwrap, sqrt
 from scipy.optimize import curve_fit
 from skyfield.api import load, tau
 
-planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
+# Several potentially independent parameters in Ptolemy’s model are
+# required to have the same value, and should be given to the solver as
+# a single value.  Our “SCHEME” assigns a unique name to each parameter,
+# that we use to remove duplicates when submitting them to the solver.
+
+SCHEME = """\
+Moon    lun.DT lun.D0 lun.xe lun.ye
+Mercury sun.DT sun.D0 mer.xe mer.ye mer.ET mer.E0 mer.Er
+Venus   sun.DT sun.D0 ven.xe ven.ye ven.ET ven.E0 ven.Er
+Sun     sun.DT sun.D0 sun.xe sun.ye
+Mars    mar.DT mar.D0 mar.xe mar.ye sun.DT sun.D0 mar.Er
+Jupiter jup.DT jup.D0 jup.xe jup.ye sun.DT sun.D0 jup.Er
+Saturn  sat.DT sat.D0 sat.xe sat.ye sun.DT sun.D0 sat.Er
+"""
+SCHEME = [line.split() for line in SCHEME.splitlines()]
+
+YEARS = 10
+planet_names = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
 
 def main():
     ts = load.timescale()
-    days = 365 * 10
-    t = ts.tt(2010, 1, range(days))
+    t = ts.tt(2010, 1, range(366 * YEARS))
+    day = t.tt - t.tt[0]  # timescale: TT days from start of time range
 
     ephemeris = load('de421.bsp')
-    planet_name = sys.argv[1]
-    target_name = planet_name
-    try:
-        ephemeris[target_name]
-    except KeyError:
-        target_name += ' barycenter'
-
-    day = t.tt - t.tt[0]
-
-    planet = ephemeris[target_name]
     earth = ephemeris['Earth']
-    lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
-    longitude = to_degrees(unwrap(lon.radians))
+    longitudes = []
 
-    if planet_name in ('Moon', 'Sun'):
-        initial_params, fitted_params = fit1(day, longitude)
-    else:
-        initial_params, fitted_params = fit2(day, longitude)
+    for planet_name in planet_names:
+        print(f'Asking ephemeris for {planet_name} positions')
+        try:
+            planet = ephemeris[planet_name]
+        except KeyError:
+            planet = ephemeris[planet_name + ' barycenter']
+        lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
+        longitude = to_degrees(unwrap(lon.radians))
+        longitudes.append(longitude)
 
-    with open(f'parameters_{planet_name}.txt', 'w') as f:
-        print(list(fitted_params), file=f)
+    announce('Generating initial parameter guesses')
+    parameter_lists = [generate_initial_params(day, longitude)
+                       for longitude in longitudes]
 
-    # print('Generating plots')
-    # plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
-    # plot_solution(planet_name, day, longitude, initial_params, fitted_params)
-    # print('Done')
+    announce('Optimizing parameters')
+    parameter_dict = average_parameters(parameter_lists)
+    print(parameter_dict)
+    parameter_dict = fit_parameters(day, longitudes, parameter_dict)
+    print(parameter_dict)
+
+    announce('Saving results')
+    for planet_name, *names in SCHEME:
+        fitted_params = [parameter_dict[name] for name in names]
+        with open(f'parameters_{planet_name}.txt', 'w') as f:
+            print(list(fitted_params), file=f)
+
+    if len(sys.argv) < 2:
+        return
+
+    z = zip(SCHEME, longitudes, parameter_lists)
+    for (planet_name, *names), longitude, initial_params in z:
+        fitted_params = [parameter_dict[name] for name in names]
+        announce(f'Plotting {planet_name}')
+        plot_slopes(planet_name, day, longitude, initial_params, fitted_params)
+        plot_solution(planet_name, day, longitude, initial_params,
+                      fitted_params)
+
+def announce(text):
+    print(f' {text} '.center(78, '='))
 
 def generate_initial_params(day, longitude):
     derivative_sign_diff = np.diff(np.sign(np.diff(longitude)))
     retrograde_starts, = np.nonzero(derivative_sign_diff < 0)
 
     if not len(retrograde_starts):
-        # No retrograde motion: turn epicycle off.
+        # No retrograde motion: use only a deferent.
 
         days = day[-1] - day[0]
         revolutions = (longitude[-1] - longitude[0]) / 360.0
@@ -88,49 +127,48 @@ def generate_initial_params(day, longitude):
         ET = days / (deferent_orbits + epicycle_orbits)
         print('ET:', ET)
 
-        # (Why the 180°?)
-        E0 = (longitude[m[0]] - 360.0 * (m[0] / ET) - 180.0)
+        E0 = longitude[m[0]] + 180.0 - 360.0 * (day[m[0]] / ET)
+        E0 %= 360.0
 
         initial_params = np.array([DT, D0, 0, 0, ET, E0, 0.5])
 
     return initial_params
 
-def fit1(day, longitude):
-    initial_params = generate_initial_params(day, longitude)
-    null_epicycle = [1.0, 0, 0]
+def average_parameters(parameter_lists):
+    """Return a dict with each parameter's average value."""
+    value_lists = defaultdict(list)
+    for (planet_name, *names), parameters in zip(SCHEME, parameter_lists):
+        for name, parameter in zip(names, parameters):
+            value_lists[name].append(parameter)
+    return {name: sum(values) / len(values)
+            for name, values in sorted(value_lists.items())}
 
-    def f(day, DT, D0, xe, ye):
-        xy = equant_and_epicycle(day, DT, D0, xe, ye, *null_epicycle)
-        return to_longitude(xy, D0)
+def fit_parameters(day, longitudes, parameter_dict):
+    # SciPy’s curve_fit() only supports positional arguments, so let’s
+    # use alphabetical order for the parameters.
+    parameter_names = sorted(parameter_dict.keys())
 
-    fitted_params, etc = curve_fit(f, day, longitude, p0=initial_params)
+    # Make curve_fit()’s job easier by pretending all 7 longitude traces
+    # are a single long curve.
+    longitude = np.concatenate(longitudes)
 
-    initial_params = np.concatenate([initial_params, null_epicycle])
-    fitted_params = np.concatenate([fitted_params, null_epicycle])
+    def f(day, *parameter_list):
+        parameter_dict = dict(zip(parameter_names, parameter_list))
+        longitudes = []
+        for planet, *names in SCHEME:
+            values = [parameter_dict[name] for name in names]
+            if len(values) == 4:
+                xy = equant_orbit(day, *values)
+            else:
+                xy = equant_and_epicycle(day, *values)
+            D0 = values[1]
+            longitudes.append(to_longitude(xy, D0))
+        return np.concatenate(longitudes)
 
-    return initial_params, fitted_params
-
-def fit2(day, longitude):
-
-    # Parameters we need:
-    # equant_and_epicycle(t, T, M0, xe, ye, Tₑ, E0, Er)
-    #
-    # (new name - descr)
-    # y DT - period of deferent
-    # y D0 - angular position on orbit at time 0
-    #  x, y - position of Earth, relative to center of circular orbit at (0,0)
-    # y ET - epicycle period
-    #  E0 - angular position of epicycle at time 0
-    #  Er - Radius of epicycle, where circular orbit has radius = 1.
-
-    initial_params = generate_initial_params(day, longitude)
-
-    def f(day, DT, D0, xe, ye, ET, E0, Er):
-        xy = equant_and_epicycle(day, DT, D0, xe, ye, ET, E0, Er)
-        return to_longitude(xy, D0)
-
-    fitted_params, etc = curve_fit(f, day, longitude, p0=initial_params)
-    return initial_params, fitted_params
+    p0 = [parameter_dict[name] for name in parameter_names]
+    fitted_params, etc = curve_fit(f, day, longitude, p0=p0)
+    parameter_dict = dict(zip(parameter_names, fitted_params))
+    return parameter_dict
 
 def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
     fig, axes = plt.subplots(len(initial_params), 1, figsize=(6.4, 12.8))
@@ -150,12 +188,14 @@ def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
         'E0: epicycle angle at day=0.0',
         'Er: epicycle radius (deferent radius=1)',
     ]
-    scales = [10.0, 10.0, 0.25, 0.25, 10.0, 10.0, 0.3]
-    assert len(scales) == len(fitted_params)
+    scales = [10.0, 10.0, 0.25, 0.25, 10.0, 10.0, 0.3][:len(initial_params)]
 
     def sum_of_squares(t, *params):
         D0 = params[1]
-        y = to_longitude(equant_and_epicycle(t, *params), D0)
+        if len(params) == 4:
+            y = to_longitude(equant_orbit(t, *params), D0)
+        else:
+            y = to_longitude(equant_and_epicycle(t, *params), D0)
         delta = (longitude[:,None] - y)
         return (delta * delta).sum(axis=0)
 
@@ -222,7 +262,7 @@ def to_longitude(xy, D0):
 def to_radians(degrees):
     return degrees / 360.0 * tau
 
-def equant_and_epicycle(t, DT, D0, xe, ye, ET, E0, Er):
+def equant_and_epicycle(t, DT, D0, xe, ye, ET=1, E0=0, Er=0):
     x1, y1 = equant_orbit(t, DT, D0, xe, ye)
     x2, y2 = epicycle(t, ET, E0, Er)
     return x1 + x2, y1 + y2
