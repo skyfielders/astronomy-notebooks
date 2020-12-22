@@ -3,12 +3,16 @@
 import argparse
 import json
 import numpy as np
-import os
 import sys
 from math import tau
 
 DAYS_PER_SECOND = 72
+EARTH_RADIUS_KM = 6378.1366
+WIDTH, HEIGHT = 640, 640
 planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
+
+#SCALE = 45.0
+SCALE = 10.0
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Write animated SVG.')
@@ -26,8 +30,7 @@ def main(argv):
         parameter_sets.append(params)
 
     def scale(n):
-        return int(n / 60.0)
-        #return int(n / 70.0)
+        return int(n / SCALE)
 
     def scale_days(days):
         return days / DAYS_PER_SECOND
@@ -36,6 +39,8 @@ def main(argv):
     styles = []
 
     for planet_name, params in zip(planets, parameter_sets):
+        if len(params) == 4:
+            params.extend([1,0,0])
         DT, D0, xe, ye, ET, E0, Er = params
         eccentricity = np.sqrt(xe * xe + ye * ye)
 
@@ -45,16 +50,25 @@ def main(argv):
         epicycle_radius = deferent_radius * Er
         outer_radius = radius * farthest / closest
 
-        print(f'{path:30} {eccentricity:5.3f}    '
-              f'{radius:.2f} - {outer_radius:.2f}')
+        km = EARTH_RADIUS_KM
+        print(f'{planet_name:10} {eccentricity:5.3f}   '
+              f'{radius:9,.2f} - {outer_radius:9,.2f}   '
+              f'{int(radius * km):,} - {int(outer_radius * km):,} km')
 
-        orbit_parameter_sets.append(dict(
+        svg_params = dict(
+            blue='#a4dded',
+            planet_name=planet_name,
+            extra='',
             deferent_radius=scale(deferent_radius),
             epicycle_radius=scale(epicycle_radius),
-            planet_name=planet_name,
-            x0=220 + scale(-xe * deferent_radius),
-            y0=220 + scale(-ye * deferent_radius),
-        ))
+            x0=WIDTH // 2 + scale(-xe * deferent_radius),
+            y0=HEIGHT // 2 + scale(-ye * deferent_radius),
+        )
+
+        # if planet_name in ('Sun', 'Venus', 'Mercury'):
+        #     svg_params['extra'] = SUN_LINE % svg_params
+
+        orbit_parameter_sets.append(svg_params)
 
         styles.append(
             '.%s-deferent {'
@@ -64,12 +78,11 @@ def main(argv):
             % (planet_name, scale_days(DT), planet_name))
         styles.append(
             '@keyframes %s-deferent {'
-            'from {transform: rotate(%ddeg)}'
-            'to {transform: rotate(%ddeg)}'
-            '}' % (planet_name, int(D0), int(D0) + 360))
+            'from {transform: rotate(%.2fdeg)}'
+            'to {transform: rotate(%.2fdeg)}'
+            '}' % (planet_name, D0 + 360, D0))
 
-        if epicycle_radius:
-            print(1 / (1 / ET - 1 / DT))
+        if Er > 0:
             styles.append(
                 '.%s-epicycle {'
                 'animation-duration: %fs;'
@@ -78,14 +91,13 @@ def main(argv):
                 % (planet_name, scale_days(1 / (1 / ET - 1 / DT)), planet_name))
             styles.append(
                 '@keyframes %s-epicycle {'
-                'from {transform: rotate(%ddeg)}'
-                'to {transform: rotate(%ddeg)}'
-                '}' % (planet_name, int(E0 - D0), int(E0 - D0) + 360))
+                'from {transform: rotate(%.2fdeg)}'
+                'to {transform: rotate(%.2fdeg)}'
+                '}' % (planet_name, E0 - D0 + 360, E0 - D0))
 
         radius = outer_radius
 
-    earth_radius_km = 6378.1366
-    radius_km = int(radius * earth_radius_km)
+    radius_km = int(radius * EARTH_RADIUS_KM)
     outer_km_per_s = radius_km * tau / (24 * 60 * 60)
 
     print(f'Outer radius (km): {radius_km:,}')
@@ -93,27 +105,28 @@ def main(argv):
     print(f'Outer speed (m/s): {outer_km_per_s * 1e3:,.2f}')
     print(f'Outer speed (c): {outer_km_per_s / 299792.458:,.3f}')
 
-    orbits = '\n'.join(ORBIT % params for params in orbit_parameter_sets)
+    orbits = ''.join(ORBIT % params for params in orbit_parameter_sets)
     styles = '\n '.join(styles)
 
     x = X % dict(orbits=orbits)
-    body = SVG % dict(elements=x)
+    body = SVG % dict(elements=x, width=WIDTH, height=HEIGHT)
     content = HTML % dict(body=body, styles=styles)
     with open('animation-ptolemy-sidereal.html', 'w') as f:
         f.write(content)
 
 HTML = """<html>
 <style>
-.rotating {
- animation-iteration-count: infinite;
- animation-timing-function: linear;
-}
+ .rotating {
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+ }
  %(styles)s
 </style>
-<body>%(body)s</body>
-</html>"""
+<body>%(body)s</body></html>
+"""
 
-SVG = """<svg version=\"1.1\" width=480 height=480>%(elements)s</svg>"""
+SVG = ("""<svg version="1.1" width=%(width)s height=%(height)s>"""
+       '%(elements)s</svg>')
 
 X = """
  %(orbits)s
@@ -121,18 +134,22 @@ X = """
 
 ORBIT = """
  <g transform="translate(%(x0)s, %(y0)s)">
-  <circle cx=0 cy=0 r=%(deferent_radius)s stroke=#eee fill=none />
-  <g class="rotating %(planet_name)s-deferent">
-   <circle cx=%(deferent_radius)s cy=0 r=%(epicycle_radius)s stroke=#eee fill=none />
+  <circle cx=0 cy=0 r=%(deferent_radius)s stroke=%(blue)s fill=none />
+  <g class="rotating %(planet_name)s-deferent">%(extra)s
+   <circle cx=%(deferent_radius)s cy=0 r=%(epicycle_radius)s stroke=%(blue)s fill=none />
    <g transform="translate(%(deferent_radius)s, 0)">
     <g class="rotating %(planet_name)s-epicycle">
-     <line x1=0 y1=0 x2=%(epicycle_radius)s y2=0 stroke=#eee />
+     <line x1=0 y1=0 x2=%(epicycle_radius)s y2=0 stroke=%(blue)s />
      <circle cx=%(epicycle_radius)s cy=0 r=2 fill=#000 />
     </g>
    </g>
   </g>
  </g>
 """
+SUN_LINE = """\
+   <line x1=0 y1=0 x2=%(deferent_radius)s y2=0 stroke=%(blue)s />
+"""
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

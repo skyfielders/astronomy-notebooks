@@ -232,6 +232,11 @@ def plot_solution(planet_name, day, longitude, initial_params, fitted_params):
     ax.plot(day, longitude,
             'g', label=f'Real-world {planet_name} longitude')
 
+    # The crosses help me see where the real longitude curve is, even
+    # when hidden by a very good fit of the Ptolemy curve.
+    ax.plot(day[::100], longitude[::100],
+            '+g', label=f'Real-world {planet_name} longitude')
+
     D0 = initial_params[1]
     ax.plot(day, to_longitude(equant_and_epicycle(day, *initial_params), D0),
             'orange', label='Longitude produced by initial parameters')
@@ -239,9 +244,6 @@ def plot_solution(planet_name, day, longitude, initial_params, fitted_params):
     D0 = fitted_params[1]
     ax.plot(day, to_longitude(equant_and_epicycle(day, *fitted_params), D0),
             'b', label='Longitude produced by fitted parameters')
-
-    ax.plot(day[::100], longitude[::100],
-            '+g', label=f'Real-world {planet_name} longitude')
 
     ax.set(xlabel='Time (days)',
            ylabel='Geocentric apparent ecliptic longitude (°)')
