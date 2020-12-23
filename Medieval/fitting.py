@@ -275,6 +275,7 @@ def equant_orbit(t, DT, D0, xe, ye):
     return x + xe, y + ye
 
 def equant(M, xe, ye):
+    "M: mean anomaly in radians; xe, ye: location of equant."
     offset = arctan2(ye, xe)
     Mo = M - offset
     e = sqrt(xe*xe + ye*ye)

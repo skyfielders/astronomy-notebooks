@@ -4,11 +4,11 @@ import argparse
 import json
 import numpy as np
 import sys
-from fitting import equant, to_longitude, to_radians
+from fitting import equant, to_longitude
 from math import cos, sin, tau
 from scipy.optimize import curve_fit
 
-BLUE = '#a4dded'
+BLUE = '#a4dded'  # "Non-photo blue"
 DAYS_PER_SECOND = 72
 EARTH_RADIUS_KM = 6378.1366
 WIDTH, HEIGHT = 640, 640
@@ -38,14 +38,15 @@ def main(argv):
     def scale_days(days):
         return days / DAYS_PER_SECOND
 
-    styles = []
     svg = []
 
     for planet_name, params in zip(planets, parameter_sets):
         if len(params) == 4:
             params.extend([1,0,0])
         DT, D0, xe, ye, ET, E0, Er = params
-        angle = np.arctan2(ye, xe)
+        ye *= -1  # The y coordinate increases down in SVG.
+
+        #angle = np.arctan2(ye, xe)
         eccentricity = np.sqrt(xe * xe + ye * ye)
 
         closest = 1.0 - eccentricity - Er
@@ -53,72 +54,67 @@ def main(argv):
         outer_radius = radius * farthest / closest
 
         deferent_radius = radius / closest
-        epicycle_radius = deferent_radius * Er
+        epicycle_radius = scale(deferent_radius * Er)
 
         km = EARTH_RADIUS_KM
         print(f'{planet_name:8} {eccentricity:5.3f}  '
               f'{radius:9,.1f} - {outer_radius:8,.1f} earth radii  '
               f'{int(radius * km):,} - {int(outer_radius * km):,} km')
 
-        inner = (1 - eccentricity) * deferent_radius
-        svg_params = dict(
-            blue=BLUE,
-            planet_name=planet_name,
-            extra='',
-            deferent_radius=scale(deferent_radius),
-            deferent_inner=scale(inner),
-            deferent_tick=
-            f'x1={scale(deferent_radius * 0.96) * cos(angle):.1f} '
-            f'y1={scale(deferent_radius * 0.96) * sin(angle):.1f} '
-            f'x2={scale(deferent_radius * 1.04) * cos(angle):.1f} '
-            f'y2={scale(deferent_radius * 1.04) * sin(angle):.1f}',
-            epicycle_radius=scale(epicycle_radius),
-            x0=scale(-xe * deferent_radius),
-            y0=scale(-ye * deferent_radius),
+        xp = - deferent_radius * xe / eccentricity  # "p": perigee
+        yp = - deferent_radius * ye / eccentricity
+
+        deferent_tick= (
+            f'x1={scale(xp * 0.96):.1f} '
+            f'y1={scale(yp * 0.96):.1f} '
+            f'x2={scale(xp * 1.04):.1f} '
+            f'y2={scale(yp * 1.04):.1f}'
         )
 
+        x0 = scale(xe * deferent_radius)
+        y0 = scale(ye * deferent_radius)
+        inner = scale((1 - eccentricity) * deferent_radius)
+        r = scale(deferent_radius)
+
+        extra = ''
         if planet_name == 'Sun':
-            svg_params['extra'] = SUN_SHINE % svg_params
-
-        if Er == 0:
-            svg.append(DEFERENT % svg_params)
+            extra = '<circle class=sunshine cx=0 cy=0 r=24 />'
+        elif Er:
+            extra = f"""\
+   <circle cx=0 cy=0 r={epicycle_radius} />
+   <g>
+    <animateTransform dur={scale_days(ET):.2f}s repeatCount=indefinite
+      attributeName=transform type=rotate from={E0+360:.2f} to={E0:.2f} />
+    <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
+    <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
+   </g>
+"""
         else:
-            svg.append(DEFERENT_AND_EPICYCLE % svg_params)
+            extra = '<circle class=planet cx=0 cy=0 r=2 />'
 
-        styles.append(
-            '.%s-deferent {'
-            'animation-duration: %fs; '
-            'animation-name: %s-deferent;'
-            '}'
-            % (planet_name, scale_days(DT), planet_name))
+        svg.append(f"""
+ <circle class=inside cx=0 cy=0 r={inner} />
+ <g transform="translate({x0}, {y0})">
+  <circle cx=0 cy=0 r={r} />
+  <line {deferent_tick} />
+  <g>
+   <animateMotion dur={scale_days(DT):.2f}s repeatCount=indefinite
+      path="M{r},0 A {r} {r} 0 1 0 -{r} 0 A {r} {r} 0 1 0 {r} 0"
+      begin=-{scale_days(D0 / 360 * DT):.2f}s
+    />
+   {extra}
+  </g>
+ </g>
+""")
 
         #k = build_keyframes(3, eccentricity, D0)
-        k = build_keyframes(3, .99, D0)
-        keyframes = '\n'.join(' '+line for line in k)
+        # k = build_keyframes(3, .99, D0)
+        # keyframes = '\n'.join(' '+line for line in k)
 
-        styles.append(
-            f'@keyframes {planet_name}-deferent {{\n'
-            f'{keyframes}\n'
-            '}')
-
-        if Er > 0:
-            # Because the epicycle is inside the <g> that rotates the
-            # deferent, it will already rotate once every time the
-            # deferent does.  So its own rotation only needs to supply
-            # the extra rotation it needs beyond that of the deferent.
-            relative_period = 1 / (1 / ET - 1 / DT)
-
-            styles.append(
-                '.%s-epicycle {'
-                'animation-duration: %fs; '
-                'animation-name: %s-epicycle;'
-                '}'
-                % (planet_name, scale_days(relative_period), planet_name))
-            styles.append(
-                '@keyframes %s-epicycle {'
-                'from {transform: rotate(%.2fdeg)} '
-                'to {transform: rotate(%.2fdeg)}'
-                '}' % (planet_name, E0 - D0 + 360, E0 - D0))
+        # styles.append(
+        #     f'@keyframes {planet_name}-deferent {{\n'
+        #     f'{keyframes}\n'
+        #     '}')
 
         radius = outer_radius
 
@@ -130,7 +126,6 @@ def main(argv):
     print(f'Outer speed (m/s): {outer_km_per_s * 1e3:,.2f}')
     print(f'Outer speed (c): {outer_km_per_s / 299792.458:,.3f}')
 
-    styles = '\n '.join(styles)
     body = SVG % dict(
         elements=''.join(svg),
         width=WIDTH,
@@ -141,7 +136,6 @@ def main(argv):
     content = HTML % dict(
         blue=BLUE,
         body=body,
-        styles=styles,
     )
     with open('animation-ptolemy-sidereal.html', 'w') as f:
         f.write(content)
@@ -207,9 +201,6 @@ HTML = """<html><head>
   border: 5px dotted %(blue)s;
   stroke-dasharray: 2,2;
  }
- .epicycle, .deferent {animation-iteration-count: infinite;}
- .epicycle {animation-timing-function: linear;}
- %(styles)s
 </style></head>
 <body>%(body)s</body></html>
 """
@@ -227,39 +218,8 @@ SVG = """\
 %(elements)s</g></svg>
 """
 
-DEFERENT = """
- <circle class=inside cx=0 cy=0 r=%(deferent_inner)s />
- <g transform="translate(%(x0)s, %(y0)s)">
-  <circle cx=0 cy=0 r=%(deferent_radius)s />
-  <line %(deferent_tick)s />
-  <g class="deferent %(planet_name)s-deferent">
-   <g transform="translate(%(deferent_radius)s, 0)">
-     <circle class=planet cx=0 cy=0 r=2 />%(extra)s
-   </g>
-  </g>
- </g>
-"""
-
-DEFERENT_AND_EPICYCLE = """
- <circle class=inside cx=0 cy=0 r=%(deferent_inner)s />
- <g transform="translate(%(x0)s, %(y0)s)">
-  <circle cx=0 cy=0 r=%(deferent_radius)s />
-  <line %(deferent_tick)s />
-  <g class="deferent %(planet_name)s-deferent">
-   <circle cx=%(deferent_radius)s cy=0 r=%(epicycle_radius)s />
-   <g transform="translate(%(deferent_radius)s, 0)">
-    <g class="epicycle %(planet_name)s-epicycle">
-     <line x1=0 y1=0 x2=%(epicycle_radius)s y2=0 />
-     <circle class=planet cx=%(epicycle_radius)s cy=0 r=2 />%(extra)s
-    </g>
-   </g>
-  </g>
- </g>
-"""
-
-SUN_SHINE = """\
-   <circle class=sunshine cx=0 cy=0 r=24 />
-"""
+# TODO: Control speed of deferent with something like
+# keyTimes="0 ; 1.0" keySplines="0 0.1 0.1 1" calcMode=spline
 
 if __name__ == '__main__':
     main(sys.argv[1:])
