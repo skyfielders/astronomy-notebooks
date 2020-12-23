@@ -4,7 +4,9 @@ import argparse
 import json
 import numpy as np
 import sys
+from fitting import equant, to_longitude, to_radians
 from math import cos, sin, tau
+from scipy.optimize import curve_fit
 
 BLUE = '#a4dded'
 DAYS_PER_SECOND = 72
@@ -38,18 +40,6 @@ def main(argv):
 
     styles = []
     svg = []
-
-#     inner = 150.23
-#     outer = 987.41
-#     svg.append("""
-# <circle cx=%(x)d cy=%(y)d r=%(r)d stroke-width=%(w)d stroke=%(blue)s fill=none />
-# """ % dict(
-#     x=WIDTH//2,
-#     y=HEIGHT//2,
-#     r=scale((inner + outer) // 2),
-#     w=scale(outer - inner),
-#     blue='#f8f8e0',
-# ))
 
     for planet_name, params in zip(planets, parameter_sets):
         if len(params) == 4:
@@ -97,26 +87,36 @@ def main(argv):
 
         styles.append(
             '.%s-deferent {'
-            'animation-duration: %fs;'
+            'animation-duration: %fs; '
             'animation-name: %s-deferent;'
             '}'
             % (planet_name, scale_days(DT), planet_name))
+
+        #k = build_keyframes(3, eccentricity, D0)
+        k = build_keyframes(3, .99, D0)
+        keyframes = '\n'.join(' '+line for line in k)
+
         styles.append(
-            '@keyframes %s-deferent {'
-            'from {transform: rotate(%.2fdeg)}'
-            'to {transform: rotate(%.2fdeg)}'
-            '}' % (planet_name, D0 + 360, D0))
+            f'@keyframes {planet_name}-deferent {{\n'
+            f'{keyframes}\n'
+            '}')
 
         if Er > 0:
+            # Because the epicycle is inside the <g> that rotates the
+            # deferent, it will already rotate once every time the
+            # deferent does.  So its own rotation only needs to supply
+            # the extra rotation it needs beyond that of the deferent.
+            relative_period = 1 / (1 / ET - 1 / DT)
+
             styles.append(
                 '.%s-epicycle {'
-                'animation-duration: %fs;'
+                'animation-duration: %fs; '
                 'animation-name: %s-epicycle;'
                 '}'
-                % (planet_name, scale_days(1 / (1 / ET - 1 / DT)), planet_name))
+                % (planet_name, scale_days(relative_period), planet_name))
             styles.append(
                 '@keyframes %s-epicycle {'
-                'from {transform: rotate(%.2fdeg)}'
+                'from {transform: rotate(%.2fdeg)} '
                 'to {transform: rotate(%.2fdeg)}'
                 '}' % (planet_name, E0 - D0 + 360, E0 - D0))
 
@@ -146,6 +146,47 @@ def main(argv):
     with open('animation-ptolemy-sidereal.html', 'w') as f:
         f.write(content)
 
+def build_keyframes(n, eccentricity, offset):
+    for i in range(n):
+        percent0, percent1 = 100 * i/n, 100 * (i+1)/n
+        c = compute_bezier_that_approximates_equant
+        lon0, lon1, x1, y1, x2, y2 = c(percent0, percent1, eccentricity)
+        yield f'{percent0:.1f}% {{'
+        yield f' transform: rotate({offset - lon0:.1f}deg);'
+        yield(f' animation-timing-function:'
+              f' cubic-bezier({x1:.6f},{y1:.6f},{x2:.6f},{y2:.6f});')
+        yield '}'
+    yield f'to {{transform: rotate({offset - 360:.1f}deg);}}'
+
+def compute_bezier_that_approximates_equant(percent0, percent1, eccentricity):
+    percent = np.linspace(percent0, percent1)
+    lon = to_longitude(equant(percent / 100.0 * tau, eccentricity, 0), 0.0)
+    lon %= 360.0
+    lon0, lon1 = lon[0], lon[-1]
+    x = np.linspace(0, 1)
+    y = (lon - lon0) / (lon1 - lon0)  # Map longitude to range [0,1]
+    (x1, y1, x2, y2), variance = curve_fit(
+        bezier_interpolated, x, y,
+        [0.5, 0.0, 0.5, 1.0],
+        bounds=[0, 1],
+    )
+    return lon0, lon1, x1, y1, x2, y2
+
+def bezier_interpolated(x, x1, y1, x2, y2):
+    """Interpolate the value of the given Bezier curve at position ``x``."""
+    t = np.linspace(0, 1)
+    xb, yb = bezier(t, x1, y1, x2, y2)
+    y = np.interp(x, xb, yb)
+    return y
+
+def bezier(t, x1, y1, x2, y2):
+    """The famous Bezier curve."""
+    m = 1 - t
+    p = 3 * m * t
+    b, c, d = p * m, p * t, t * t * t
+    return (b * x1 + c * x2 + d,
+            b * y1 + c * y2 + d)
+
 HTML = """<html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -163,13 +204,11 @@ HTML = """<html><head>
   stroke: none;
  }
  .inside {
-  border: 5px dotted black;
+  border: 5px dotted %(blue)s;
   stroke-dasharray: 2,2;
  }
- .rotating {
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
- }
+ .epicycle, .deferent {animation-iteration-count: infinite;}
+ .epicycle {animation-timing-function: linear;}
  %(styles)s
 </style></head>
 <body>%(body)s</body></html>
@@ -193,7 +232,7 @@ DEFERENT = """
  <g transform="translate(%(x0)s, %(y0)s)">
   <circle cx=0 cy=0 r=%(deferent_radius)s />
   <line %(deferent_tick)s />
-  <g class="rotating %(planet_name)s-deferent">
+  <g class="deferent %(planet_name)s-deferent">
    <g transform="translate(%(deferent_radius)s, 0)">
      <circle class=planet cx=0 cy=0 r=2 />%(extra)s
    </g>
@@ -206,10 +245,10 @@ DEFERENT_AND_EPICYCLE = """
  <g transform="translate(%(x0)s, %(y0)s)">
   <circle cx=0 cy=0 r=%(deferent_radius)s />
   <line %(deferent_tick)s />
-  <g class="rotating %(planet_name)s-deferent">
+  <g class="deferent %(planet_name)s-deferent">
    <circle cx=%(deferent_radius)s cy=0 r=%(epicycle_radius)s />
    <g transform="translate(%(deferent_radius)s, 0)">
-    <g class="rotating %(planet_name)s-epicycle">
+    <g class="epicycle %(planet_name)s-epicycle">
      <line x1=0 y1=0 x2=%(epicycle_radius)s y2=0 />
      <circle class=planet cx=%(epicycle_radius)s cy=0 r=2 />%(extra)s
     </g>
