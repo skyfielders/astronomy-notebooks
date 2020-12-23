@@ -13,8 +13,7 @@ WIDTH, HEIGHT = 640, 640
 planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
 
 SCALE = 50.0
-#SCALE = 45.0
-SCALE = 10.0
+#SCALE = 10.0
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Write animated SVG.')
@@ -61,13 +60,14 @@ def main(argv):
 
         closest = 1.0 - eccentricity - Er
         farthest = 1.0 + eccentricity + Er
-        deferent_radius = radius * 1.0 / closest
-        epicycle_radius = deferent_radius * Er
         outer_radius = radius * farthest / closest
 
+        deferent_radius = radius / closest
+        epicycle_radius = deferent_radius * Er
+
         km = EARTH_RADIUS_KM
-        print(f'{planet_name:10} {eccentricity:5.3f}   '
-              f'{radius:9,.2f} - {outer_radius:9,.2f}   '
+        print(f'{planet_name:8} {eccentricity:5.3f}  '
+              f'{radius:9,.1f} - {outer_radius:8,.1f} earth radii  '
               f'{int(radius * km):,} - {int(outer_radius * km):,} km')
 
         inner = (1 - eccentricity) * deferent_radius
@@ -83,16 +83,17 @@ def main(argv):
             f'x2={scale(deferent_radius * 1.04) * cos(angle):.1f} '
             f'y2={scale(deferent_radius * 1.04) * sin(angle):.1f}',
             epicycle_radius=scale(epicycle_radius),
-            xcenter=WIDTH // 2,
-            ycenter=HEIGHT // 2,
-            x0=WIDTH // 2 + scale(-xe * deferent_radius),
-            y0=HEIGHT // 2 + scale(-ye * deferent_radius),
+            x0=scale(-xe * deferent_radius),
+            y0=scale(-ye * deferent_radius),
         )
 
         if planet_name == 'Sun':
             svg_params['extra'] = SUN_SHINE % svg_params
 
-        svg.append(ORBIT % svg_params)
+        if Er == 0:
+            svg.append(DEFERENT % svg_params)
+        else:
+            svg.append(DEFERENT_AND_EPICYCLE % svg_params)
 
         styles.append(
             '.%s-deferent {'
@@ -130,7 +131,13 @@ def main(argv):
     print(f'Outer speed (c): {outer_km_per_s / 299792.458:,.3f}')
 
     styles = '\n '.join(styles)
-    body = SVG % dict(elements=''.join(svg), width=WIDTH, height=HEIGHT)
+    body = SVG % dict(
+        elements=''.join(svg),
+        width=WIDTH,
+        height=HEIGHT,
+        x=WIDTH//2,
+        y=WIDTH//2,
+    )
     content = HTML % dict(
         blue=BLUE,
         body=body,
@@ -145,6 +152,7 @@ HTML = """<html><head>
  circle, line {
   fill: none;
   stroke: %(blue)s;
+  stroke-width: 1.5px;
  }
  circle.planet {
   fill: #000;
@@ -169,18 +177,32 @@ HTML = """<html><head>
 
 SVG = """\
 <svg version="1.1" width=%(width)s height=%(height)s>
- <defs>
-  <radialGradient id="sun-gradient">
-   <stop offset=0%% stop-color=#440 />
-   <stop offset=10%% stop-color=gold />
-   <stop offset=100%% stop-color=#ff00 />
-  </radialGradient>
- </defs>
-%(elements)s</svg>
+<defs>
+ <radialGradient id="sun-gradient">
+  <stop offset=0%% stop-color=#440 />
+  <stop offset=10%% stop-color=gold />
+  <stop offset=100%% stop-color=#ff00 />
+ </radialGradient>
+</defs>
+<g transform="translate(%(x)s, %(y)s)">
+%(elements)s</g></svg>
 """
 
-ORBIT = """
- <circle class=inside cx=%(xcenter)s cy=%(ycenter)s r=%(deferent_inner)s />
+DEFERENT = """
+ <circle class=inside cx=0 cy=0 r=%(deferent_inner)s />
+ <g transform="translate(%(x0)s, %(y0)s)">
+  <circle cx=0 cy=0 r=%(deferent_radius)s />
+  <line %(deferent_tick)s />
+  <g class="rotating %(planet_name)s-deferent">
+   <g transform="translate(%(deferent_radius)s, 0)">
+     <circle class=planet cx=0 cy=0 r=2 />%(extra)s
+   </g>
+  </g>
+ </g>
+"""
+
+DEFERENT_AND_EPICYCLE = """
+ <circle class=inside cx=0 cy=0 r=%(deferent_inner)s />
  <g transform="translate(%(x0)s, %(y0)s)">
   <circle cx=0 cy=0 r=%(deferent_radius)s />
   <line %(deferent_tick)s />
@@ -194,10 +216,6 @@ ORBIT = """
    </g>
   </g>
  </g>
-"""
-
-SUN_LINE = """\
-   <line x1=0 y1=0 x2=%(deferent_radius)s y2=0 />
 """
 
 SUN_SHINE = """\

@@ -4,6 +4,7 @@
  circle, line {
   fill: none;
   stroke: #a4dded;
+  stroke-width: 1.5px;
  }
  circle.planet {
   fill: #000;
@@ -47,22 +48,34 @@
  @keyframes Saturn-epicycle {from {transform: rotate(466.99deg)}to {transform: rotate(106.99deg)}}
 </style></head>
 <body><svg version="1.1" width=640 height=640>
- <defs>
-  <radialGradient id="sun-gradient">
-   <stop offset=0% stop-color=#440 />
-   <stop offset=10% stop-color=gold />
-   <stop offset=100% stop-color=#ff00 />
-  </radialGradient>
- </defs>
+<defs>
+ <radialGradient id="sun-gradient">
+  <stop offset=0% stop-color=#440 />
+  <stop offset=10% stop-color=gold />
+  <stop offset=100% stop-color=#ff00 />
+ </radialGradient>
+</defs>
+<g transform="translate(320, 320)">
 
- <circle class=inside cx=320 cy=320 r=5 />
- <g transform="translate(320, 320)">
-  <circle cx=0 cy=0 r=6 />
-  <line x1=4.5 y1=-2.2 x2=5.4 y2=-2.6 />
+ <circle class=inside cx=0 cy=0 r=1 />
+ <g transform="translate(0, 0)">
+  <circle cx=0 cy=0 r=1 />
+  <line x1=0.9 y1=-0.4 x2=0.9 y2=-0.4 />
   <g class="rotating Moon-deferent">
-   <circle cx=6 cy=0 r=0 />
-   <g transform="translate(6, 0)">
-    <g class="rotating Moon-epicycle">
+   <g transform="translate(1, 0)">
+     <circle class=planet cx=0 cy=0 r=2 />
+   </g>
+  </g>
+ </g>
+
+ <circle class=inside cx=0 cy=0 r=2 />
+ <g transform="translate(0, 0)">
+  <circle cx=0 cy=0 r=2 />
+  <line x1=-0.7 y1=-1.9 x2=-0.7 y2=-1.9 />
+  <g class="rotating Mercury-deferent">
+   <circle cx=2 cy=0 r=0 />
+   <g transform="translate(2, 0)">
+    <g class="rotating Mercury-epicycle">
      <line x1=0 y1=0 x2=0 y2=0 />
      <circle class=planet cx=0 cy=0 r=2 />
     </g>
@@ -70,95 +83,76 @@
   </g>
  </g>
 
- <circle class=inside cx=320 cy=320 r=10 />
- <g transform="translate(320, 320)">
-  <circle cx=0 cy=0 r=10 />
-  <line x1=-3.6 y1=-9.3 x2=-3.6 y2=-9.3 />
-  <g class="rotating Mercury-deferent">
-   <circle cx=10 cy=0 r=3 />
-   <g transform="translate(10, 0)">
-    <g class="rotating Mercury-epicycle">
-     <line x1=0 y1=0 x2=3 y2=0 />
-     <circle class=planet cx=3 cy=0 r=2 />
-    </g>
-   </g>
-  </g>
- </g>
-
- <circle class=inside cx=320 cy=320 r=56 />
- <g transform="translate(320, 320)">
-  <circle cx=0 cy=0 r=56 />
-  <line x1=-4.2 y1=53.8 x2=-4.6 y2=58.8 />
+ <circle class=inside cx=0 cy=0 r=11 />
+ <g transform="translate(0, 0)">
+  <circle cx=0 cy=0 r=11 />
+  <line x1=-0.8 y1=10.0 x2=-0.9 y2=11.0 />
   <g class="rotating Venus-deferent">
-   <circle cx=56 cy=0 r=41 />
-   <g transform="translate(56, 0)">
+   <circle cx=11 cy=0 r=8 />
+   <g transform="translate(11, 0)">
     <g class="rotating Venus-epicycle">
-     <line x1=0 y1=0 x2=41 y2=0 />
-     <circle class=planet cx=41 cy=0 r=2 />
+     <line x1=0 y1=0 x2=8 y2=0 />
+     <circle class=planet cx=8 cy=0 r=2 />
     </g>
    </g>
   </g>
  </g>
 
- <circle class=inside cx=320 cy=320 r=98 />
- <g transform="translate(320, 319)">
-  <circle cx=0 cy=0 r=100 />
-  <line x1=-21.6 y1=93.5 x2=-23.4 y2=101.3 />
+ <circle class=inside cx=0 cy=0 r=19 />
+ <g transform="translate(0, 0)">
+  <circle cx=0 cy=0 r=20 />
+  <line x1=-4.3 y1=18.5 x2=-4.5 y2=19.5 />
   <g class="rotating Sun-deferent">
-   <circle cx=100 cy=0 r=0 />
-   <g transform="translate(100, 0)">
-    <g class="rotating Sun-epicycle">
-     <line x1=0 y1=0 x2=0 y2=0 />
+   <g transform="translate(20, 0)">
      <circle class=planet cx=0 cy=0 r=2 />   <circle class=sunshine cx=0 cy=0 r=24 />
 
-    </g>
    </g>
   </g>
  </g>
 
- <circle class=inside cx=320 cy=320 r=378 />
- <g transform="translate(357, 301)">
-  <circle cx=0 cy=0 r=420 />
-  <line x1=-357.4 y1=186.2 x2=-387.6 y2=201.9 />
+ <circle class=inside cx=0 cy=0 r=75 />
+ <g transform="translate(7, -3)">
+  <circle cx=0 cy=0 r=84 />
+  <line x1=-71.0 y1=37.0 x2=-77.2 y2=40.2 />
   <g class="rotating Mars-deferent">
-   <circle cx=420 cy=0 r=276 />
-   <g transform="translate(420, 0)">
+   <circle cx=84 cy=0 r=55 />
+   <g transform="translate(84, 0)">
     <g class="rotating Mars-epicycle">
-     <line x1=0 y1=0 x2=276 y2=0 />
-     <circle class=planet cx=276 cy=0 r=2 />
+     <line x1=0 y1=0 x2=55 y2=0 />
+     <circle class=planet cx=55 cy=0 r=2 />
     </g>
    </g>
   </g>
  </g>
 
- <circle class=inside cx=320 cy=320 r=926 />
- <g transform="translate(366, 329)">
-  <circle cx=0 cy=0 r=973 />
-  <line x1=-916.6 y1=-179.5 x2=-993.1 y2=-194.5 />
+ <circle class=inside cx=0 cy=0 r=185 />
+ <g transform="translate(9, 1)">
+  <circle cx=0 cy=0 r=194 />
+  <line x1=-182.5 y1=-35.8 x2=-198.2 y2=-38.8 />
   <g class="rotating Jupiter-deferent">
-   <circle cx=973 cy=0 r=187 />
-   <g transform="translate(973, 0)">
+   <circle cx=194 cy=0 r=37 />
+   <g transform="translate(194, 0)">
     <g class="rotating Jupiter-epicycle">
-     <line x1=0 y1=0 x2=187 y2=0 />
-     <circle class=planet cx=187 cy=0 r=2 />
+     <line x1=0 y1=0 x2=37 y2=0 />
+     <circle class=planet cx=37 cy=0 r=2 />
     </g>
    </g>
   </g>
  </g>
 
- <circle class=inside cx=320 cy=320 r=1358 />
- <g transform="translate(317, 393)">
-  <circle cx=0 cy=0 r=1431 />
-  <line x1=62.0 y1=-1372.6 x2=67.2 y2=-1487.5 />
+ <circle class=inside cx=0 cy=0 r=271 />
+ <g transform="translate(0, 14)">
+  <circle cx=0 cy=0 r=286 />
+  <line x1=12.4 y1=-273.7 x2=13.4 y2=-296.7 />
   <g class="rotating Saturn-deferent">
-   <circle cx=1431 cy=0 r=150 />
-   <g transform="translate(1431, 0)">
+   <circle cx=286 cy=0 r=30 />
+   <g transform="translate(286, 0)">
     <g class="rotating Saturn-epicycle">
-     <line x1=0 y1=0 x2=150 y2=0 />
-     <circle class=planet cx=150 cy=0 r=2 />
+     <line x1=0 y1=0 x2=30 y2=0 />
+     <circle class=planet cx=30 cy=0 r=2 />
     </g>
    </g>
   </g>
  </g>
-</svg>
+</g></svg>
 </body></html>
