@@ -46,7 +46,7 @@ def main(argv):
         DT, D0, xe, ye, ET, E0, Er = params
         ye *= -1  # The y coordinate increases down in SVG.
 
-        #angle = np.arctan2(ye, xe)
+        perigee_angle = np.arctan2(ye, xe) / tau * 360
         eccentricity = np.sqrt(xe * xe + ye * ye)
 
         closest = 1.0 - eccentricity - Er
@@ -71,6 +71,8 @@ def main(argv):
             f'y2={scale(yp * 1.04):.1f}'
         )
 
+        xp = scale(xp)
+        yp = scale(yp)
         x0 = scale(xe * deferent_radius)
         y0 = scale(ye * deferent_radius)
         inner = scale((1 - eccentricity) * deferent_radius)
@@ -92,15 +94,21 @@ def main(argv):
         else:
             extra = '<circle class=planet cx=0 cy=0 r=2 />'
 
+        motion_path = (f'M{xp},{yp}'
+                       f' A {r} {r} 0 0 0 {yp} {-xp}'
+                       f' A {r} {r} 0 0 0 {-xp} {-yp}'
+                       f' A {r} {r} 0 0 0 {-yp} {xp}'
+                       f' A {r} {r} 0 0 0 {xp} {yp}')
+
         svg.append(f"""
  <circle class=inside cx=0 cy=0 r={inner} />
  <g transform="translate({x0}, {y0})">
-  <circle cx=0 cy=0 r={r} />
   <line {deferent_tick} />
+  <path d="{motion_path}" />
   <g>
    <animateMotion dur={scale_days(DT):.2f}s repeatCount=indefinite
-      path="M{r},0 A {r} {r} 0 1 0 -{r} 0 A {r} {r} 0 1 0 {r} 0"
-      begin=-{scale_days(D0 / 360 * DT):.2f}s
+      path="{motion_path}"
+      begin={scale_days(((perigee_angle - D0) % 360 / 360 - 1) * DT):.2f}s
     />
    {extra}
   </g>
@@ -184,7 +192,7 @@ def bezier(t, x1, y1, x2, y2):
 HTML = """<html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
- circle, line {
+ circle, line, path {
   fill: none;
   stroke: %(blue)s;
   stroke-width: 1.5px;
