@@ -85,12 +85,19 @@ def main(argv):
         extra = ''
         if planet_name == 'Sun':
             extra = '<circle class=sunshine cx=0 cy=0 r=24 />'
-        elif Er:
-            extra = f"""<circle cx=0 cy=0 r={epicycle_radius} />
-     <g class="epicycle {planet_name}-epicycle">
-      <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
-      <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
-     </g>\
+        elif Er: #  rotate({E0:.2f}deg)
+            extra = f"""\
+    <g transform="scale(-1, 1)">
+     <g class="deferent {planet_name}-deferent">
+      <g transform="scale(-1, 1)">
+       <circle cx=0 cy=0 r={epicycle_radius} />
+       <g class="epicycle {planet_name}-epicycle">
+        <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
+        <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
+       </g>
+      </g>
+     </g>
+    </g>\
 """
         else:
             extra = '<circle class=planet cx=0 cy=0 r=2 />'
@@ -106,36 +113,24 @@ def main(argv):
  <line {deferent_tick} />
  <g transform="translate({x0}, {y0})">
   <circle cx=0 cy=0 r={r} />
-  <g class="deferent {planet_name}-fore">
+  <g class="deferent {planet_name}-deferent">
    <g transform="translate({r}, 0)">
-    <g class="deferent {planet_name}-back">
-     {extra}
-    </g>
+{extra}
    </g>
   </g>
  </g>
 """)
 
         styles.append(
-            f'.{planet_name}-fore {{'
+            f'.{planet_name}-deferent {{'
             f'animation-duration: {scale_days(DT):.2f}s; '
-            f'animation-name: {planet_name}-fore'
-            '}')
-        styles.append(
-            f'.{planet_name}-back {{'
-            f'animation-duration: {scale_days(DT):.2f}s; '
-            f'animation-name: {planet_name}-back'
+            f'animation-name: {planet_name}-deferent'
             '}')
 
         styles.append(
-            f'@keyframes {planet_name}-fore {{'
+            f'@keyframes {planet_name}-deferent {{'
             f'from {{transform: rotate({D0:.2f}deg)}} '
             f'to {{transform: rotate({D0 + 360:.2f}deg)}}'
-            '}')
-        styles.append(
-            f'@keyframes {planet_name}-back {{'
-            f'from {{transform: rotate({E0 + 720 - D0:.2f}deg)}} '
-            f'to {{transform: rotate({E0 + 360 - D0:.2f}deg)}}'
             '}')
 
         styles.append(
@@ -145,6 +140,7 @@ def main(argv):
 
         #  <path d="{motion_path}" />
         #k = build_keyframes(3, eccentricity, D0)
+
         # k = build_keyframes(3, .99, D0)
         # keyframes = '\n'.join(' '+line for line in k)
 

@@ -24,40 +24,26 @@
   from {transform: rotate(0deg)} to {transform: rotate(360deg)}
  }
  .deferent {animation-timing-function: linear;}
- .Moon-fore {animation-duration: 0.38s; animation-name: Moon-fore}
- .Moon-back {animation-duration: 0.38s; animation-name: Moon-back}
- @keyframes Moon-fore {from {transform: rotate(91.77deg)} to {transform: rotate(451.77deg)}}
- @keyframes Moon-back {from {transform: rotate(628.23deg)} to {transform: rotate(268.23deg)}}
+ .Moon-deferent {animation-duration: 0.38s; animation-name: Moon-deferent}
+ @keyframes Moon-deferent {from {transform: rotate(91.77deg)} to {transform: rotate(451.77deg)}}
  .Moon-epicycle {animation-duration: 0.01s;}
- .Mercury-fore {animation-duration: 5.07s; animation-name: Mercury-fore}
- .Mercury-back {animation-duration: 5.07s; animation-name: Mercury-back}
- @keyframes Mercury-fore {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
- @keyframes Mercury-back {from {transform: rotate(516.20deg)} to {transform: rotate(156.20deg)}}
+ .Mercury-deferent {animation-duration: 5.07s; animation-name: Mercury-deferent}
+ @keyframes Mercury-deferent {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
  .Mercury-epicycle {animation-duration: 1.22s;}
- .Venus-fore {animation-duration: 5.07s; animation-name: Venus-fore}
- .Venus-back {animation-duration: 5.07s; animation-name: Venus-back}
- @keyframes Venus-fore {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
- @keyframes Venus-back {from {transform: rotate(712.73deg)} to {transform: rotate(352.73deg)}}
+ .Venus-deferent {animation-duration: 5.07s; animation-name: Venus-deferent}
+ @keyframes Venus-deferent {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
  .Venus-epicycle {animation-duration: 3.12s;}
- .Sun-fore {animation-duration: 5.07s; animation-name: Sun-fore}
- .Sun-back {animation-duration: 5.07s; animation-name: Sun-back}
- @keyframes Sun-fore {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
- @keyframes Sun-back {from {transform: rotate(440.56deg)} to {transform: rotate(80.56deg)}}
+ .Sun-deferent {animation-duration: 5.07s; animation-name: Sun-deferent}
+ @keyframes Sun-deferent {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
  .Sun-epicycle {animation-duration: 0.01s;}
- .Mars-fore {animation-duration: 9.54s; animation-name: Mars-fore}
- .Mars-back {animation-duration: 9.54s; animation-name: Mars-back}
- @keyframes Mars-fore {from {transform: rotate(108.71deg)} to {transform: rotate(468.71deg)}}
- @keyframes Mars-back {from {transform: rotate(890.72deg)} to {transform: rotate(530.72deg)}}
+ .Mars-deferent {animation-duration: 9.54s; animation-name: Mars-deferent}
+ @keyframes Mars-deferent {from {transform: rotate(108.71deg)} to {transform: rotate(468.71deg)}}
  .Mars-epicycle {animation-duration: 5.07s;}
- .Jupiter-fore {animation-duration: 60.15s; animation-name: Jupiter-fore}
- .Jupiter-back {animation-duration: 60.15s; animation-name: Jupiter-back}
- @keyframes Jupiter-fore {from {transform: rotate(337.71deg)} to {transform: rotate(697.71deg)}}
- @keyframes Jupiter-back {from {transform: rotate(661.73deg)} to {transform: rotate(301.73deg)}}
+ .Jupiter-deferent {animation-duration: 60.15s; animation-name: Jupiter-deferent}
+ @keyframes Jupiter-deferent {from {transform: rotate(337.71deg)} to {transform: rotate(697.71deg)}}
  .Jupiter-epicycle {animation-duration: 5.07s;}
- .Saturn-fore {animation-duration: 149.85s; animation-name: Saturn-fore}
- .Saturn-back {animation-duration: 149.85s; animation-name: Saturn-back}
- @keyframes Saturn-fore {from {transform: rotate(172.44deg)} to {transform: rotate(532.44deg)}}
- @keyframes Saturn-back {from {transform: rotate(826.99deg)} to {transform: rotate(466.99deg)}}
+ .Saturn-deferent {animation-duration: 149.85s; animation-name: Saturn-deferent}
+ @keyframes Saturn-deferent {from {transform: rotate(172.44deg)} to {transform: rotate(532.44deg)}}
  .Saturn-epicycle {animation-duration: 5.07s;}
 </style></head>
 <body><svg version="1.1" width=640 height=640>
@@ -74,11 +60,9 @@
  <line x1=-1.0 y1=0.5 x2=-1.1 y2=0.5 />
  <g transform="translate(0.0, -0.0)">
   <circle cx=0 cy=0 r=1.2 />
-  <g class="deferent Moon-fore">
+  <g class="deferent Moon-deferent">
    <g transform="translate(1.2, 0)">
-    <g class="deferent Moon-back">
-     <circle class=planet cx=0 cy=0 r=2 />
-    </g>
+<circle class=planet cx=0 cy=0 r=2 />
    </g>
   </g>
  </g>
@@ -87,13 +71,17 @@
  <line x1=0.7 y1=1.8 x2=0.8 y2=1.9 />
  <g transform="translate(-0.0, -0.1)">
   <circle cx=0 cy=0 r=2.1 />
-  <g class="deferent Mercury-fore">
+  <g class="deferent Mercury-deferent">
    <g transform="translate(2.1, 0)">
-    <g class="deferent Mercury-back">
-     <circle cx=0 cy=0 r=0.8 />
-     <g class="epicycle Mercury-epicycle">
-      <line x1=0 y1=0 x2=0.8 y2=0 />
-      <circle cx=0.8 cy=0 r=2 class=planet />
+    <g transform="scale(-1, 1)">
+     <g class="deferent Mercury-deferent">
+      <g transform="scale(-1, 1)">
+       <circle cx=0 cy=0 r=0.8 />
+       <g class="epicycle Mercury-epicycle">
+        <line x1=0 y1=0 x2=0.8 y2=0 />
+        <circle cx=0.8 cy=0 r=2 class=planet />
+       </g>
+      </g>
      </g>
     </g>
    </g>
@@ -104,13 +92,17 @@
  <line x1=0.8 y1=-10.7 x2=0.9 y2=-11.6 />
  <g transform="translate(-0.0, 0.1)">
   <circle cx=0 cy=0 r=11.4 />
-  <g class="deferent Venus-fore">
+  <g class="deferent Venus-deferent">
    <g transform="translate(11.4, 0)">
-    <g class="deferent Venus-back">
-     <circle cx=0 cy=0 r=8.2 />
-     <g class="epicycle Venus-epicycle">
-      <line x1=0 y1=0 x2=8.2 y2=0 />
-      <circle cx=8.2 cy=0 r=2 class=planet />
+    <g transform="scale(-1, 1)">
+     <g class="deferent Venus-deferent">
+      <g transform="scale(-1, 1)">
+       <circle cx=0 cy=0 r=8.2 />
+       <g class="epicycle Venus-epicycle">
+        <line x1=0 y1=0 x2=8.2 y2=0 />
+        <circle cx=8.2 cy=0 r=2 class=planet />
+       </g>
+      </g>
      </g>
     </g>
    </g>
@@ -121,11 +113,9 @@
  <line x1=4.3 y1=-18.5 x2=4.6 y2=-20.0 />
  <g transform="translate(-0.1, 0.3)">
   <circle cx=0 cy=0 r=20.1 />
-  <g class="deferent Sun-fore">
+  <g class="deferent Sun-deferent">
    <g transform="translate(20.1, 0)">
-    <g class="deferent Sun-back">
-     <circle class=sunshine cx=0 cy=0 r=24 />
-    </g>
+<circle class=sunshine cx=0 cy=0 r=24 />
    </g>
   </g>
  </g>
@@ -134,13 +124,17 @@
  <line x1=64.5 y1=-33.6 x2=69.9 y2=-36.4 />
  <g transform="translate(-7.4, 3.9)">
   <circle cx=0 cy=0 r=84.1 />
-  <g class="deferent Mars-fore">
+  <g class="deferent Mars-deferent">
    <g transform="translate(84.1, 0)">
-    <g class="deferent Mars-back">
-     <circle cx=0 cy=0 r=55.3 />
-     <g class="epicycle Mars-epicycle">
-      <line x1=0 y1=0 x2=55.3 y2=0 />
-      <circle cx=55.3 cy=0 r=2 class=planet />
+    <g transform="scale(-1, 1)">
+     <g class="deferent Mars-deferent">
+      <g transform="scale(-1, 1)">
+       <circle cx=0 cy=0 r=55.3 />
+       <g class="epicycle Mars-epicycle">
+        <line x1=0 y1=0 x2=55.3 y2=0 />
+        <circle cx=55.3 cy=0 r=2 class=planet />
+       </g>
+      </g>
      </g>
     </g>
    </g>
@@ -151,13 +145,17 @@
  <line x1=174.5 y1=34.2 x2=189.0 y2=37.0 />
  <g transform="translate(-9.3, -1.8)">
   <circle cx=0 cy=0 r=194.7 />
-  <g class="deferent Jupiter-fore">
+  <g class="deferent Jupiter-deferent">
    <g transform="translate(194.7, 0)">
-    <g class="deferent Jupiter-back">
-     <circle cx=0 cy=0 r=37.4 />
-     <g class="epicycle Jupiter-epicycle">
-      <line x1=0 y1=0 x2=37.4 y2=0 />
-      <circle cx=37.4 cy=0 r=2 class=planet />
+    <g transform="scale(-1, 1)">
+     <g class="deferent Jupiter-deferent">
+      <g transform="scale(-1, 1)">
+       <circle cx=0 cy=0 r=37.4 />
+       <g class="epicycle Jupiter-epicycle">
+        <line x1=0 y1=0 x2=37.4 y2=0 />
+        <circle cx=37.4 cy=0 r=2 class=planet />
+       </g>
+      </g>
      </g>
     </g>
    </g>
@@ -168,13 +166,17 @@
  <line x1=-11.8 y1=260.6 x2=-12.7 y2=282.3 />
  <g transform="translate(0.7, -14.6)">
   <circle cx=0 cy=0 r=286.4 />
-  <g class="deferent Saturn-fore">
+  <g class="deferent Saturn-deferent">
    <g transform="translate(286.4, 0)">
-    <g class="deferent Saturn-back">
-     <circle cx=0 cy=0 r=30.0 />
-     <g class="epicycle Saturn-epicycle">
-      <line x1=0 y1=0 x2=30.0 y2=0 />
-      <circle cx=30.0 cy=0 r=2 class=planet />
+    <g transform="scale(-1, 1)">
+     <g class="deferent Saturn-deferent">
+      <g transform="scale(-1, 1)">
+       <circle cx=0 cy=0 r=30.0 />
+       <g class="epicycle Saturn-epicycle">
+        <line x1=0 y1=0 x2=30.0 y2=0 />
+        <circle cx=30.0 cy=0 r=2 class=planet />
+       </g>
+      </g>
      </g>
     </g>
    </g>
