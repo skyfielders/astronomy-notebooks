@@ -33,18 +33,21 @@ def main(argv):
         parameter_sets.append(params)
 
     def scale(n):
-        return int(n / SCALE)
+        #return f'{n / SCALE:.1f}'
+        return round(n / SCALE, 1)
+        #return int(n / SCALE)
 
     def scale_days(days):
         return days / DAYS_PER_SECOND
 
+    styles = []
     svg = []
 
     for planet_name, params in zip(planets, parameter_sets):
         if len(params) == 4:
             params.extend([1,0,0])
         DT, D0, xe, ye, ET, E0, Er = params
-        ye *= -1  # The y coordinate increases down in SVG.
+        #ye *= -1  # The y coordinate increases down in SVG.
 
         perigee_angle = np.arctan2(ye, xe) / tau * 360
         eccentricity = np.sqrt(xe * xe + ye * ye)
@@ -61,60 +64,86 @@ def main(argv):
               f'{radius:9,.1f} - {outer_radius:8,.1f} earth radii  '
               f'{int(radius * km):,} - {int(outer_radius * km):,} km')
 
-        xp = - deferent_radius * xe / eccentricity  # "p": perigee
-        yp = - deferent_radius * ye / eccentricity
+        inner = (1 - eccentricity) * deferent_radius
+
+        xp = - inner * xe / eccentricity  # "p": perigee
+        yp = - inner * ye / eccentricity
 
         deferent_tick= (
-            f'x1={scale(xp * 0.96):.1f} '
-            f'y1={scale(yp * 0.96):.1f} '
-            f'x2={scale(xp * 1.04):.1f} '
-            f'y2={scale(yp * 1.04):.1f}'
+            f'x1={scale(xp * 0.96)} '
+            f'y1={scale(yp * 0.96)} '
+            f'x2={scale(xp * 1.04)} '
+            f'y2={scale(yp * 1.04)}'
         )
 
         xp = scale(xp)
         yp = scale(yp)
         x0 = scale(xe * deferent_radius)
         y0 = scale(ye * deferent_radius)
-        inner = scale((1 - eccentricity) * deferent_radius)
         r = scale(deferent_radius)
 
         extra = ''
         if planet_name == 'Sun':
             extra = '<circle class=sunshine cx=0 cy=0 r=24 />'
         elif Er:
-            extra = f"""\
-   <circle cx=0 cy=0 r={epicycle_radius} />
-   <g>
-    <animateTransform dur={scale_days(ET):.2f}s repeatCount=indefinite
-      attributeName=transform type=rotate from={E0+360:.2f} to={E0:.2f} />
-    <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
-    <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
-   </g>
+            extra = f"""<circle cx=0 cy=0 r={epicycle_radius} />
+     <g class="epicycle {planet_name}-epicycle">
+      <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
+      <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
+     </g>\
 """
         else:
             extra = '<circle class=planet cx=0 cy=0 r=2 />'
 
-        motion_path = (f'M{xp},{yp}'
-                       f' A {r} {r} 0 0 0 {yp} {-xp}'
-                       f' A {r} {r} 0 0 0 {-xp} {-yp}'
-                       f' A {r} {r} 0 0 0 {-yp} {xp}'
-                       f' A {r} {r} 0 0 0 {xp} {yp}')
+        # motion_path = (f'M{xp},{yp}'
+        #                f' A {r} {r} 0 0 0 {yp} {-xp}'
+        #                f' A {r} {r} 0 0 0 {-xp} {-yp}'
+        #                f' A {r} {r} 0 0 0 {-yp} {xp}'
+        #                f' A {r} {r} 0 0 0 {xp} {yp}')
 
         svg.append(f"""
- <circle class=inside cx=0 cy=0 r={inner} />
+ <circle class=inside cx=0 cy=0 r={scale(inner)} />
+ <line {deferent_tick} />
  <g transform="translate({x0}, {y0})">
-  <line {deferent_tick} />
-  <path d="{motion_path}" />
-  <g>
-   <animateMotion dur={scale_days(DT):.2f}s repeatCount=indefinite
-      path="{motion_path}"
-      begin={scale_days(((perigee_angle - D0) % 360 / 360 - 1) * DT):.2f}s
-    />
-   {extra}
+  <circle cx=0 cy=0 r={r} />
+  <g class="deferent {planet_name}-fore">
+   <g transform="translate({r}, 0)">
+    <g class="deferent {planet_name}-back">
+     {extra}
+    </g>
+   </g>
   </g>
  </g>
 """)
 
+        styles.append(
+            f'.{planet_name}-fore {{'
+            f'animation-duration: {scale_days(DT):.2f}s; '
+            f'animation-name: {planet_name}-fore'
+            '}')
+        styles.append(
+            f'.{planet_name}-back {{'
+            f'animation-duration: {scale_days(DT):.2f}s; '
+            f'animation-name: {planet_name}-back'
+            '}')
+
+        styles.append(
+            f'@keyframes {planet_name}-fore {{'
+            f'from {{transform: rotate({D0:.2f}deg)}} '
+            f'to {{transform: rotate({D0 + 360:.2f}deg)}}'
+            '}')
+        styles.append(
+            f'@keyframes {planet_name}-back {{'
+            f'from {{transform: rotate({E0 + 720 - D0:.2f}deg)}} '
+            f'to {{transform: rotate({E0 + 360 - D0:.2f}deg)}}'
+            '}')
+
+        styles.append(
+            f'.{planet_name}-epicycle {{'
+            f'animation-duration: {scale_days(ET):.2f}s;'
+            '}')
+
+        #  <path d="{motion_path}" />
         #k = build_keyframes(3, eccentricity, D0)
         # k = build_keyframes(3, .99, D0)
         # keyframes = '\n'.join(' '+line for line in k)
@@ -144,6 +173,7 @@ def main(argv):
     content = HTML % dict(
         blue=BLUE,
         body=body,
+        styles='\n '.join(styles),
     )
     with open('animation-ptolemy-sidereal.html', 'w') as f:
         f.write(content)
@@ -209,6 +239,13 @@ HTML = """<html><head>
   border: 5px dotted %(blue)s;
   stroke-dasharray: 2,2;
  }
+ .epicycle, .deferent {animation-iteration-count: infinite;}
+ .epicycle {animation-timing-function: linear; animation-name: epicycle;}
+ @keyframes epicycle {
+  from {transform: rotate(0deg)} to {transform: rotate(360deg)}
+ }
+ .deferent {animation-timing-function: linear;}
+ %(styles)s
 </style></head>
 <body>%(body)s</body></html>
 """
@@ -222,7 +259,7 @@ SVG = """\
   <stop offset=100%% stop-color=#ff00 />
  </radialGradient>
 </defs>
-<g transform="translate(%(x)s, %(y)s)">
+<g transform="translate(%(x)s, %(y)s) scale(1, -1)">
 %(elements)s</g></svg>
 """
 
