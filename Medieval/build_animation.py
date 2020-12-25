@@ -84,23 +84,23 @@ def main(argv):
 
         extra = ''
         if planet_name == 'Sun':
-            extra = '<circle class=sunshine cx=0 cy=0 r=24 />'
+            extra = f'<circle class=sunshine cx={r} cy=0 r=24 />'
         elif Er: #  rotate({E0:.2f}deg) # transform="rotate({E0 % 360:.2f})"
             extra = f"""\
-    <g transform="scale(-1, 1)">
-     <g class="deferent {planet_name}-deferent">
-      <g transform="scale(-1, 1) rotate({E0 % 360:.2f})">
-       <circle cx=0 cy=0 r={epicycle_radius} /> <g>
-       <g class="epicycle {planet_name}-epicycle">
-        <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
-        <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
-       </g>
-      </g></g>
+   <g transform="translate({r}, 0) scale(-1, 1)">
+    <g class="deferent {planet_name}-deferent">
+     <g transform="scale(-1, 1) rotate({E0 % 360:.2f})">
+      <circle cx=0 cy=0 r={epicycle_radius} />
+      <g class="epicycle {planet_name}-epicycle">
+       <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
+       <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
+      </g>
      </g>
-    </g>\
+    </g>
+   </g>\
 """
         else:
-            extra = '<circle class=planet cx=0 cy=0 r=2 />'
+            extra = f'<circle class=planet cx={r} cy=0 r=2 />'
 
         # motion_path = (f'M{xp},{yp}'
         #                f' A {r} {r} 0 0 0 {yp} {-xp}'
@@ -114,9 +114,7 @@ def main(argv):
  <g transform="translate({x0}, {y0})">
   <circle cx=0 cy=0 r={r} />
   <g class="deferent {planet_name}-deferent">
-   <g transform="translate({r}, 0)">
 {extra}
-   </g>
   </g>
  </g>
 """)
