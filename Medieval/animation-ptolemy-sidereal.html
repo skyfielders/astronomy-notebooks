@@ -25,25 +25,95 @@
  }
  .deferent {animation-timing-function: linear;}
  .Moon-deferent {animation-duration: 0.38s; animation-name: Moon-deferent}
- @keyframes Moon-deferent {from {transform: rotate(91.77deg)} to {transform: rotate(451.77deg)}}
+ @keyframes Moon-deferent {
+  0.0% {
+   transform: rotate(91.5deg);
+   animation-timing-function: cubic-bezier(0.341758,0.341547,0.607801,0.610316);
+  }
+  50.0% {
+   transform: rotate(272.1deg);
+   animation-timing-function: cubic-bezier(0.341784,0.341996,0.607788,0.605256);
+  }
+  to {transform: rotate(451.5deg);}
+ }
  .Moon-epicycle {animation-duration: 0.01s;}
  .Mercury-deferent {animation-duration: 5.07s; animation-name: Mercury-deferent}
- @keyframes Mercury-deferent {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
+ @keyframes Mercury-deferent {
+  0.0% {
+   transform: rotate(278.0deg);
+   animation-timing-function: cubic-bezier(0.428772,0.404461,0.654743,0.645813);
+  }
+  50.0% {
+   transform: rotate(460.8deg);
+   animation-timing-function: cubic-bezier(0.428779,0.453852,0.654767,0.663977);
+  }
+  to {transform: rotate(638.0deg);}
+ }
  .Mercury-epicycle {animation-duration: 1.22s;}
  .Venus-deferent {animation-duration: 5.07s; animation-name: Venus-deferent}
- @keyframes Venus-deferent {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
+ @keyframes Venus-deferent {
+  0.0% {
+   transform: rotate(279.5deg);
+   animation-timing-function: cubic-bezier(0.418408,0.424412,0.598688,0.603873);
+  }
+  50.0% {
+   transform: rotate(459.4deg);
+   animation-timing-function: cubic-bezier(0.417096,0.411127,0.596704,0.591497);
+  }
+  to {transform: rotate(639.5deg);}
+ }
  .Venus-epicycle {animation-duration: 3.12s;}
  .Sun-deferent {animation-duration: 5.07s; animation-name: Sun-deferent}
- @keyframes Sun-deferent {from {transform: rotate(279.44deg)} to {transform: rotate(639.44deg)}}
+ @keyframes Sun-deferent {
+  0.0% {
+   transform: rotate(279.4deg);
+   animation-timing-function: cubic-bezier(0.404390,0.411103,0.583429,0.590880);
+  }
+  50.0% {
+   transform: rotate(459.5deg);
+   animation-timing-function: cubic-bezier(0.406879,0.400104,0.585868,0.578459);
+  }
+  to {transform: rotate(639.4deg);}
+ }
  .Sun-epicycle {animation-duration: 0.01s;}
  .Mars-deferent {animation-duration: 9.54s; animation-name: Mars-deferent}
- @keyframes Mars-deferent {from {transform: rotate(108.71deg)} to {transform: rotate(468.71deg)}}
+ @keyframes Mars-deferent {
+  0.0% {
+   transform: rotate(112.7deg);
+   animation-timing-function: cubic-bezier(0.340788,0.330224,0.585765,0.534619);
+  }
+  50.0% {
+   transform: rotate(284.8deg);
+   animation-timing-function: cubic-bezier(0.340788,0.350466,0.585765,0.632618);
+  }
+  to {transform: rotate(472.7deg);}
+ }
  .Mars-epicycle {animation-duration: 5.07s;}
  .Jupiter-deferent {animation-duration: 60.15s; animation-name: Jupiter-deferent}
- @keyframes Jupiter-deferent {from {transform: rotate(337.71deg)} to {transform: rotate(697.71deg)}}
+ @keyframes Jupiter-deferent {
+  0.0% {
+   transform: rotate(336.2deg);
+   animation-timing-function: cubic-bezier(0.343389,0.351710,0.573712,0.598590);
+  }
+  50.0% {
+   transform: rotate(519.2deg);
+   animation-timing-function: cubic-bezier(0.343383,0.334772,0.573710,0.547964);
+  }
+  to {transform: rotate(696.2deg);}
+ }
  .Jupiter-epicycle {animation-duration: 5.07s;}
  .Saturn-deferent {animation-duration: 149.85s; animation-name: Saturn-deferent}
- @keyframes Saturn-deferent {from {transform: rotate(172.44deg)} to {transform: rotate(532.44deg)}}
+ @keyframes Saturn-deferent {
+  0.0% {
+   transform: rotate(175.3deg);
+   animation-timing-function: cubic-bezier(0.371852,0.387835,0.647365,0.638933);
+  }
+  50.0% {
+   transform: rotate(349.6deg);
+   animation-timing-function: cubic-bezier(0.371804,0.356816,0.647428,0.655336);
+  }
+  to {transform: rotate(535.3deg);}
+ }
  .Saturn-epicycle {animation-duration: 5.07s;}
 </style></head>
 <body><svg version="1.1" width=640 height=640>
@@ -61,7 +131,7 @@
  <g transform="translate(0.0, -0.0)">
   <circle cx=0 cy=0 r=1.2 />
   <g class="deferent Moon-deferent">
-<circle class=planet cx=1.2 cy=0 r=2 />
+   <circle class=planet cx=1.2 cy=0 r=2 />
   </g>
  </g>
 
@@ -108,7 +178,7 @@
  <g transform="translate(-0.1, 0.3)">
   <circle cx=0 cy=0 r=20.1 />
   <g class="deferent Sun-deferent">
-<circle class=sunshine cx=20.1 cy=0 r=24 />
+   <circle class=sunshine cx=20.1 cy=0 r=24 />
   </g>
  </g>
 

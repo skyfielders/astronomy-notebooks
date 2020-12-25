@@ -182,8 +182,8 @@ def plot_slopes(planet_name, day, longitude, initial_params, fitted_params):
     param_names = [
         'DT: deferent rotation period (days)',
         'D0: deferent angle at day=0.0',
-        'xe: x coordinate of Earth',
-        'ye: y coordinate of Earth',
+        'xe: x coordinate of equant',
+        'ye: y coordinate of equant',
         'ET: epicycle rotation period (days)',
         'E0: epicycle angle at day=0.0',
         'Er: epicycle radius (deferent radius=1)',

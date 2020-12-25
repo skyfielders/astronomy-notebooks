@@ -4,8 +4,8 @@ import argparse
 import json
 import numpy as np
 import sys
-from fitting import equant, to_longitude
-from math import cos, sin, tau
+from fitting import equant, to_longitude, to_radians
+from math import tau
 from scipy.optimize import curve_fit
 
 BLUE = '#a4dded'  # "Non-photo blue"
@@ -33,12 +33,10 @@ def main(argv):
         parameter_sets.append(params)
 
     def scale(n):
-        #return f'{n / SCALE:.1f}'
         return round(n / SCALE, 1)
-        #return int(n / SCALE)
 
     def scale_days(days):
-        return days / DAYS_PER_SECOND
+        return round(days / DAYS_PER_SECOND, 2)
 
     styles = []
     svg = []
@@ -46,10 +44,8 @@ def main(argv):
     for planet_name, params in zip(planets, parameter_sets):
         if len(params) == 4:
             params.extend([1,0,0])
-        DT, D0, xe, ye, ET, E0, Er = params
-        #ye *= -1  # The y coordinate increases down in SVG.
 
-        perigee_angle = np.arctan2(ye, xe) / tau * 360
+        DT, D0, xe, ye, ET, E0, Er = params
         eccentricity = np.sqrt(xe * xe + ye * ye)
 
         closest = 1.0 - eccentricity - Er
@@ -57,12 +53,12 @@ def main(argv):
         outer_radius = radius * farthest / closest
 
         deferent_radius = radius / closest
-        epicycle_radius = scale(deferent_radius * Er)
+        epicycle_radius = deferent_radius * Er
 
         km = EARTH_RADIUS_KM
-        print(f'{planet_name:8} {eccentricity:5.3f}  '
-              f'{radius:9,.1f} - {outer_radius:8,.1f} earth radii  '
-              f'{int(radius * km):,} - {int(outer_radius * km):,} km')
+        print(f'{planet_name:7} {eccentricity:5.3f}  '
+              f'{radius:8,.1f}-{outer_radius:8,.1f} earth radii  '
+              f'{int(outer_radius * km):11,} km', end='  ')
 
         inner = (1 - eccentricity) * deferent_radius
 
@@ -76,42 +72,35 @@ def main(argv):
             f'y2={scale(yp * 1.04)}'
         )
 
-        xp = scale(xp)
-        yp = scale(yp)
-        x0 = scale(xe * deferent_radius)
-        y0 = scale(ye * deferent_radius)
+        x = scale(xe * deferent_radius)
+        y = scale(ye * deferent_radius)
         r = scale(deferent_radius)
+        e = scale(epicycle_radius)
 
         extra = ''
         if planet_name == 'Sun':
-            extra = f'<circle class=sunshine cx={r} cy=0 r=24 />'
-        elif Er: #  rotate({E0:.2f}deg) # transform="rotate({E0 % 360:.2f})"
+            extra = f'   <circle class=sunshine cx={r} cy=0 r=24 />'
+        elif Er:
             extra = f"""\
    <g transform="translate({r}, 0) scale(-1, 1)">
     <g class="deferent {planet_name}-deferent">
      <g transform="scale(-1, 1) rotate({E0 % 360:.2f})">
-      <circle cx=0 cy=0 r={epicycle_radius} />
+      <circle cx=0 cy=0 r={e} />
       <g class="epicycle {planet_name}-epicycle">
-       <line x1=0 y1=0 x2={epicycle_radius} y2=0 />
-       <circle cx={epicycle_radius} cy=0 r=2 class=planet />{extra}
+       <line x1=0 y1=0 x2={e} y2=0 />
+       <circle cx={e} cy=0 r=2 class=planet />{extra}
       </g>
      </g>
     </g>
    </g>\
 """
         else:
-            extra = f'<circle class=planet cx={r} cy=0 r=2 />'
-
-        # motion_path = (f'M{xp},{yp}'
-        #                f' A {r} {r} 0 0 0 {yp} {-xp}'
-        #                f' A {r} {r} 0 0 0 {-xp} {-yp}'
-        #                f' A {r} {r} 0 0 0 {-yp} {xp}'
-        #                f' A {r} {r} 0 0 0 {xp} {yp}')
+            extra = f'   <circle class=planet cx={r} cy=0 r=2 />'
 
         svg.append(f"""
  <circle class=inside cx=0 cy=0 r={scale(inner)} />
  <line {deferent_tick} />
- <g transform="translate({x0}, {y0})">
+ <g transform="translate({x}, {y})">
   <circle cx=0 cy=0 r={r} />
   <g class="deferent {planet_name}-deferent">
 {extra}
@@ -121,31 +110,22 @@ def main(argv):
 
         styles.append(
             f'.{planet_name}-deferent {{'
-            f'animation-duration: {scale_days(DT):.2f}s; '
+            f'animation-duration: {scale_days(DT)}s; '
             f'animation-name: {planet_name}-deferent'
             '}')
 
+        k = build_keyframes(2, D0, xe, ye)
+        keyframes = '\n'.join('  '+line for line in k)
+
         styles.append(
-            f'@keyframes {planet_name}-deferent {{'
-            f'from {{transform: rotate({D0:.2f}deg)}} '
-            f'to {{transform: rotate({D0 + 360:.2f}deg)}}'
-            '}')
+            f'@keyframes {planet_name}-deferent {{\n'
+            f'{keyframes}\n'
+            ' }')
 
         styles.append(
             f'.{planet_name}-epicycle {{'
-            f'animation-duration: {scale_days(ET):.2f}s;'
+            f'animation-duration: {scale_days(ET)}s;'
             '}')
-
-        #  <path d="{motion_path}" />
-        #k = build_keyframes(3, eccentricity, D0)
-
-        # k = build_keyframes(3, .99, D0)
-        # keyframes = '\n'.join(' '+line for line in k)
-
-        # styles.append(
-        #     f'@keyframes {planet_name}-deferent {{\n'
-        #     f'{keyframes}\n'
-        #     '}')
 
         radius = outer_radius
 
@@ -172,31 +152,32 @@ def main(argv):
     with open('animation-ptolemy-sidereal.html', 'w') as f:
         f.write(content)
 
-def build_keyframes(n, eccentricity, offset):
+def build_keyframes(n, D0, xe, ye):
+    very_worst = 0
     for i in range(n):
-        percent0, percent1 = 100 * i/n, 100 * (i+1)/n
-        c = compute_bezier_that_approximates_equant
-        lon0, lon1, x1, y1, x2, y2 = c(percent0, percent1, eccentricity)
-        yield f'{percent0:.1f}% {{'
-        yield f' transform: rotate({offset - lon0:.1f}deg);'
+        fraction0, fraction1 = i/n, (i+1)/n
+        M = D0 + 360 * np.linspace(fraction0, fraction1)
+        longitude = to_longitude(equant(to_radians(M), xe, ye), M[0])
+        x1, y1, x2, y2, worst = fit_bezier(longitude)
+        very_worst = max(worst, very_worst)
+        yield f'{fraction0 * 100:.1f}% {{'
+        yield f' transform: rotate({longitude[0]:.1f}deg);'
         yield(f' animation-timing-function:'
               f' cubic-bezier({x1:.6f},{y1:.6f},{x2:.6f},{y2:.6f});')
         yield '}'
-    yield f'to {{transform: rotate({offset - 360:.1f}deg);}}'
+    yield f'to {{transform: rotate({longitude[-1]:.1f}deg);}}'
+    print(f'Fit: {very_worst:.4f}°')  # Worst fit, in degrees
 
-def compute_bezier_that_approximates_equant(percent0, percent1, eccentricity):
-    percent = np.linspace(percent0, percent1)
-    lon = to_longitude(equant(percent / 100.0 * tau, eccentricity, 0), 0.0)
-    lon %= 360.0
-    lon0, lon1 = lon[0], lon[-1]
+def fit_bezier(longitude):
+    lon0, lonN = longitude[0], longitude[-1]
     x = np.linspace(0, 1)
-    y = (lon - lon0) / (lon1 - lon0)  # Map longitude to range [0,1]
+    y = (longitude - lon0) / (lonN - lon0)  # Map longitude to range [0,1]
     (x1, y1, x2, y2), variance = curve_fit(
         bezier_interpolated, x, y,
-        [0.5, 0.0, 0.5, 1.0],
-        bounds=[0, 1],
+        [0.5, 0.0, 0.5, 1.0], bounds=[0, 1],
     )
-    return lon0, lon1, x1, y1, x2, y2
+    worst = max(abs(bezier_interpolated(x, x1,y1,x2,y2) - y)) * (lonN - lon0)
+    return x1, y1, x2, y2, worst
 
 def bezier_interpolated(x, x1, y1, x2, y2):
     """Interpolate the value of the given Bezier curve at position ``x``."""
@@ -256,9 +237,6 @@ SVG = """\
 <g transform="translate(%(x)s, %(y)s) scale(1, -1)">
 %(elements)s</g></svg>
 """
-
-# TODO: Control speed of deferent with something like
-# keyTimes="0 ; 1.0" keySplines="0 0.1 0.1 1" calcMode=spline
 
 if __name__ == '__main__':
     main(sys.argv[1:])
