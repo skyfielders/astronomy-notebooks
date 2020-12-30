@@ -14,9 +14,13 @@
   fill: url('#sun-gradient');
   stroke: none;
  }
- .inside {
+ circle.inside {
   border: 5px dotted #a4dded;
   stroke-dasharray: 2,2;
+ }
+ text {
+  font-family: sans-serif;
+  fill: #a4dded;
  }
  .epicycle, .deferent {animation-iteration-count: infinite;}
  .epicycle {animation-timing-function: linear; animation-name: epicycle;}
@@ -123,7 +127,15 @@
   <stop offset=10% stop-color=gold />
   <stop offset=100% stop-color=#ff00 />
  </radialGradient>
+ <path id=Mars-path d="M312.6,228.1 A 84.1 84.1 0 1 1 312.6,404.2" />
+<path id=Jupiter-path d="M310.7,123.1 A 194.7 194.7 0 1 1 310.7,520.6" />
+<path id=Saturn-path d="M320.7,44.30000000000001 A 286.4 286.4 0 1 1 320.7,625.0" />
+
 </defs>
+<text><textPath href="#Mars-path">MARS</textPath></text>
+<text><textPath href="#Jupiter-path">JUPITER</textPath></text>
+<text><textPath href="#Saturn-path">SATURN</textPath></text>
+
 <g transform="translate(320, 320) scale(1, -1)">
 
  <circle class=inside cx=0 cy=0 r=1.2 />

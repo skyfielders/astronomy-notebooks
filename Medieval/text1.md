@@ -23,10 +23,26 @@
   a rotating circle that carries the planet along the deferent.
   An epicycle always rotates at a simple uniform speed.
 
-* There is nothing to dictate the scale of this Solar System.
-  Scaling an orbit to be larger or smaller
-  would still carry its planet along the same path in the sky.
-  Here we take Ptolemy’s position
+* There is nothing to dictate the scale of Ptolemy’s Solar System.
+  Any orbit can be scaled larger or smaller
+  without changing its planet’s path as viewed from Earth,
+  as long as the orbit is large enough
+  that ancient observers would not discern any parallax
+  between observations of a planet from different cities.
+  The orbit sizes shown here are based on several suggestions of Ptolemy,
+  who recognized that orbit sizes are arbitrary but suggested:
+
+  1. The order from lowest to highest sphere
+     is Moon, Mercury, Venus, Sun, Mars, Jupiter, and Saturn.
+
+  2. The orbits are spaced so that the planets can never swap order —
+     for example, Saturn’s orbit must be large enough
+     that its minimum possible apogee
+     is never less than Jupiter’s maximum possible apogee.
+
+  3. But otherwise the orbits are as tightly stacked as possible.
+
+  4. The Moon’s distance from the Earth is 59.7 Earth radii.
 
 * A coincidence:
   Mercury and Venus stay roughly aligned with the Sun

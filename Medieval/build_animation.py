@@ -39,6 +39,8 @@ def main(argv):
         return round(days / DAYS_PER_SECOND, 2)
 
     styles = []
+    defs = []
+    svg_preamble = []
     svg = []
 
     for planet_name, params in zip(planets, parameter_sets):
@@ -61,6 +63,28 @@ def main(argv):
               f'{int(outer_radius * km):11,} km', end='  ')
 
         inner = (1 - eccentricity) * deferent_radius
+
+        x = WIDTH // 2 + scale(xe * deferent_radius)
+        y = HEIGHT // 2 - scale(ye * deferent_radius + deferent_radius)
+        # text = f'<text x={x} y={y} text-anchor=middle>{planet_name}</text>'
+        # svg_preamble.append(text)
+
+        dy = 4
+        y1 = HEIGHT // 2 - scale(ye * deferent_radius + deferent_radius) - dy
+        y2 = HEIGHT // 2 - scale(ye * deferent_radius - deferent_radius) + dy
+        r = scale(deferent_radius)
+
+        if r > 30:
+            defs.append(
+                f'<path id={planet_name}-path'
+                f' d="M{x},{y1} A {r} {r} 0 1 1 {x},{y2}" />\n'
+            )
+
+            svg_preamble.append(
+                f'<text><textPath href="#{planet_name}-path">'
+                f'{planet_name.upper()}</textPath></text>\n'
+                #f'{planet_name.upper()}     105×10⁶ km</textPath></text>\n'
+            )
 
         xp = - inner * xe / eccentricity  # "p": perigee
         yp = - inner * ye / eccentricity
@@ -138,11 +162,13 @@ def main(argv):
     print(f'Outer speed (c): {outer_km_per_s / 299792.458:,.3f}')
 
     body = SVG % dict(
+        defs=''.join(defs),
+        preamble=''.join(svg_preamble),
         elements=''.join(svg),
         width=WIDTH,
         height=HEIGHT,
         x=WIDTH//2,
-        y=WIDTH//2,
+        y=HEIGHT//2,
     )
     content = HTML % dict(
         blue=BLUE,
@@ -210,9 +236,13 @@ HTML = """<html><head>
   fill: url('#sun-gradient');
   stroke: none;
  }
- .inside {
+ circle.inside {
   border: 5px dotted %(blue)s;
   stroke-dasharray: 2,2;
+ }
+ text {
+  font-family: sans-serif;
+  fill: %(blue)s;
  }
  .epicycle, .deferent {animation-iteration-count: infinite;}
  .epicycle {animation-timing-function: linear; animation-name: epicycle;}
@@ -233,7 +263,9 @@ SVG = """\
   <stop offset=10%% stop-color=gold />
   <stop offset=100%% stop-color=#ff00 />
  </radialGradient>
+ %(defs)s
 </defs>
+%(preamble)s
 <g transform="translate(%(x)s, %(y)s) scale(1, -1)">
 %(elements)s</g></svg>
 """
