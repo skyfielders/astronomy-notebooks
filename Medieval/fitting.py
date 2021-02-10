@@ -9,9 +9,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 from collections import defaultdict
-from numpy import arcsin, arctan2, cos, sin, unwrap, sqrt
 from scipy.optimize import curve_fit
-from skyfield.api import load, tau
+from skyfield.api import load
+
+from orbit_math import (equant_and_epicycle, equant_orbit,
+                        to_degrees, to_longitude)
 
 # Several potentially independent parameters in Ptolemy’s model are
 # required to have the same value, and should be given to the solver as
@@ -48,7 +50,7 @@ def main():
         except KeyError:
             planet = ephemeris[planet_name + ' barycenter']
         lat, lon, distance = earth.at(t).observe(planet).ecliptic_latlon()
-        longitude = to_degrees(unwrap(lon.radians))
+        longitude = to_degrees(np.unwrap(lon.radians))
         longitudes.append(longitude)
 
     announce('Generating initial parameter guesses')
@@ -250,42 +252,6 @@ def plot_solution(planet_name, day, longitude, initial_params, fitted_params):
     fig.legend()
     fig.tight_layout()
     fig.savefig(f'solution_{planet_name}.png')
-
-def to_degrees(radians):
-    return radians / tau * 360.0
-
-def to_longitude(xy, D0):
-    # Keep result’s first item to within 180° of D0.
-    x, y = xy
-    longitude = unwrap(arctan2(y, x), axis=0) / tau * 360.0
-    offset = (D0 - longitude[0] + 180.0) // 360.0 * 360.0
-    return offset + longitude
-
-def to_radians(degrees):
-    return degrees / 360.0 * tau
-
-def equant_and_epicycle(t, DT, D0, xe, ye, ET=1, E0=0, Er=0):
-    x1, y1 = equant_orbit(t, DT, D0, xe, ye)
-    x2, y2 = epicycle(t, ET, E0, Er)
-    return x1 + x2, y1 + y2
-
-def equant_orbit(t, DT, D0, xe, ye):
-    M = to_radians(D0) + t / DT * tau
-    x, y = equant(M, xe, ye)
-    return x + xe, y + ye
-
-def equant(M, xe, ye):
-    "M: mean anomaly in radians; xe, ye: location of equant."
-    offset = arctan2(ye, xe)
-    Mo = M - offset
-    e = sqrt(xe*xe + ye*ye)
-    a = Mo - arcsin(e * sin(Mo))
-    a += offset
-    return cos(a), sin(a)
-
-def epicycle(t, ET, E0, Er):
-    E = to_radians(E0) + t / ET * tau
-    return Er * cos(E), Er * sin(E)
 
 if __name__ == '__main__':
     main()

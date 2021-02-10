@@ -3,7 +3,6 @@
 import argparse
 import json
 import numpy as np
-import os
 import sys
 
 planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
@@ -19,7 +18,12 @@ def main(argv):
         with open(path) as f:
             params = json.load(f)
 
-        DT, D0, xe, ye, ET, E0, Er = params
+        if len(params) == 7:
+            DT, D0, xe, ye, ET, E0, Er = params
+        elif len(params) == 4:
+            DT, D0, xe, ye = params
+            Er = 0.0
+
         eccentricity = np.sqrt(xe * xe + ye * ye)
 
         closest = 1.0 - eccentricity - Er

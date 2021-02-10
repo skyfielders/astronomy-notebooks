@@ -4,9 +4,10 @@ import argparse
 import json
 import numpy as np
 import sys
-from fitting import equant, to_longitude, to_radians
 from math import tau
 from scipy.optimize import curve_fit
+
+from orbit_math import equant, to_longitude, to_radians
 
 BLUE = '#a4dded'  # "Non-photo blue"
 DAYS_PER_SECOND = 72
@@ -72,12 +73,14 @@ def main(argv):
         dy = 4
         y1 = HEIGHT // 2 - scale(ye * deferent_radius + deferent_radius) - dy
         y2 = HEIGHT // 2 - scale(ye * deferent_radius - deferent_radius) + dy
-        r = scale(deferent_radius)
+        r = scale(deferent_radius) + dy
+
+        x, y1, y2, r = round(x,2), round(y1,2), round(y2,2), round(r,2)
 
         if r > 30:
             defs.append(
                 f'<path id={planet_name}-path'
-                f' d="M{x},{y1} A {r} {r} 0 1 1 {x},{y2}" />\n'
+                f' d="M{x},{y1} A {r} {r} 0 1 1 {x},{y2}" />'
             )
 
             svg_preamble.append(
@@ -162,7 +165,7 @@ def main(argv):
     print(f'Outer speed (c): {outer_km_per_s / 299792.458:,.3f}')
 
     body = SVG % dict(
-        defs=''.join(defs),
+        defs='\n '.join(defs),
         preamble=''.join(svg_preamble),
         elements=''.join(svg),
         width=WIDTH,
