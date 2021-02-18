@@ -1,0 +1,16 @@
+
+So how massive would the Earth need to be for Saturn to complete its
+orbit once every day?
+
+You have: 4 * pi * pi * (1434e6 km) ** 3 / ((1 day) ** 2 * G)
+You want:
+        Definition: 2.3365441e+38 kg
+
+How many solar masses is that?
+
+You have: 2.3365441e+38 kg / 1.989e30 kg
+You want:
+        Definition: 1.1747331e+08
+
+So about 117 million solar masses, about the size of the black hole at
+the center of Messier 105.

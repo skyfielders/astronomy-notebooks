@@ -1,0 +1,266 @@
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+ circle, line, path {
+  fill: none;
+  stroke: #a4dded;
+  stroke-width: 1.5px;
+ }
+ circle.planet {
+  fill: #000;
+  stroke: none;
+ }
+ circle.sunshine {
+  fill: url('#sun-gradient');
+  stroke: none;
+ }
+ circle.inside {
+  border: 5px dotted #a4dded;
+  stroke-dasharray: 2,2;
+ }
+ text {
+  font-family: sans-serif;
+  fill: #a4dded;
+ }
+ .epicycle, .deferent {animation-iteration-count: infinite;}
+ .epicycle {animation-timing-function: linear; animation-name: epicycle;}
+ @keyframes epicycle {
+  from {transform: rotate(0deg)} to {transform: rotate(360deg)}
+ }
+ .deferent {animation-timing-function: linear;}
+ .Moon-deferent {animation-duration: 0.38s; animation-name: Moon-deferent}
+ @keyframes Moon-deferent {
+  0.0% {
+   transform: rotate(91.5deg);
+   animation-timing-function: cubic-bezier(0.341758,0.341547,0.607801,0.610316);
+  }
+  50.0% {
+   transform: rotate(272.1deg);
+   animation-timing-function: cubic-bezier(0.341784,0.341996,0.607788,0.605256);
+  }
+  to {transform: rotate(451.5deg);}
+ }
+ .Moon-epicycle {animation-duration: 0.01s;}
+ .Mercury-deferent {animation-duration: 5.07s; animation-name: Mercury-deferent}
+ @keyframes Mercury-deferent {
+  0.0% {
+   transform: rotate(278.0deg);
+   animation-timing-function: cubic-bezier(0.428772,0.404461,0.654743,0.645813);
+  }
+  50.0% {
+   transform: rotate(460.8deg);
+   animation-timing-function: cubic-bezier(0.428779,0.453852,0.654767,0.663977);
+  }
+  to {transform: rotate(638.0deg);}
+ }
+ .Mercury-epicycle {animation-duration: 1.22s;}
+ .Venus-deferent {animation-duration: 5.07s; animation-name: Venus-deferent}
+ @keyframes Venus-deferent {
+  0.0% {
+   transform: rotate(279.5deg);
+   animation-timing-function: cubic-bezier(0.418408,0.424412,0.598688,0.603873);
+  }
+  50.0% {
+   transform: rotate(459.4deg);
+   animation-timing-function: cubic-bezier(0.417096,0.411127,0.596704,0.591497);
+  }
+  to {transform: rotate(639.5deg);}
+ }
+ .Venus-epicycle {animation-duration: 3.12s;}
+ .Sun-deferent {animation-duration: 5.07s; animation-name: Sun-deferent}
+ @keyframes Sun-deferent {
+  0.0% {
+   transform: rotate(279.4deg);
+   animation-timing-function: cubic-bezier(0.404390,0.411103,0.583429,0.590880);
+  }
+  50.0% {
+   transform: rotate(459.5deg);
+   animation-timing-function: cubic-bezier(0.406879,0.400104,0.585868,0.578459);
+  }
+  to {transform: rotate(639.4deg);}
+ }
+ .Sun-epicycle {animation-duration: 0.01s;}
+ .Mars-deferent {animation-duration: 9.54s; animation-name: Mars-deferent}
+ @keyframes Mars-deferent {
+  0.0% {
+   transform: rotate(112.7deg);
+   animation-timing-function: cubic-bezier(0.340788,0.330224,0.585765,0.534619);
+  }
+  50.0% {
+   transform: rotate(284.8deg);
+   animation-timing-function: cubic-bezier(0.340788,0.350466,0.585765,0.632618);
+  }
+  to {transform: rotate(472.7deg);}
+ }
+ .Mars-epicycle {animation-duration: 5.07s;}
+ .Jupiter-deferent {animation-duration: 60.15s; animation-name: Jupiter-deferent}
+ @keyframes Jupiter-deferent {
+  0.0% {
+   transform: rotate(336.2deg);
+   animation-timing-function: cubic-bezier(0.343389,0.351710,0.573712,0.598590);
+  }
+  50.0% {
+   transform: rotate(519.2deg);
+   animation-timing-function: cubic-bezier(0.343383,0.334772,0.573710,0.547964);
+  }
+  to {transform: rotate(696.2deg);}
+ }
+ .Jupiter-epicycle {animation-duration: 5.07s;}
+ .Saturn-deferent {animation-duration: 149.85s; animation-name: Saturn-deferent}
+ @keyframes Saturn-deferent {
+  0.0% {
+   transform: rotate(175.3deg);
+   animation-timing-function: cubic-bezier(0.371852,0.387835,0.647365,0.638933);
+  }
+  50.0% {
+   transform: rotate(349.6deg);
+   animation-timing-function: cubic-bezier(0.371804,0.356816,0.647428,0.655336);
+  }
+  to {transform: rotate(535.3deg);}
+ }
+ .Saturn-epicycle {animation-duration: 5.07s;}
+</style></head>
+<body><h1>Ptolemy’s universe, to scale</h1>
+<p>
+  Diagrams of Ptolemy’s epicycles and equants
+  rarely draw them at the correct relative scale.
+  So here they are, animated with accurate parameters
+  derived from the real-world motion of the planets.
+</p>
+<ul>
+  <li>Outer planets «
+  <li><a href="inner-planets.html">Inner Planets</a>
+  <li><a href="notes.html">Notes</a>
+</ul>
+
+<svg version="1.1" width=640 height=640>
+<defs>
+ <radialGradient id="sun-gradient">
+  <stop offset=0% stop-color=#440 />
+  <stop offset=10% stop-color=gold />
+  <stop offset=100% stop-color=#ff00 />
+ </radialGradient>
+ <path id=Mars-path d="M312.6,228.1 A 88.1 88.1 0 1 1 312.6,404.2" />
+ <path id=Jupiter-path d="M310.7,123.1 A 198.7 198.7 0 1 1 310.7,520.6" />
+ <path id=Saturn-path d="M320.7,44.3 A 290.4 290.4 0 1 1 320.7,625.0" />
+</defs>
+<text><textPath href="#Mars-path">MARS</textPath></text>
+<text><textPath href="#Jupiter-path">JUPITER</textPath></text>
+<text><textPath href="#Saturn-path">SATURN</textPath></text>
+
+<g transform="translate(320, 320) scale(1, -1)">
+
+ <circle class=inside cx=0 cy=0 r=1.2 />
+ <line x1=-1.0 y1=0.5 x2=-1.1 y2=0.5 />
+ <g transform="translate(0.0, -0.0)">
+  <circle cx=0 cy=0 r=1.2 />
+  <g class="deferent Moon-deferent">
+   <circle class=planet cx=1.2 cy=0 r=2 />
+  </g>
+ </g>
+
+ <circle class=inside cx=0 cy=0 r=2.0 />
+ <line x1=0.7 y1=1.8 x2=0.8 y2=1.9 />
+ <g transform="translate(-0.0, -0.1)">
+  <circle cx=0 cy=0 r=2.1 />
+  <g class="deferent Mercury-deferent">
+   <g transform="translate(2.1, 0) scale(-1, 1)">
+    <g class="deferent Mercury-deferent">
+     <g transform="scale(-1, 1) rotate(75.63)">
+      <circle cx=0 cy=0 r=0.8 />
+      <g class="epicycle Mercury-epicycle">
+       <line x1=0 y1=0 x2=0.8 y2=0 />
+       <circle cx=0.8 cy=0 r=2 class=planet />
+      </g>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+
+ <circle class=inside cx=0 cy=0 r=11.2 />
+ <line x1=0.8 y1=-10.7 x2=0.9 y2=-11.6 />
+ <g transform="translate(-0.0, 0.1)">
+  <circle cx=0 cy=0 r=11.4 />
+  <g class="deferent Venus-deferent">
+   <g transform="translate(11.4, 0) scale(-1, 1)">
+    <g class="deferent Venus-deferent">
+     <g transform="scale(-1, 1) rotate(272.17)">
+      <circle cx=0 cy=0 r=8.2 />
+      <g class="epicycle Venus-epicycle">
+       <line x1=0 y1=0 x2=8.2 y2=0 />
+       <circle cx=8.2 cy=0 r=2 class=planet />
+      </g>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+
+ <circle class=inside cx=0 cy=0 r=19.7 />
+ <line x1=4.3 y1=-18.5 x2=4.6 y2=-20.0 />
+ <g transform="translate(-0.1, 0.3)">
+  <circle cx=0 cy=0 r=20.1 />
+  <g class="deferent Sun-deferent">
+   <circle class=sunshine cx=20.1 cy=0 r=24 />
+  </g>
+ </g>
+
+ <circle class=inside cx=0 cy=0 r=75.7 />
+ <line x1=64.5 y1=-33.6 x2=69.9 y2=-36.4 />
+ <g transform="translate(-7.4, 3.9)">
+  <circle cx=0 cy=0 r=84.1 />
+  <g class="deferent Mars-deferent">
+   <g transform="translate(84.1, 0) scale(-1, 1)">
+    <g class="deferent Mars-deferent">
+     <g transform="scale(-1, 1) rotate(279.44)">
+      <circle cx=0 cy=0 r=55.3 />
+      <g class="epicycle Mars-epicycle">
+       <line x1=0 y1=0 x2=55.3 y2=0 />
+       <circle cx=55.3 cy=0 r=2 class=planet />
+      </g>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+
+ <circle class=inside cx=0 cy=0 r=185.2 />
+ <line x1=174.5 y1=34.2 x2=189.0 y2=37.0 />
+ <g transform="translate(-9.3, -1.8)">
+  <circle cx=0 cy=0 r=194.7 />
+  <g class="deferent Jupiter-deferent">
+   <g transform="translate(194.7, 0) scale(-1, 1)">
+    <g class="deferent Jupiter-deferent">
+     <g transform="scale(-1, 1) rotate(279.44)">
+      <circle cx=0 cy=0 r=37.4 />
+      <g class="epicycle Jupiter-epicycle">
+       <line x1=0 y1=0 x2=37.4 y2=0 />
+       <circle cx=37.4 cy=0 r=2 class=planet />
+      </g>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+
+ <circle class=inside cx=0 cy=0 r=271.7 />
+ <line x1=-11.8 y1=260.6 x2=-12.7 y2=282.3 />
+ <g transform="translate(0.7, -14.6)">
+  <circle cx=0 cy=0 r=286.4 />
+  <g class="deferent Saturn-deferent">
+   <g transform="translate(286.4, 0) scale(-1, 1)">
+    <g class="deferent Saturn-deferent">
+     <g transform="scale(-1, 1) rotate(279.44)">
+      <circle cx=0 cy=0 r=30.0 />
+      <g class="epicycle Saturn-epicycle">
+       <line x1=0 y1=0 x2=30.0 y2=0 />
+       <circle cx=30.0 cy=0 r=2 class=planet />
+      </g>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+</g></svg>
+</body></html>

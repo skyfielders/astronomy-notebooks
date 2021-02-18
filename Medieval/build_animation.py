@@ -13,16 +13,14 @@ BLUE = '#a4dded'  # "Non-photo blue"
 DAYS_PER_SECOND = 72
 EARTH_RADIUS_KM = 6378.1366
 WIDTH, HEIGHT = 640, 640
-planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
+MOON_ORBIT_RADIUS = 59.7  # Ptolemy’s estimate of Moon distance, in Earth radii
 
-SCALE = 50.0
-#SCALE = 10.0
+planets = 'Moon Mercury Venus Sun Mars Jupiter Saturn'.split()
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Write animated SVG.')
     parser.parse_args(argv)
 
-    radius = 59.7  # Ptolemy’s estimate of Moon’s distance in Earth radii
     parameter_sets = []
 
     for planet_name in planets:
@@ -33,8 +31,22 @@ def main(argv):
         print(' '.join(f'{p:9.3f}' for p in params))
         parameter_sets.append(params)
 
+    with open('texts.html') as f:
+        texts = f.read()
+
+    texts = ['<h1>' + text for text in texts.split('<h1>')[1:]]
+    names = ['index.html', 'inner-planets.html', 'notes.html']
+
+    for name, text in zip(names, texts):
+        if name != 'notes.html':
+            scale_factor = 5.0 if 'inner' in name else 50.0
+            text = render(scale_factor, parameter_sets, text)
+        with open(name, 'w') as f:
+            f.write(text)
+
+def render(scale_factor, parameter_sets, text):
     def scale(n):
-        return round(n / SCALE, 1)
+        return round(n / scale_factor, 1)
 
     def scale_days(days):
         return round(days / DAYS_PER_SECOND, 2)
@@ -43,6 +55,8 @@ def main(argv):
     defs = []
     svg_preamble = []
     svg = []
+
+    radius = MOON_ORBIT_RADIUS
 
     for planet_name, params in zip(planets, parameter_sets):
         if len(params) == 4:
@@ -164,7 +178,7 @@ def main(argv):
     print(f'Outer speed (m/s): {outer_km_per_s * 1e3:,.2f}')
     print(f'Outer speed (c): {outer_km_per_s / 299792.458:,.3f}')
 
-    body = SVG % dict(
+    svg = SVG % dict(
         defs='\n '.join(defs),
         preamble=''.join(svg_preamble),
         elements=''.join(svg),
@@ -175,11 +189,11 @@ def main(argv):
     )
     content = HTML % dict(
         blue=BLUE,
-        body=body,
+        svg=svg,
         styles='\n '.join(styles),
+        text=text,
     )
-    with open('animation-ptolemy-sidereal.html', 'w') as f:
-        f.write(content)
+    return content
 
 def build_keyframes(n, D0, xe, ye):
     very_worst = 0
@@ -255,7 +269,7 @@ HTML = """<html><head>
  .deferent {animation-timing-function: linear;}
  %(styles)s
 </style></head>
-<body>%(body)s</body></html>
+<body>%(text)s%(svg)s</body></html>
 """
 
 SVG = """\
