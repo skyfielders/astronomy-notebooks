@@ -243,13 +243,25 @@ def bezier(t, x1, y1, x2, y2):
             b * y1 + c * y2 + d)
 
 HTML = """<html><head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
  h1, p, ul {
-  max-width: 36em;
+  max-width: 28em;
   font-family: Arial;
   font-size: 14pt;
   line-height: 1.25;
+ }
+ li {
+  margin-top: 1em;
+  margin-bottom: 1em;
+ }
+ ul.nav {
+  list-style-type: '» ';
+ }
+ ul.nav > li {
+  margin-top: 0em;
+  margin-bottom: 0em;
  }
  circle, line, path {
   fill: none;

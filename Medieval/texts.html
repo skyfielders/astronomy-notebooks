@@ -1,38 +1,38 @@
-<h1>Ptolemy’s universe, to scale</h1>
+<h1>Ptolemy’s cosmos, to scale</h1>
 <p>
   Diagrams of Ptolemy’s epicycles and equants
   rarely show their correct relative scale.
   So here they are, animated with accurate parameters
   derived from the real-world motion of the planets.
 </p>
-<ul>
+<ul class="nav">
   <li>Outer planets «
   <li><a href="inner-planets.html">Inner Planets</a>
   <li><a href="notes.html">Notes</a>
 </ul>
 
-<h1>Ptolemy’s universe, to scale</h1>
+<h1>Ptolemy’s cosmos, to scale</h1>
 <p>
   Diagrams of Ptolemy’s epicycles and equants
   rarely show their correct relative scale.
   So here they are, animated with accurate parameters
   derived from the real-world motion of the planets.
 </p>
-<ul>
+<ul class="nav">
   <li><a href=".">Outer planets</a>
   <li>Inner Planets «
   <li><a href="notes.html">Notes</a>
 </ul>
 
-<h1>Ptolemy’s universe, to scale</h1>
+<h1>Ptolemy’s cosmos, to scale</h1>
 <p>
   Diagrams of Ptolemy’s epicycles and equants
   rarely show their correct relative scale.
   So the “Outer planets” and “Inner planets” pages of this site
   show accurate animations of his system,
-  with parameters derived from the real-world motion of the planets.
+  with parameters derived from the real-world motion of the planets:
 </p>
-<ul>
+<ul class="nav">
   <li><a href=".">Outer planets</a>
   <li><a href="inner-planets.html">Inner Planets</a>
   <li>Notes «
@@ -42,94 +42,195 @@
 </p>
 <ul>
   <li>
-    The Earth is at the center.
+    You can find the Python script used
+    to generate the epicycle and equant parameters
+    and produce these SVG diagrams
+    <a href="https://github.com/skyfielders/astronomy-notebooks/tree/master/Medieval">on GitHub</a>.
 
   <li>
-    To establish a visual foundation for each orbit’s relationship to Earth,
-    I’ve drawn a circle with a dotted line
-    that’s centered perfectly on the Earth.
-    The Earth is down at the center
-    of all the concentric dotted-line circles.
+    The Earth is at each diagram’s center.
 
   <li>
-    Next comes the deferent:
-    the larger solid circle that’s *not* centered perfectly on the Earth,
-    making the planet vary in distance as it moves.
-    A short tick mark shows where the two circles touch,
-    at the point where the deferent is closest to the Earth.
-    Motion along the deferent is not uniform,
-    but faster close to the Earth and slower as the planet draws away.
-    (Actually, motion along the deferent does look uniform
-    when viewed from one special location: the “equant”,
-    a point over on the other side of the deferent’s center from the Earth.)
+    The dotted circles are exactly concentric
+    and are all centered on the Earth.
+    They each show the path that their planet would take
+    if its orbit had zero eccentricity.
+
+  <li>
+    But planet orbits are eccentric.
+    So instead of moving along the dotted circle,
+    each planet moves along the corresponding solid circle,
+    which is called the planet’s <i>deferent</i>.
+    The deferent is closest to Earth where it touches the dotted circle
+    (the point is marked with a short line)
+    and furthest from Earth on the opposite side.
+
+  <li>
+    Motion along the deferent is not uniform:
+    each planet moves fastest when close to the Earth
+    and slower when farther away.
+    The motion would only look uniform
+    if viewed from the planet’s <i>equant,</i>
+    an invisible point
+    on the opposite side of the deferent’s center
+    from the Earth.
+    (Neither the deferents’ centers nor the equants are shown in the diagram,
+    as they would create a small crowded forest of dots down around the Earth
+    that would be visually difficult to associate with the correct planets.)
 
   <li>
     The Sun’s motion is simplest.
     It travels directly along its deferent.
 
   <li>
-    The motion of each other planet is complicated by an *epicycle:*
-    a rotating circle that carries the planet along the deferent.
-    An epicycle always rotates at a simple uniform speed.
+    The motion of every other planet is complicated by an <i>epicycle:</i>
+    a circle whose center travels along the deferent.
+    The planet itself revolves around the circumference of the epicycle
+    at a simple uniform speed.
 
   <li>
-    There is nothing to dictate the scale of Ptolemy’s universe.
-    Any orbit can be scaled larger or smaller
-    without changing its planet’s path as viewed from Earth,
-    as long as the orbit is large enough
-    that ancient observers would not discern any parallax
-    between observations of a planet from different cities.
-    The orbit sizes shown here are based on several suggestions of Ptolemy,
-    who recognized that orbit sizes are arbitrary but suggested:
-
-    1. The order from lowest to highest sphere
-       is Moon, Mercury, Venus, Sun, Mars, Jupiter, and Saturn.
-
-    2. The orbits are spaced so that the planets can never swap order —
-       for example, Saturn’s orbit must be large enough
-       that its minimum possible apogee
-       is never less than Jupiter’s maximum possible apogee.
-
-    3. But otherwise the orbits are as tightly stacked as possible.
-
-    4. The Moon’s distance from the Earth is 59.7 Earth radii.
+    Ptolemy used ancient and contemporary observations
+    to determine the eccentricity of each equant
+    and the size of each planet’s epicycle compared to its deferent.
+    The parameters in these diagrams are instead generated
+    by taking a modern NASA ephemeris of planetary positions
+    and running a SciPy optimizer against them
+    to find a best fit for each parameter.
 
   <li>
-    A coincidence:
-    Mercury and Venus stay roughly aligned with the Sun
-    instead of traveling independently along their deferents
-    like the outer planets.
-    Only their epicycles give them temporary visits to either side of the Sun,
-    alternately into the morning sky and the evening sky.
+    One crucial parameter for each orbit is still undetermined
+    even after all the other numbers have been fixed:
+    how big is the orbit?
+    There is nothing about a deferent and epicycle
+    that fixes their size —
+    even if, for example, you doubled the size of Saturn’s deferent,
+    you could still make Saturn trace exactly the right path in the sky
+    by doubling the size of its epicycle to match.
+    So Ptolemy suggested several restrictions
+    that together provide a possible scale for the cosmos:
+
+    <ol>
+      <li>
+        The distance to the Moon’s orbit was known:
+        the Greeks estimated it to be 59.7 Earth radii.
+
+      <li>
+        Ptolemy chose an order in which to place the planets above the Moon.
+        First he listed Mercury and Venus,
+        that never stray far from the Sun;
+        then the Sun itself;
+        and then the outer planets
+        from fastest to slowest: Mars, Jupiter, and Saturn.
+
+      <li>
+        Next, Ptolemy reasoned that the orbits must be far enough apart
+        that the epicycles never collide —
+        for example, Saturn’s orbit must be large enough
+        to keep its epicycle from ever overlapping with that of Jupiter.
+
+      <li>
+        Suspecting that the cosmos would not include
+        large yawning gulfs that served no purpose,
+        he finished by suggesting that the planet orbits
+        would otherwise be stacked as tightly as possible.
+    </ol>
+
+    The diagrams here impose exactly these conditions,
+    resulting in a maximum height for the outermost planet Saturn
+    of 16,551 Earth radii —
+    above which must stand the outer edge of the cosmos,
+    the sphere of the fixed stars.
+    Ptolemy’s own estimate
+    was that the cosmos was 20,000 Earth radii across,
+    so the parameters computed here
+    have permitted a slightly tighter packing than those of Ptolemy.
 
   <li>
-    Another coincidence:
-    the epicycles of the outer planets not only have periods of one solar year,
-    but always point the same direction as the Sun!
-    Not precisely, because the Sun’s equant gives it non-uniform speed
-    whereas the epicycles have perfectly uniform rotation —
-    but the match is still very close.
-    So every one of the five lesser planets
-    have some component of its motion
-    that takes 365 days to complete, just like the Sun.
+    As you watch the planets move,
+    you will notice two coincidences
+    which proved momentous for the future of Western science.
+
+    <ol>
+      <li>
+        <i>Coincidence #1:</i>
+        The center of Mercury’s epicycle and Venus’s epicycle
+        are always roughly aligned with the Sun.
+        If the Earth is the center of planetary motion,
+        why aren’t Mercury and Venus free to move independently of the Sun,
+        like the outer planets?
+
+      <li>
+        <i>Coincidence #2:</i>
+        The epicycles of Mars, Jupiter, and Saturn
+        all exactly the same periods: one solar year.
+
+      <li>
+        <i>Coincidence #3:</i>
+        The epicycles of Mars, Jupiter, and Saturn
+        always point in nearly the same direction
+        as a line connecting the Earth and Sun.
+        If the Earth is the only center of planetary motion,
+        why is every outer planet copying the Sun’s motion?
+
+    </ol>
+
+    More than a thousand years later,
+    these coincidences drove a Polish scientist named Copernicus
+    to famously suggest an alternative to Ptolemy’s system,
+    as described in my 2013
+    <a href="https://rhodesmill.org/brandon/talks/#copernican-keynote">Keynote
+      talk at DjangoCon Europe</a> in Warsaw.
 
   <li>
-    These coincidences deeply bothered Copernicus,
-    so he gave the Earth an orbit of its own around the Sun —
-    which instantly replaced the deferents of Mercury and Venus
-    and the epicycles and Mars, Jupiter, and Saturn
-    with the single orbit of the Earth.
-    It also explained why they had always pointed in the same direction.
-    This theory had a nearly fatal flaw:
-    we can neither feel ourselves slinging around as the Earth rotates,
-    nor feel the even vaster speed at which the Earth revolves around the Sun;
-    but in the long run that wound up getting explained.
+    The model illustrated in the diagrams
+    involve three simplifications of Ptolemy’s real model:
+
+    <ol>
+      <li>
+        The diagram ignores inclination
+        and pretends that all the planets orbit in exactly the same plane.
+        This seemed reasonable for a two-dimensional diagram
+        which would have trouble depicting inclination angles anyway.
+
+      <li>
+        The diagram makes the Sun’s deferent
+        symmetric with those of the other planets:
+        the Earth and the equant sit across each other,
+        on opposite sides of the deferent’s center.
+        Ptolemy instead deferred
+        to the model of his predecessor Hipparchus,
+        and had the Sun revolve at uniform speed
+        around the center of the deferent,
+        which requires the Earth to sit about twice as far
+        from the deferent’s center.
+
+      <li>
+        The orbit of Mercury is built from a deferent with equant
+        and a single epicycle,
+        which only provides a good fit over a period of decades.
+        But Ptolemy had access to Babylonian astronomy records and,
+        to fit Mercury’s motion over that longer period of time,
+        had to give Mercury two epicycles,
+        one riding on the other!
+        The model here is lacking this last bit of complexity.
+
+    </ol>
+
+  <li>
+    I am unlikely to fiddle with this diagram further,
+    despite the clear opportunity to fix
+    the second and third inaccuracies listed above.
+    If the project interests anyone else, though,
+    I would welcome discussion on
+    <a href="https://github.com/skyfielders/astronomy-notebooks/tree/master/Medieval">GitHub repository</a>
+    where the code for this diagram lives.
 
   <li>
     In early drafts of this page
     I kept referring to the model
-    as “Ptolemy’s Solar System” —
-    but it’s not in any sense a “solar” system,
-    because the Sun is not at its center.
+    as “Ptolemy’s Solar System”
+    but I have revised that language,
+    as it’s not in any sense a “solar” system —
+    the Sun isn’t at its center.
 
 </ul>

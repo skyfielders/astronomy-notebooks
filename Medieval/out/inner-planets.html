@@ -1,11 +1,23 @@
 <html><head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
  h1, p, ul {
-  max-width: 36em;
+  max-width: 28em;
   font-family: Arial;
   font-size: 14pt;
   line-height: 1.25;
+ }
+ li {
+  margin-top: 1em;
+  margin-bottom: 1em;
+ }
+ ul.nav {
+  list-style-type: '» ';
+ }
+ ul.nav > li {
+  margin-top: 0em;
+  margin-bottom: 0em;
  }
  circle, line, path {
   fill: none;
@@ -126,14 +138,14 @@
  }
  .Saturn-epicycle {animation-duration: 5.07s;}
 </style></head>
-<body><h1>Ptolemy’s universe, to scale</h1>
+<body><h1>Ptolemy’s cosmos, to scale</h1>
 <p>
   Diagrams of Ptolemy’s epicycles and equants
   rarely show their correct relative scale.
   So here they are, animated with accurate parameters
   derived from the real-world motion of the planets.
 </p>
-<ul>
+<ul class="nav">
   <li><a href=".">Outer planets</a>
   <li>Inner Planets «
   <li><a href="notes.html">Notes</a>
