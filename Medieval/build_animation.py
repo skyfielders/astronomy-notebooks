@@ -39,7 +39,7 @@ def main(argv):
 
     for name, text in zip(names, texts):
         if name != 'notes.html':
-            scale_factor = 5.0 if 'inner' in name else 50.0
+            scale_factor = 4.0 if 'inner' in name else 50.0
             styles, svg, text = render(scale_factor, parameter_sets, text)
         else:
             styles = svg = ''
@@ -100,6 +100,10 @@ def render(scale_factor, parameter_sets, text):
         r = scale(deferent_radius) + dy
 
         x, y1, y2, r = round(x,2), round(y1,2), round(y2,2), round(r,2)
+
+        if scale(inner) > WIDTH and scale(inner) > HEIGHT:
+            print('DONE')
+            break
 
         if r > 30:
             defs.append(

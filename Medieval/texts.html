@@ -6,7 +6,7 @@
   derived from the real-world motion of the planets.
 </p>
 <ul class="nav">
-  <li>Outer planets «
+  <li>Whole cosmos «
   <li><a href="inner-planets.html">Inner Planets</a>
   <li><a href="notes.html">Notes</a>
 </ul>
@@ -19,7 +19,7 @@
   derived from the real-world motion of the planets.
 </p>
 <ul class="nav">
-  <li><a href=".">Outer planets</a>
+  <li><a href=".">Whole cosmos</a>
   <li>Inner Planets «
   <li><a href="notes.html">Notes</a>
 </ul>
@@ -28,12 +28,12 @@
 <p>
   Diagrams of Ptolemy’s epicycles and equants
   rarely show their correct relative scale.
-  So the “Outer planets” and “Inner planets” pages of this site
+  So the “Whole cosmos” and “Inner planets” pages of this site
   show accurate animations of his system,
   with parameters derived from the real-world motion of the planets:
 </p>
 <ul class="nav">
-  <li><a href=".">Outer planets</a>
+  <li><a href=".">Whole cosmos</a>
   <li><a href="inner-planets.html">Inner Planets</a>
   <li>Notes «
 </ul>
@@ -42,8 +42,12 @@
 </p>
 <ul>
   <li>
+    They’re built by me,
+    <a href="https://rhodesmill.org/brandon/">Brandon Rhodes</a>.
+
+  <li>
     You can find the Python script used
-    to generate the epicycle and equant parameters
+    to generate the cosmic parameters
     and produce these SVG diagrams
     <a href="https://github.com/skyfielders/astronomy-notebooks/tree/master/Medieval">on GitHub</a>.
 
@@ -62,17 +66,18 @@
     each planet moves along the corresponding solid circle,
     which is called the planet’s <i>deferent</i>.
     The deferent is closest to Earth where it touches the dotted circle
-    (the point is marked with a short line)
+    (the point is marked with a short tick mark)
     and furthest from Earth on the opposite side.
 
   <li>
-    Motion along the deferent is not uniform:
-    each planet moves fastest when close to the Earth
-    and slower when farther away.
-    The motion would only look uniform
-    if viewed from the planet’s <i>equant,</i>
+    Motion along the deferent is not uniform
+    if viewed from the Earth:
+    each planet moves faster when close to the Earth
+    and slower when far away.
+    The motion is only uniform
+    when viewed from the planet’s <i>equant,</i>
     an invisible point
-    on the opposite side of the deferent’s center
+    over on the opposite side of the deferent’s center
     from the Earth.
     (Neither the deferents’ centers nor the equants are shown in the diagram,
     as they would create a small crowded forest of dots down around the Earth
@@ -162,7 +167,8 @@
       <li>
         <i>Coincidence #2:</i>
         The epicycles of Mars, Jupiter, and Saturn
-        all exactly the same periods: one solar year.
+        all have exactly the same period,
+        one solar year.
 
       <li>
         <i>Coincidence #3:</i>
@@ -183,7 +189,7 @@
 
   <li>
     The model illustrated in the diagrams
-    involve three simplifications of Ptolemy’s real model:
+    is very slightly simpler than Ptolemy’s real model:
 
     <ol>
       <li>
@@ -194,26 +200,21 @@
 
       <li>
         The diagram makes the Sun’s deferent
-        symmetric with those of the other planets:
-        the Earth and the equant sit across each other,
-        on opposite sides of the deferent’s center.
+        symmetric with those of the other planets
+        by giving it an equant.
         Ptolemy instead deferred
-        to the model of his predecessor Hipparchus,
-        and had the Sun revolve at uniform speed
-        around the center of the deferent,
-        which requires the Earth to sit about twice as far
-        from the deferent’s center.
+        to the model of his predecessor Hipparchus
+        and had the Sun rotate uniformly around its deferent’s center,
+        moving the Earth twice
+        as far away from the deferent center to compensate.
 
       <li>
-        The orbit of Mercury is built from a deferent with equant
-        and a single epicycle,
-        which only provides a good fit over a period of decades.
-        But Ptolemy had access to Babylonian astronomy records and,
-        to fit Mercury’s motion over that longer period of time,
-        had to give Mercury two epicycles,
-        one riding on the other!
-        The model here is lacking this last bit of complexity.
-
+        The orbit of Mercury here uses only a single epicycle,
+        while Ptolemy used two.
+        The parameters used here are fit over only a few decades,
+        whereas Ptolemy had access to Babylonian astronomy records
+        and needed a more complicated orbital model
+        to fit Mercury’s motion over that longer period of time.
     </ol>
 
   <li>
@@ -233,4 +234,9 @@
     as it’s not in any sense a “solar” system —
     the Sun isn’t at its center.
 
-</ul>
+  <li>
+    Bibliography:
+    <ul>
+      <li><a href="http://farside.ph.utexas.edu/Books/Syntaxis/Almagest.pdf">A Modern Almagest</a>
+      <li><a href="http://www.pitt.edu/~brg/papers.html">Astronomical and Astrological Themes from Antiquity to Early Modern Times</a>
+      <li><a href="https://www.jstor.org/stable/284353?seq=1">Ptolemy's Use of His Predecessors' Data</a>
