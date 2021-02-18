@@ -40,9 +40,19 @@ def main(argv):
     for name, text in zip(names, texts):
         if name != 'notes.html':
             scale_factor = 5.0 if 'inner' in name else 50.0
-            text = render(scale_factor, parameter_sets, text)
-        with open(name, 'w') as f:
-            f.write(text)
+            styles, svg, text = render(scale_factor, parameter_sets, text)
+        else:
+            styles = svg = ''
+
+        html = HTML % dict(
+            blue=BLUE,
+            svg=svg,
+            styles='\n '.join(styles),
+            text=text,
+        )
+
+        with open('out/' + name, 'w') as f:
+            f.write(html)
 
 def render(scale_factor, parameter_sets, text):
     def scale(n):
@@ -187,13 +197,8 @@ def render(scale_factor, parameter_sets, text):
         x=WIDTH//2,
         y=HEIGHT//2,
     )
-    content = HTML % dict(
-        blue=BLUE,
-        svg=svg,
-        styles='\n '.join(styles),
-        text=text,
-    )
-    return content
+
+    return styles, svg, text
 
 def build_keyframes(n, D0, xe, ye):
     very_worst = 0
@@ -240,6 +245,12 @@ def bezier(t, x1, y1, x2, y2):
 HTML = """<html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+ h1, p, ul {
+  max-width: 36em;
+  font-family: Arial;
+  font-size: 14pt;
+  line-height: 1.25;
+ }
  circle, line, path {
   fill: none;
   stroke: %(blue)s;

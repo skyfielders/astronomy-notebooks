@@ -1,30 +1,42 @@
-<h1>Ptolemy’s universe, to scale</h1>
-<p>
-  Diagrams of Ptolemy’s epicycles and equants
-  rarely show their correct relative scale.
-  So here they are, animated with accurate parameters
-  derived from the real-world motion of the planets.
-</p>
-<ul>
-  <li>Outer planets «
-  <li><a href="inner-planets.html">Inner Planets</a>
-  <li><a href="notes.html">Notes</a>
-</ul>
-
-<h1>Ptolemy’s universe, to scale</h1>
-<p>
-  Diagrams of Ptolemy’s epicycles and equants
-  rarely show their correct relative scale.
-  So here they are, animated with accurate parameters
-  derived from the real-world motion of the planets.
-</p>
-<ul>
-  <li><a href=".">Outer planets</a>
-  <li>Inner Planets «
-  <li><a href="notes.html">Notes</a>
-</ul>
-
-<h1>Ptolemy’s universe, to scale</h1>
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+ h1, p, ul {
+  max-width: 36em;
+  font-family: Arial;
+  font-size: 14pt;
+  line-height: 1.25;
+ }
+ circle, line, path {
+  fill: none;
+  stroke: #a4dded;
+  stroke-width: 1.5px;
+ }
+ circle.planet {
+  fill: #000;
+  stroke: none;
+ }
+ circle.sunshine {
+  fill: url('#sun-gradient');
+  stroke: none;
+ }
+ circle.inside {
+  border: 5px dotted #a4dded;
+  stroke-dasharray: 2,2;
+ }
+ text {
+  font-family: sans-serif;
+  fill: #a4dded;
+ }
+ .epicycle, .deferent {animation-iteration-count: infinite;}
+ .epicycle {animation-timing-function: linear; animation-name: epicycle;}
+ @keyframes epicycle {
+  from {transform: rotate(0deg)} to {transform: rotate(360deg)}
+ }
+ .deferent {animation-timing-function: linear;}
+ 
+</style></head>
+<body><h1>Ptolemy’s universe, to scale</h1>
 <p>
   Diagrams of Ptolemy’s epicycles and equants
   rarely show their correct relative scale.
@@ -133,3 +145,4 @@
     because the Sun is not at its center.
 
 </ul>
+</body></html>

@@ -1,6 +1,12 @@
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+ h1, p, ul {
+  max-width: 36em;
+  font-family: Arial;
+  font-size: 14pt;
+  line-height: 1.25;
+ }
  circle, line, path {
   fill: none;
   stroke: #a4dded;
@@ -123,13 +129,13 @@
 <body><h1>Ptolemy’s universe, to scale</h1>
 <p>
   Diagrams of Ptolemy’s epicycles and equants
-  rarely draw them at the correct relative scale.
+  rarely show their correct relative scale.
   So here they are, animated with accurate parameters
   derived from the real-world motion of the planets.
 </p>
 <ul>
-  <li><a href=".">Outer planets</a>
-  <li>Inner Planets «
+  <li>Outer planets «
+  <li><a href="inner-planets.html">Inner Planets</a>
   <li><a href="notes.html">Notes</a>
 </ul>
 
@@ -140,41 +146,37 @@
   <stop offset=10% stop-color=gold />
   <stop offset=100% stop-color=#ff00 />
  </radialGradient>
- <path id=Venus-path d="M319.9,200.7 A 117.8 117.8 0 1 1 319.9,436.3" />
- <path id=Sun-path d="M319.2,111.9 A 204.8 204.8 0 1 1 319.2,521.6" />
- <path id=Mars-path d="M245.9,-563.5 A 844.9 844.9 0 1 1 245.9,1126.3" />
- <path id=Jupiter-path d="M226.5,-1613.0 A 1951.3 1951.3 0 1 1 226.5,2289.6" />
- <path id=Saturn-path d="M326.6,-2401.2 A 2867.7 2867.7 0 1 1 326.6,3334.1" />
+ <path id=Mars-path d="M312.6,228.1 A 88.1 88.1 0 1 1 312.6,404.2" />
+ <path id=Jupiter-path d="M310.7,123.1 A 198.7 198.7 0 1 1 310.7,520.6" />
+ <path id=Saturn-path d="M320.7,44.3 A 290.4 290.4 0 1 1 320.7,625.0" />
 </defs>
-<text><textPath href="#Venus-path">VENUS</textPath></text>
-<text><textPath href="#Sun-path">SUN</textPath></text>
 <text><textPath href="#Mars-path">MARS</textPath></text>
 <text><textPath href="#Jupiter-path">JUPITER</textPath></text>
 <text><textPath href="#Saturn-path">SATURN</textPath></text>
 
 <g transform="translate(320, 320) scale(1, -1)">
 
- <circle class=inside cx=0 cy=0 r=11.9 />
- <line x1=-10.3 y1=5.0 x2=-11.2 y2=5.4 />
- <g transform="translate(0.1, -0.0)">
-  <circle cx=0 cy=0 r=12.0 />
+ <circle class=inside cx=0 cy=0 r=1.2 />
+ <line x1=-1.0 y1=0.5 x2=-1.1 y2=0.5 />
+ <g transform="translate(0.0, -0.0)">
+  <circle cx=0 cy=0 r=1.2 />
   <g class="deferent Moon-deferent">
-   <circle class=planet cx=12.0 cy=0 r=2 />
+   <circle class=planet cx=1.2 cy=0 r=2 />
   </g>
  </g>
 
- <circle class=inside cx=0 cy=0 r=20.1 />
- <line x1=7.0 y1=17.9 x2=7.6 y2=19.4 />
- <g transform="translate(-0.4, -0.9)">
-  <circle cx=0 cy=0 r=21.1 />
+ <circle class=inside cx=0 cy=0 r=2.0 />
+ <line x1=0.7 y1=1.8 x2=0.8 y2=1.9 />
+ <g transform="translate(-0.0, -0.1)">
+  <circle cx=0 cy=0 r=2.1 />
   <g class="deferent Mercury-deferent">
-   <g transform="translate(21.1, 0) scale(-1, 1)">
+   <g transform="translate(2.1, 0) scale(-1, 1)">
     <g class="deferent Mercury-deferent">
      <g transform="scale(-1, 1) rotate(75.63)">
-      <circle cx=0 cy=0 r=8.0 />
+      <circle cx=0 cy=0 r=0.8 />
       <g class="epicycle Mercury-epicycle">
-       <line x1=0 y1=0 x2=8.0 y2=0 />
-       <circle cx=8.0 cy=0 r=2 class=planet />
+       <line x1=0 y1=0 x2=0.8 y2=0 />
+       <circle cx=0.8 cy=0 r=2 class=planet />
       </g>
      </g>
     </g>
@@ -182,18 +184,18 @@
   </g>
  </g>
 
- <circle class=inside cx=0 cy=0 r=112.3 />
- <line x1=8.4 y1=-107.4 x2=9.1 y2=-116.4 />
- <g transform="translate(-0.1, 1.5)">
-  <circle cx=0 cy=0 r=113.8 />
+ <circle class=inside cx=0 cy=0 r=11.2 />
+ <line x1=0.8 y1=-10.7 x2=0.9 y2=-11.6 />
+ <g transform="translate(-0.0, 0.1)">
+  <circle cx=0 cy=0 r=11.4 />
   <g class="deferent Venus-deferent">
-   <g transform="translate(113.8, 0) scale(-1, 1)">
+   <g transform="translate(11.4, 0) scale(-1, 1)">
     <g class="deferent Venus-deferent">
      <g transform="scale(-1, 1) rotate(272.17)">
-      <circle cx=0 cy=0 r=82.2 />
+      <circle cx=0 cy=0 r=8.2 />
       <g class="epicycle Venus-epicycle">
-       <line x1=0 y1=0 x2=82.2 y2=0 />
-       <circle cx=82.2 cy=0 r=2 class=planet />
+       <line x1=0 y1=0 x2=8.2 y2=0 />
+       <circle cx=8.2 cy=0 r=2 class=planet />
       </g>
      </g>
     </g>
@@ -201,27 +203,27 @@
   </g>
  </g>
 
- <circle class=inside cx=0 cy=0 r=197.5 />
- <line x1=42.6 y1=-184.7 x2=46.2 y2=-200.1 />
- <g transform="translate(-0.8, 3.3)">
-  <circle cx=0 cy=0 r=200.8 />
+ <circle class=inside cx=0 cy=0 r=19.7 />
+ <line x1=4.3 y1=-18.5 x2=4.6 y2=-20.0 />
+ <g transform="translate(-0.1, 0.3)">
+  <circle cx=0 cy=0 r=20.1 />
   <g class="deferent Sun-deferent">
-   <circle class=sunshine cx=200.8 cy=0 r=24 />
+   <circle class=sunshine cx=20.1 cy=0 r=24 />
   </g>
  </g>
 
- <circle class=inside cx=0 cy=0 r=757.3 />
- <line x1=644.8 y1=-335.8 x2=698.5 y2=-363.8 />
- <g transform="translate(-74.1, 38.6)">
-  <circle cx=0 cy=0 r=840.9 />
+ <circle class=inside cx=0 cy=0 r=75.7 />
+ <line x1=64.5 y1=-33.6 x2=69.9 y2=-36.4 />
+ <g transform="translate(-7.4, 3.9)">
+  <circle cx=0 cy=0 r=84.1 />
   <g class="deferent Mars-deferent">
-   <g transform="translate(840.9, 0) scale(-1, 1)">
+   <g transform="translate(84.1, 0) scale(-1, 1)">
     <g class="deferent Mars-deferent">
      <g transform="scale(-1, 1) rotate(279.44)">
-      <circle cx=0 cy=0 r=553.1 />
+      <circle cx=0 cy=0 r=55.3 />
       <g class="epicycle Mars-epicycle">
-       <line x1=0 y1=0 x2=553.1 y2=0 />
-       <circle cx=553.1 cy=0 r=2 class=planet />
+       <line x1=0 y1=0 x2=55.3 y2=0 />
+       <circle cx=55.3 cy=0 r=2 class=planet />
       </g>
      </g>
     </g>
@@ -229,18 +231,18 @@
   </g>
  </g>
 
- <circle class=inside cx=0 cy=0 r=1852.0 />
- <line x1=1744.8 y1=341.7 x2=1890.2 y2=370.2 />
- <g transform="translate(-93.5, -18.3)">
-  <circle cx=0 cy=0 r=1947.3 />
+ <circle class=inside cx=0 cy=0 r=185.2 />
+ <line x1=174.5 y1=34.2 x2=189.0 y2=37.0 />
+ <g transform="translate(-9.3, -1.8)">
+  <circle cx=0 cy=0 r=194.7 />
   <g class="deferent Jupiter-deferent">
-   <g transform="translate(1947.3, 0) scale(-1, 1)">
+   <g transform="translate(194.7, 0) scale(-1, 1)">
     <g class="deferent Jupiter-deferent">
      <g transform="scale(-1, 1) rotate(279.44)">
-      <circle cx=0 cy=0 r=374.5 />
+      <circle cx=0 cy=0 r=37.4 />
       <g class="epicycle Jupiter-epicycle">
-       <line x1=0 y1=0 x2=374.5 y2=0 />
-       <circle cx=374.5 cy=0 r=2 class=planet />
+       <line x1=0 y1=0 x2=37.4 y2=0 />
+       <circle cx=37.4 cy=0 r=2 class=planet />
       </g>
      </g>
     </g>
@@ -248,18 +250,18 @@
   </g>
  </g>
 
- <circle class=inside cx=0 cy=0 r=2717.1 />
- <line x1=-117.7 y1=2605.7 x2=-127.5 y2=2822.9 />
- <g transform="translate(6.6, -146.4)">
-  <circle cx=0 cy=0 r=2863.7 />
+ <circle class=inside cx=0 cy=0 r=271.7 />
+ <line x1=-11.8 y1=260.6 x2=-12.7 y2=282.3 />
+ <g transform="translate(0.7, -14.6)">
+  <circle cx=0 cy=0 r=286.4 />
   <g class="deferent Saturn-deferent">
-   <g transform="translate(2863.7, 0) scale(-1, 1)">
+   <g transform="translate(286.4, 0) scale(-1, 1)">
     <g class="deferent Saturn-deferent">
      <g transform="scale(-1, 1) rotate(279.44)">
-      <circle cx=0 cy=0 r=300.1 />
+      <circle cx=0 cy=0 r=30.0 />
       <g class="epicycle Saturn-epicycle">
-       <line x1=0 y1=0 x2=300.1 y2=0 />
-       <circle cx=300.1 cy=0 r=2 class=planet />
+       <line x1=0 y1=0 x2=30.0 y2=0 />
+       <circle cx=30.0 cy=0 r=2 class=planet />
       </g>
      </g>
     </g>
