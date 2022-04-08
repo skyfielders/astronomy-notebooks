@@ -1,4 +1,4 @@
-ipython==7.14.0
+ipython==7.16.3
 jplephem==2.14
 jupyter==1.0.0
 matplotlib==3.2.1
