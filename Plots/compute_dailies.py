@@ -9,9 +9,11 @@ for name in names:
 d = pd.concat(frames)
 d['date'] = d['Time (UTC)'].str[:10]
 d['F'] = d['Temperature (degrees F)']
-d = d.groupby('date')['F'].max()  # high temperature for each date
+d = d[d['F'] != 200.0]           # 200°F maybe means thermometer is at max?
 
-d = d.reset_index()             # restore 'date' column
+d = d.groupby('date')['F'].max() # high temperature for each date
+d = d.reset_index()              # restore 'date' column
+
 d['date'] = d['date'].str[5:]   # remove year from dates
 d = d.groupby('date').mean()
 
